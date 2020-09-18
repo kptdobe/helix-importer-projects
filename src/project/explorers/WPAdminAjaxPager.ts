@@ -36,7 +36,7 @@ export class WPAdminAjaxPager extends PagingExplorer {
     return fetch(api);
   }
 
-  process(document: Document): Array<Object> {
+  process(document: Document, all: any[]): Array<Object> {
     const entries = [];
     document.querySelectorAll('.card-item').forEach((el) => {
       const link = el.querySelector('h4 a');
@@ -45,10 +45,12 @@ export class WPAdminAjaxPager extends PagingExplorer {
       const entryDate = el.querySelector('.date');
       const date = entryDate.textContent.trim();
     
-      entries.push({
-        date,
-        url
-      });
+      if (all.findIndex((entry) => entry.url === url) === -1) {
+        entries.push({
+          date,
+          url
+        });
+      }
     });
     return entries;
   }

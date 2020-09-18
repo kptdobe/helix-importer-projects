@@ -26,7 +26,7 @@ export class WPContentPager extends PagingExplorer {
     return fetch(api);
   }
 
-  process(document: Document): Array<Object> {
+  process(document: Document, all: any[]): Array<Object> {
     const entries = [];
     document.querySelectorAll('.content .entry, .entries .entry').forEach((el) => {
       const link = el.querySelector('h2 a');
@@ -39,10 +39,12 @@ export class WPContentPager extends PagingExplorer {
           date = entryDate.textContent.trim();
         }
 
-        entries.push({
-          date,
-          url
-        });
+        if (all.findIndex((entry) => entry.url === url) === -1) {
+          entries.push({
+            date,
+            url
+          });
+        }
       }
     });
     return entries;

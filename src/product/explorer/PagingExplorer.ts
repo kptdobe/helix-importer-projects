@@ -36,7 +36,7 @@ export abstract class PagingExplorer implements Explorer {
         if (text) {
           const { document } = (new JSDOM(text)).window;
   
-          const entries = this.process(document);
+          const entries = this.process(document, results);
           
           if (entries && entries.length > 0) {
             results = results.concat(entries);
@@ -62,5 +62,5 @@ export abstract class PagingExplorer implements Explorer {
   }
 
   abstract async fetch(page: Number): Promise<Response>;
-  abstract process(document: Document): Object[];
+  abstract process(document: Document, entries: Object[]): Object[];
 }

@@ -26,7 +26,7 @@ export class WPPostWrapPager extends PagingExplorer {
     return fetch(api);
   }
 
-  process(document: Document): Array<Object> {
+  process(document: Document, all: any[]): Array<Object> {
     const entries = [];
     document.querySelectorAll('.post-meta-wrap').forEach((el) => {
           
@@ -36,10 +36,13 @@ export class WPPostWrapPager extends PagingExplorer {
       const entryDate = el.querySelector('.post-date');
       const date = entryDate.textContent.trim();
 
-      entries.push({
-        date,
-        url
-      });
+      if (all.findIndex((entry) => entry.url === url) === -1) {
+        entries.push({
+          date,
+          url
+        });
+      } else {
+      }
     });
     return entries;
   }

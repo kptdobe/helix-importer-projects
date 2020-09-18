@@ -153,5 +153,42 @@ describe('PagingExplorer tests', () => {
     ], 'result is correct');
   });
 
+  it('process receives the entry set from previous pages', async () => {
+    let fetchCalled = 0;
+    class Test extends PagingExplorer {
+      async fetch(page: Number): Promise<Response> {
+        fetchCalled++;
+        return new Response(`<html>
+          <body>
+            <a href="a${fetchCalled}.html">a${fetchCalled}</a>
+            <a href="b${fetchCalled}.html">b${fetchCalled}</a>
+            <a href="c${fetchCalled}.html">c${fetchCalled}</a>
+          </body
+        </html>`);
+      }
+
+      process(document: Document, all: any): Object[] {
+        const testResult = [];
+        for(let i=1; i < fetchCalled; i++) {
+          testResult.push({ link: `a${i}.html` })
+          testResult.push({ link: `b${i}.html` })
+          testResult.push({ link: `c${i}.html` })
+        }
+        deepStrictEqual(all, testResult, 'all entries argument contains previous entries from previous pages');
+
+        const entries = [];
+        document.querySelectorAll('a').forEach((el) => {
+          entries.push({
+            link: el.getAttribute('href')
+          });
+        });
+        return entries;
+      }
+    };
+
+    const se = new Test(params);
+    await se.explore();
+  });
+
 });
 
