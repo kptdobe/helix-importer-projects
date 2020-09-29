@@ -10,16 +10,21 @@
  * governing permissions and limitations under the License.
  */
 
-import { Response } from 'node-fetch';
-import { Document } from 'jsdom';
+/* tslint:disable: no-console */
 
-export default interface Explorer {
-  explore(): Promise<Object[]>;
-  fetch(page: Number): Promise<Response>;
-  process(document: Document, entries: Object[]): Object[];
+import { WPContentPager } from './WPContentPager';
+import { WPPostWrapPager } from './WPPostWrapPager';
 
+async function main() {
+  const pager = new WPContentPager({
+    nbMaxPages: 2,
+    url: 'https://blogs.adobe.com/japan/creativecloud/'
+  });
+  const entries = await pager.explore();
+  console.log(`Received ${entries.length}} entries!`);
+  entries.forEach((e: any) => {
+    console.log(e.url);
+  });
 }
 
-export interface ExplorerParams {
-  url: string;
-}
+main();

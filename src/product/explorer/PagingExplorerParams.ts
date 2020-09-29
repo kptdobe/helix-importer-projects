@@ -10,16 +10,9 @@
  * governing permissions and limitations under the License.
  */
 
-import { Response } from 'node-fetch';
-import { Document } from 'jsdom';
+import { ExplorerParams } from "./Explorer";
 
-export default interface Explorer {
-  explore(): Promise<Object[]>;
-  fetch(page: Number): Promise<Response>;
-  process(document: Document, entries: Object[]): Object[];
-
-}
-
-export interface ExplorerParams {
+export default class PagingExplorerParams implements ExplorerParams {
+  nbMaxPages: number;
   url: string;
 }

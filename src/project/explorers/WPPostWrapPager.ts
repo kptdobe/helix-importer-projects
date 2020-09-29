@@ -9,10 +9,9 @@
  * OF ANY KIND, either express or implied. See the License for the specific language
  * governing permissions and limitations under the License.
  */
-/* eslint-disable no-console */
-/* eslint-disable no-await-in-loop */
+/* tslint:disable: no-console */
 
-import { PagingExplorer } from '../../product/explorer/PagingExplorer';
+import PagingExplorer from '../../product/explorer/PagingExplorer';
 
 import fetch from 'node-fetch';
 import { Response } from 'node-fetch';
@@ -21,15 +20,14 @@ import { Document } from 'jsdom';
 const API = 'page/';
 
 export class WPPostWrapPager extends PagingExplorer {
-  async fetch(page: Number): Promise<Response> {
+  async fetch(page: number): Promise<Response> {
     const api = `${this.params.url}${API}${page}`;
     return fetch(api);
   }
 
-  process(document: Document, all: any[]): Array<Object> {
+  process(document: Document, all: any[]): object[] {
     const entries = [];
     document.querySelectorAll('.post-meta-wrap').forEach((el) => {
-          
       const link = el.querySelector('.post-item > a');
       const url = link.getAttribute('href');
 
@@ -41,7 +39,6 @@ export class WPPostWrapPager extends PagingExplorer {
           date,
           url
         });
-      } else {
       }
     });
     return entries;

@@ -9,12 +9,12 @@
  * OF ANY KIND, either express or implied. See the License for the specific language
  * governing permissions and limitations under the License.
  */
-/* eslint-disable no-console */
-/* eslint-disable no-await-in-loop */
 
-import { PagingExplorer } from '../../product/explorer/PagingExplorer';
+/* tslint:disable: no-console */
 
-import * as FormData from 'form-data';
+import PagingExplorer from '../../product/explorer/PagingExplorer';
+
+import FormData from 'form-data';
 import fetch from 'node-fetch';
 import { Response } from 'node-fetch';
 import { Document } from 'jsdom';
@@ -22,21 +22,19 @@ import { Document } from 'jsdom';
 const API = 'wp-admin/admin-ajax.php';
 
 export class WPAdminAjaxPager extends PagingExplorer {
-  async fetch(page: Number): Promise<Response> {
+  async fetch(page: number): Promise<Response> {
     const api = `${this.params.url}${API}`;
     const form = new FormData();
     form.append('action', 'cardsFilter');
     form.append('filterBy', 'latest');
     form.append('paged', `${page}`);
-    return fetch(api, { 
-        method: 'POST',
-        body: form
-      });
-
-    return fetch(api);
+    return fetch(api, {
+      method: 'POST',
+      body: form
+    });
   }
 
-  process(document: Document, all: any[]): Array<Object> {
+  process(document: Document, all: any[]): object[] {
     const entries = [];
     document.querySelectorAll('.card-item').forEach((el) => {
       const link = el.querySelector('h4 a');
@@ -44,7 +42,7 @@ export class WPAdminAjaxPager extends PagingExplorer {
 
       const entryDate = el.querySelector('.date');
       const date = entryDate.textContent.trim();
-    
+
       if (all.findIndex((entry) => entry.url === url) === -1) {
         entries.push({
           date,
