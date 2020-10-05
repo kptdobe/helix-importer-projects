@@ -1,7 +1,7 @@
 /* tslint:disable: max-classes-per-file */
 
-import PagingExplorer from "../src/product/explorer/PagingExplorer";
-import PagingExplorerParams from "../src/product/explorer/PagingExplorerParams";
+import PagingExplorer from "../../src/product/explorer/PagingExplorer";
+import PagingExplorerParams from "../../src/product/explorer/PagingExplorerParams";
 
 import { deepStrictEqual, strictEqual } from 'assert';
 import { describe, it } from "mocha";

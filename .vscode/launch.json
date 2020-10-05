@@ -5,8 +5,18 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Launch Program",
-      "program": "${workspaceFolder}/src/index.ts",
+      "name": "Adobe Life",
+      "program": "${workspaceFolder}/src/project/importers/index.ts",
+      "request": "launch",
+      "skipFiles": [
+        "<node_internals>/**"
+      ],
+      "type": "node",
+      "preLaunchTask": "tsc: build - tsconfig.json",
+      "outFiles": ["${workspaceFolder}/build/**/*.js"]
+    },{
+      "name": "Debug",
+      "program": "${workspaceFolder}/src/project/importers/debug.ts",
       "request": "launch",
       "skipFiles": [
         "<node_internals>/**"
