@@ -4,9 +4,20 @@
   // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
   "version": "0.2.0",
   "configurations": [
+
     {
-      "name": "Adobe Life",
-      "program": "${workspaceFolder}/src/project/importers/index.ts",
+      "name": "Adobe Life: import",
+      "program": "${workspaceFolder}/src/project/adobelife/import.ts",
+      "request": "launch",
+      "skipFiles": [
+        "<node_internals>/**"
+      ],
+      "type": "node",
+      "preLaunchTask": "tsc: build - tsconfig.json",
+      "outFiles": ["${workspaceFolder}/build/**/*.js"]
+    },{
+      "name": "Adobe Life: explore",
+      "program": "${workspaceFolder}/src/project/adobelife/explore.ts",
       "request": "launch",
       "skipFiles": [
         "<node_internals>/**"
@@ -41,15 +52,5 @@
       "console": "integratedTerminal",
       "internalConsoleOptions": "neverOpen",
       "protocol": "inspector"
-  },
-    {
-      "type": "node",
-      "request": "launch",
-      "name": "Scrap",
-      "skipFiles": [
-        "<node_internals>/**"
-      ],
-      "program": "${workspaceFolder}/src/scrap.js"
-    }
-  ]
+  }]
 }

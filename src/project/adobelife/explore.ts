@@ -12,19 +12,22 @@
 
 /* tslint:disable: no-console */
 
-import { WPContentPager } from './WPContentPager';
-import { WPPostWrapPager } from './WPPostWrapPager';
+import { WPAdminAjaxPager } from '../explorers/WPAdminAjaxPager';
+import FSHandler from '../../product/storage/FSHandler';
+
+import CSV from '../../product/utils/CSV';
 
 async function main() {
-  const pager = new WPContentPager({
-    nbMaxPages: 2,
-    url: 'https://blogs.adobe.com/japan/creativecloud/'
+  const handler = new FSHandler('output/adobelife', console);
+  const pager = new WPAdminAjaxPager({
+    nbMaxPages: 3,
+    url: 'https://blogs.adobe.com/adobelife/'
   });
   const entries = await pager.explore();
-  console.log(`Received ${entries.length}} entries!`);
-  entries.forEach((e: any) => {
-    console.log(e.url);
-  });
+  console.log(`Received ${entries.length} entries!`);
+
+  const csv = CSV.toCSV(entries);
+  await handler.put('explorer_result.csv', csv);
 }
 
 main();

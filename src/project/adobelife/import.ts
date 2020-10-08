@@ -16,23 +16,29 @@ import FSHandler from '../../product/storage/FSHandler';
 import { BlobHandler } from '@adobe/helix-documents-support';
 
 import { config } from 'dotenv';
+import CSV from '../../product/utils/CSV';
+import Utils from '../../product/utils/Utils';
 
 config();
 
 async function main() {
   const handler = new FSHandler('output/adobelife', console);
-  const importer = new AdobeLifeImporter({
-    // url: 'https://blogs.adobe.com/adobelife/2020/08/26/how-to-build-a-designed-alliance/',
-    // url: 'https://blogs.adobe.com/adobelife/2019/11/27/adobe-france-create-change/',
-    url: 'https://blogs.adobe.com/adobelife/2020/08/31/parth-gupta/',
-    storageHandler: handler,
-    blobHandler: new BlobHandler({
-      azureBlobSAS: process.env.AZURE_BLOB_SAS,
-      azureBlobURI: process.env.AZURE_BLOB_URI
-    })
+  const blob = new BlobHandler({
+    azureBlobSAS: process.env.AZURE_BLOB_SAS,
+    azureBlobURI: process.env.AZURE_BLOB_URI
   });
-  importer.import();
 
+  const csv = await handler.get('explorer_result.csv');
+  const entries = CSV.toArray(csv.toString());
+
+  const importer = new AdobeLifeImporter({
+    storageHandler: handler,
+    blobHandler: blob
+  });
+
+  Utils.asyncForEach(entries, async (e) => {
+    await importer.import(e.url);
+  });
 }
 
 main();

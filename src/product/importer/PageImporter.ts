@@ -211,14 +211,14 @@ export default abstract class PageImporter implements Importer {
       .forEach((tag) => DOMUtils.reviewInlineElement(document, tag));
   }
 
-  async import() {
+  async import(url: string) {
     const startTime = new Date().getTime();
 
-    const res = await this.fetch(this.params.url);
+    const res = await this.fetch(url);
 
     if (!res.ok) {
-      console.error(`${this.params.url}: Invalid response`, res);
-      throw new Error(`${this.params.url}: Invalid response - ${res.statusText}`)
+      console.error(`${url}: Invalid response`, res);
+      throw new Error(`${url}: Invalid response - ${res.statusText}`)
     } else {
       const text = await res.text();
 
@@ -226,20 +226,20 @@ export default abstract class PageImporter implements Importer {
         const { document } = (new JSDOM(text)).window;
 
         this.preProcess(document)
-        const entries = this.process(document);
+        const entries = this.process(document, url);
 
-        Utils.asyncForEach(entries, async (entry) => {
-          this.createMarkdownFile(entry);
+        await Utils.asyncForEach(entries, async (entry) => {
+          await this.createMarkdownFile(entry);
         });
       }
     }
 
     console.log();
-    console.log(`${this.params.url}: Process took ${(new Date().getTime() - startTime) / 1000}s.`);
+    console.log(`${url}: Process took ${(new Date().getTime() - startTime) / 1000}s.`);
 
     // return results;
   }
 
   abstract async fetch(url: string): Promise<Response>;
-  abstract process(document: Document): PageImporterResource[];
+  abstract process(document: Document, url: string): PageImporterResource[];
 }

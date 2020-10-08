@@ -38,7 +38,7 @@ export default class AdobeLifeImporter extends PageImporter {
     });
   }
 
-  process(document: Document): PageImporterResource[] {
+  process(document: Document, url: string): PageImporterResource[] {
 
     const main = document.querySelector('.content-area');
 
@@ -99,7 +99,7 @@ export default class AdobeLifeImporter extends PageImporter {
       <p>Products:</p>
     `));
 
-    const p = path.parse(new URL(this.params.url).pathname);
+    const p = path.parse(new URL(url).pathname);
     const pir = new PageImporterResource(p.name, folderDate, main, null);
 
     return [pir];

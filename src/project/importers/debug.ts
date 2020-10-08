@@ -20,11 +20,12 @@ config();
 async function main() {
   const blobHandler = new BlobHandler({
     azureBlobSAS: process.env.AZURE_BLOB_SAS,
-    azureBlobURI: process.env.AZURE_BLOB_URI
+    azureBlobURI: process.env.AZURE_BLOB_URI,
+    namePrefix: 'alexistesting_',
   });
 
-  const b1 = await blobHandler.getBlob('https://blogsimages.adobe.com/adobelife/files/2020/08/ParthG-Interns.jpeg');
-  console.log(b1.uri);
+  // await blobHandler.getBlob('https://blogsimages.adobe.com/adobelife/files/2020/07/SeanD-MBAInternSummit-Social.jpeg');
+  await blobHandler.getBlob('https://blogs.adobe.com/adobelife/files/2020/08/Intern-Insider-Tong-Manuel-Social.jpg');
 }
 
 main();
