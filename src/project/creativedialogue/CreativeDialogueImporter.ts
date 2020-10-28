@@ -21,8 +21,8 @@ import { Response } from 'node-fetch';
 import { JSDOM, Document } from 'jsdom';
 import DOMUtils from '../../product/utils/DOMUtils';
 
-const DEFAULT_TOPIC = 'Adobe Life';
-const DEFAULT_AUTHOR = 'Adobe Life Team';
+const DEFAULT_TOPIC = 'Creative Dialogue';
+const DEFAULT_AUTHOR = 'Adobe Korea';
 
 export default class AdobeLifeImporter extends PageImporter {
   async fetch(url): Promise<Response> {
@@ -32,9 +32,14 @@ export default class AdobeLifeImporter extends PageImporter {
   replaceEmbeds(document: Document) {
     document.querySelectorAll('iframe').forEach((iframe) => {
       if (iframe.src) {
-        iframe.after(JSDOM.fragment(`<hlxembed>${iframe.src}</hlxembed>`))
+        iframe.after(JSDOM.fragment(`<hlxembed>${iframe.src}</hlxembed>`));
       }
       iframe.remove();
+    });
+
+    document.querySelectorAll('video').forEach((video) => {
+      const anim = JSDOM.fragment(`<table><tr><th>Animation</th></tr><tr><td>${video.outerHTML}</td></tr></table>`);
+      video.replaceWith(anim);
     });
   }
 
@@ -50,67 +55,87 @@ export default class AdobeLifeImporter extends PageImporter {
 
   process(document: Document, url: string): PageImporterResource[] {
 
-    const main = document.querySelector('.content-area');
+    const main = document.querySelector('main');
 
     DOMUtils.remove(main, [
-      '.sticky-footer',
-      '.articles-section',
-      '.content-description',
-      '.heading-line'
+      '.post_navigation',
+      '#discussion',
+      '#comments',
+      '.content > .post_categories'
     ]);
 
     // embeds
     this.replaceEmbeds(main);
     this.replaceCaptions(main, ['.wp-caption-text']);
 
-    // headings
-    let hero = document.querySelector('.hero-article');
+    const heading = main.querySelector('.content h1');
+    heading.after(JSDOM.fragment('<hr>'));
 
-    if (!hero) {
-      hero = document.querySelector('.heading-container').nextElementSibling;
-    }
+    const hero = main.querySelector('.post_image');
 
-    // convert hero background image
-    if (hero.dataset.interchange) {
-      const img = hero.dataset.interchange.match(/\[([^,]+), \w+\]$/)[1];
+    // convert hero data-size image
+    if (hero && hero.dataset) {
+      const img = hero.dataset['size-6'] || hero.dataset['size-5'] || hero.dataset['size-4'] || hero.dataset['size-3'] || hero.dataset['size-2'] || hero.dataset['size-1'];
       if (img) {
         // add img as DOM element
         hero.append(JSDOM.fragment(`<img src="${img.replace(/url\((.*)\)/, '$1')}">`));
       }
     }
 
-    // organise first part
-    const headingContainer = document.querySelector('.heading-container');
-
-    hero.parentNode.insertBefore(headingContainer, hero);
-    hero.before(JSDOM.fragment('<hr>'));
-
     // date
-    const dateContainer = document.querySelector('.heading-container .heading p');
+    const dateContainer = document.querySelector('.author .author_date');
     let folderDate = '';
     let authoredDate = '';
     if (dateContainer) {
-      const d = moment(dateContainer.textContent, 'MMM DD, YYYY');
+      const d = moment(dateContainer.textContent, 'MM-DD-YYYY');
       folderDate = d.format('YYYY/MM/DD');
       authoredDate = d.format('MM-DD-YYYY');
       dateContainer.remove();
     }
 
-    // author and date
-    hero.after(JSDOM.fragment('<hr>'));
-    hero.after(JSDOM.fragment(`<p>by ${DEFAULT_AUTHOR}</p><p>Posted on ${authoredDate}</p>`));
-    hero.after(JSDOM.fragment('<hr>'));
+    const content = main.querySelector('.post_content');
 
-    // topic
-    const tag = document.querySelector('.heading-container h2 a');
-    const mainTopic = tag ? tag.textContent.trim() : '';
-    tag.parentNode.remove();
+    // // author and date
+    content.before(JSDOM.fragment('<hr>'));
+    content.before(JSDOM.fragment(`<p>by ${DEFAULT_AUTHOR}</p><p>Posted on ${authoredDate}</p>`));
+    content.before(JSDOM.fragment('<hr>'));
+
+    // topics / products
+    const topics = [];
+    const products = [];
+    const cats = document.querySelectorAll('.post_categories a');
+    cats.forEach((cat) => {
+      topics.push(cat.textContent.trim());
+    });
+
+    const tags = document.querySelectorAll('.post_tags a');
+    tags.forEach((tag) => {
+      const t = tag.textContent.trim().replace(/\s\(.*\)/gm, '');
+      products.push(t);
+    });
 
     main.appendChild(JSDOM.fragment(`
       <hr>
-      <p>Topics: ${mainTopic}, ${DEFAULT_TOPIC}</p>
-      <p>Products:</p>
+      <p>Topics: ${topics.join(', ')}, ${DEFAULT_TOPIC}</p>
+      <p>Products: ${products.join(', ')}</p>
     `));
+
+    // final cleanup
+    DOMUtils.remove(main, [
+      '.author',
+      '.post_categories',
+      '.post_tags'
+    ]);
+
+    // convert h4 -> h2
+    main.querySelectorAll('h4').forEach((h) => {
+      h.replaceWith(JSDOM.fragment(`<h2>${h.textContent}</h2>`));
+    });
+
+    // convert h5 -> h3
+    main.querySelectorAll('h5').forEach((h) => {
+      h.replaceWith(JSDOM.fragment(`<h3>${h.textContent}</h3>`));
+    });
 
     const p = path.parse(new URL(url).pathname);
     const pir = new PageImporterResource(p.name, folderDate, main, null);

@@ -197,6 +197,8 @@ export default abstract class PageImporter implements Importer {
 
     await this.params.storageHandler.put(p, contents);
     this.logger.log(`MD file created: ${p}`);
+
+    return p;
   }
 
   cleanup(document: Document) {
@@ -216,6 +218,7 @@ export default abstract class PageImporter implements Importer {
 
     const res = await this.fetch(url);
 
+    const results = [];
     if (!res.ok) {
       console.error(`${url}: Invalid response`, res);
       throw new Error(`${url}: Invalid response - ${res.statusText}`)
@@ -229,7 +232,8 @@ export default abstract class PageImporter implements Importer {
         const entries = this.process(document, url);
 
         await Utils.asyncForEach(entries, async (entry) => {
-          await this.createMarkdownFile(entry);
+          const file = await this.createMarkdownFile(entry);
+          results.push(file);
         });
       }
     }
@@ -237,7 +241,7 @@ export default abstract class PageImporter implements Importer {
     console.log();
     console.log(`${url}: Process took ${(new Date().getTime() - startTime) / 1000}s.`);
 
-    // return results;
+    return results;
   }
 
   abstract async fetch(url: string): Promise<Response>;

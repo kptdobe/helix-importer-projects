@@ -10,23 +10,24 @@
  * governing permissions and limitations under the License.
  */
 
+/* tslint:disable: no-console */
 
-import { BlobHandler } from '@adobe/helix-documents-support';
+import { WPContentPager } from '../explorers/WPContentPager';
+import FSHandler from '../../product/storage/FSHandler';
 
-import { config } from 'dotenv';
-
-config();
+import CSV from '../../product/utils/CSV';
 
 async function main() {
-  const blobHandler = new BlobHandler({
-    azureBlobSAS: process.env.AZURE_BLOB_SAS,
-    azureBlobURI: process.env.AZURE_BLOB_URI,
-    namePrefix: 'alextesting_',
+  const handler = new FSHandler('output/creativedialogue', console);
+  const pager = new WPContentPager({
+    nbMaxPages: 1000,
+    url: 'https://blogs.adobe.com/creativedialogue/'
   });
+  const entries = await pager.explore();
+  console.log(`Received ${entries.length} entries!`);
 
-  await blobHandler.getBlob('https://blogsimages.adobe.com/adobelife/files/2020/07/SeanD-MBAInternSummit-Social.jpeg');
-  await blobHandler.getBlob('https://blogs.adobe.com/adobelife/files/2020/08/Intern-Insider-Tong-Manuel-Social.jpg');
-  await blobHandler.getBlob('https://hatrabbits.com/wp-content/uploads/2017/01/random.jpg');
+  const csv = CSV.toCSV(entries);
+  await handler.put('explorer_result_full.csv', csv);
 }
 
 main();

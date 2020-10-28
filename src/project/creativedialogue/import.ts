@@ -10,7 +10,7 @@
  * governing permissions and limitations under the License.
  */
 
-import AdobeLifeImporter from './AdobeLifeImporter';
+import CreativeDialogueImporter from './CreativeDialogueImporter';
 import FSHandler from '../../product/storage/FSHandler';
 
 import { BlobHandler } from '@adobe/helix-documents-support';
@@ -19,31 +19,44 @@ import { config } from 'dotenv';
 import CSV from '../../product/utils/CSV';
 import Utils from '../../product/utils/Utils';
 
+// tslint:disable: no-console
+
 config();
 
 async function main() {
-  const handler = new FSHandler('output/adobelife', console);
+  const handler = new FSHandler('output/creativedialogue', console);
+  // tslint:disable-next-line: no-empty
+  const noop = () => {};
   const blob = new BlobHandler({
     azureBlobSAS: process.env.AZURE_BLOB_SAS,
-    azureBlobURI: process.env.AZURE_BLOB_URI
+    azureBlobURI: process.env.AZURE_BLOB_URI,
+    log: {
+      debug: noop,
+      info: noop,
+      warn: noop,
+      error: () => console.error(...arguments)
+    }
   });
 
   const csv = await handler.get('explorer_result.csv');
   const entries = CSV.toArray(csv.toString());
 
-  const importer = new AdobeLifeImporter({
+  const importer = new CreativeDialogueImporter({
     storageHandler: handler,
     blobHandler: blob
   });
 
-  let output = '';
+  const results = [];
+
   Utils.asyncForEach(entries, async (e) => {
     const files = await importer.import(e.url);
     files.forEach((f) => {
-      output += `${e.url};${f};\n`;
-    });
-    await handler.put('importer_output.csv', output)
+      console.log(`${e.url} -> ${f}`);
+    })
   });
+  console.log('Done');
+
+  // await importer.import(entries[11].url);
 }
 
 main();
