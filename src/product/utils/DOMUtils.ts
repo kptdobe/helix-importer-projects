@@ -11,7 +11,6 @@
  */
 
 import { JSDOM, Document } from 'jsdom';
-import fetch from 'node-fetch';
 
 export default class DOMUtils {
   static reviewInlineElement(document: Document, tagName: string) {
@@ -20,31 +19,37 @@ export default class DOMUtils {
     const tags = [...document.querySelectorAll(tagName)];
     for (let i = tags.length - 1; i >= 0; i -= 1) {
       const tag = tags[i];
-      let innerHTML = tag.innerHTML;
-      if (tag.previousSibling) {
-        const $previousSibling = tag.previousSibling;
-        if (
-          tag.previousSibling.tagName &&
-          tag.previousSibling.tagName.toLowerCase() === tagName &&
-          (!tag.previousSibling.href ||
-            tag.previousSibling.href === tag.href
-          )) {
-          // previous sibling is an <tag>, merge current one inside the previous one
-          $previousSibling.append(innerHTML);
-          tag.remove();
-        }
+      if (tag.textContent === '') {
+        tag.remove();
+      } else if (tag.innerHTML === '&nbsp;') {
+          tag.replaceWith(JSDOM.fragment(' '));
       } else {
-        if (innerHTML) {
-          if (innerHTML.lastIndexOf(' ') === innerHTML.length - 1) {
-            // move trailing space to a new text node outside of current element
-            innerHTML = tag.innerHTML = innerHTML.slice(0, innerHTML.length - 1);
-            tag.after(JSDOM.fragment('<span> </span>'));
+        let innerHTML = tag.innerHTML;
+        if (tag.previousSibling) {
+          const $previousSibling = tag.previousSibling;
+          if (
+            tag.previousSibling.tagName &&
+            tag.previousSibling.tagName.toLowerCase() === tagName &&
+            (!tag.previousSibling.href ||
+              tag.previousSibling.href === tag.href
+            )) {
+            // previous sibling is an <tag>, merge current one inside the previous one
+            $previousSibling.append(innerHTML);
+            tag.remove();
           }
+        } else {
+          if (innerHTML) {
+            if (innerHTML.lastIndexOf(' ') === innerHTML.length - 1) {
+              // move trailing space to a new text node outside of current element
+              innerHTML = tag.innerHTML = innerHTML.slice(0, innerHTML.length - 1);
+              tag.after(JSDOM.fragment('<span> </span>'));
+            }
 
-          if (innerHTML.indexOf(' ') === 0) {
-            // move leading space to a new text node outside of current element
-            tag.innerHTML = innerHTML.slice(1);
-            tag.before(JSDOM.fragment('<span> </span>'));
+            if (innerHTML.indexOf(' ') === 0) {
+              // move leading space to a new text node outside of current element
+              tag.innerHTML = innerHTML.slice(1);
+              tag.before(JSDOM.fragment('<span> </span>'));
+            }
           }
         }
       }

@@ -116,7 +116,7 @@ export default class AdobeLifeImporter extends PageImporter {
 
     main.appendChild(JSDOM.fragment(`
       <hr>
-      <p>Topics: ${topics.join(', ')}, ${DEFAULT_TOPIC}</p>
+      <p>Topics: ${topics.length > 0 ? topics.join(', ') + ', ' : ''}${DEFAULT_TOPIC}</p>
       <p>Products: ${products.join(', ')}</p>
     `));
 

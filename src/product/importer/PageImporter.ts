@@ -101,7 +101,7 @@ export default abstract class PageImporter implements Importer {
     const imgs = document.querySelectorAll('img');
     if (imgs && imgs.length > 0) {
       await Utils.asyncForEach(imgs, async (img, index) => {
-        const src = img.src;
+        const src = decodeURI(img.src);
         const isEmbed = img.classList.contains('hlx-embed');
         if (!isEmbed && src && src !== '' && contents.indexOf(src) !== -1) {
           let newSrc = '';
@@ -130,7 +130,7 @@ export default abstract class PageImporter implements Importer {
               // use direct url
               let blob;
               try {
-                blob = await this.params.blobHandler.getBlob(encodeURI(src));
+                blob = await this.params.blobHandler.getBlob(src);
               } catch (error) {
                 // ignore non exiting images, otherwise throw an error
                 if (error.message.indexOf('StatusCodeError: 404') === -1) {
@@ -209,11 +209,11 @@ export default abstract class PageImporter implements Importer {
 
   preProcess(document: Document) {
     this.cleanup(document);
-    ['a', 'b', 'big', 'code', 'em', 'i', 'label', 's', 'small', 'span', 'strong', 'sub', 'sup', 'u', 'var']
+    ['b', 'a', 'big', 'code', 'em', 'i', 'label', 's', 'small', 'span', 'strong', 'sub', 'sup', 'u', 'var']
       .forEach((tag) => DOMUtils.reviewInlineElement(document, tag));
   }
 
-  async import(url: string) {
+  async import(url: string, entryParams?: object) {
     const startTime = new Date().getTime();
 
     const res = await this.fetch(url);
@@ -229,7 +229,7 @@ export default abstract class PageImporter implements Importer {
         const { document } = (new JSDOM(text)).window;
 
         this.preProcess(document)
-        const entries = this.process(document, url);
+        const entries = this.process(document, url, entryParams);
 
         await Utils.asyncForEach(entries, async (entry) => {
           const file = await this.createMarkdownFile(entry);
@@ -245,5 +245,5 @@ export default abstract class PageImporter implements Importer {
   }
 
   abstract async fetch(url: string): Promise<Response>;
-  abstract process(document: Document, url: string): PageImporterResource[];
+  abstract process(document: Document, url: string, entryParams?: object): PageImporterResource[];
 }

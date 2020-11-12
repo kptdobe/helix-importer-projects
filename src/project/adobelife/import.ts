@@ -28,7 +28,8 @@ async function main() {
     azureBlobURI: process.env.AZURE_BLOB_URI
   });
 
-  const csv = await handler.get('explorer_result.csv');
+  const csv = await handler.get('light.csv');
+  // const csv = await handler.get('AdobeLifeBlog-Posts-Export-2020-2017-KCNEW.csv');
   const entries = CSV.toArray(csv.toString());
 
   const importer = new AdobeLifeImporter({
@@ -38,7 +39,9 @@ async function main() {
 
   let output = '';
   Utils.asyncForEach(entries, async (e) => {
-    const files = await importer.import(e.url);
+    const files = await importer.import(e.url, {
+      topics: e.topics.split(',').map((t) => t.trim())
+    });
     files.forEach((f) => {
       output += `${e.url};${f};\n`;
     });

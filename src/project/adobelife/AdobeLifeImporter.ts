@@ -32,7 +32,11 @@ export default class AdobeLifeImporter extends PageImporter {
   replaceEmbeds(document: Document) {
     document.querySelectorAll('iframe').forEach((iframe) => {
       if (iframe.src) {
-        iframe.after(JSDOM.fragment(`<hlxembed>${iframe.src}</hlxembed>`))
+        let src = iframe.src;
+        if (src.indexOf('//') === 0) {
+          src = `https:${src}`;
+        }
+        iframe.after(JSDOM.fragment(`<hlxembed>${src}</hlxembed>`))
       }
       iframe.remove();
     });
@@ -48,7 +52,7 @@ export default class AdobeLifeImporter extends PageImporter {
     });
   }
 
-  process(document: Document, url: string): PageImporterResource[] {
+  process(document: Document, url: string, entryParams?: any): PageImporterResource[] {
 
     const main = document.querySelector('.content-area');
 
@@ -58,6 +62,10 @@ export default class AdobeLifeImporter extends PageImporter {
       '.content-description',
       '.heading-line'
     ]);
+
+    // clean up do
+    main.innerHTML = main.innerHTML
+      .replace('<b></b>', '')
 
     // embeds
     this.replaceEmbeds(main);
@@ -106,9 +114,11 @@ export default class AdobeLifeImporter extends PageImporter {
     const mainTopic = tag ? tag.textContent.trim() : '';
     tag.parentNode.remove();
 
+    const topics = entryParams.topics.filter((t) => t !== DEFAULT_TOPIC);
+    topics.unshift(DEFAULT_TOPIC); // push as first
     main.appendChild(JSDOM.fragment(`
       <hr>
-      <p>Topics: ${mainTopic}, ${DEFAULT_TOPIC}</p>
+      <p>Topics: ${topics.join(', ')}</p>
       <p>Products:</p>
     `));
 
