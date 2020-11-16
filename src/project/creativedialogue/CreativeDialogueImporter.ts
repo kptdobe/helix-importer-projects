@@ -24,7 +24,7 @@ import DOMUtils from '../../product/utils/DOMUtils';
 const DEFAULT_TOPIC = 'Creative Dialogue';
 const DEFAULT_AUTHOR = 'Adobe Korea';
 
-export default class AdobeLifeImporter extends PageImporter {
+export default class CreativeDialogueImporter extends PageImporter {
   async fetch(url): Promise<Response> {
     return fetch(url);
   }
