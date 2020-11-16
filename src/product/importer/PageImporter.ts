@@ -229,7 +229,7 @@ export default abstract class PageImporter implements Importer {
         const { document } = (new JSDOM(text)).window;
 
         this.preProcess(document)
-        const entries = this.process(document, url, entryParams);
+        const entries = this.process(document, url, entryParams, text);
 
         await Utils.asyncForEach(entries, async (entry) => {
           const file = await this.createMarkdownFile(entry);
@@ -245,5 +245,5 @@ export default abstract class PageImporter implements Importer {
   }
 
   abstract async fetch(url: string): Promise<Response>;
-  abstract process(document: Document, url: string, entryParams?: object): PageImporterResource[];
+  abstract process(document: Document, url: string, entryParams?: object, raw?: string): PageImporterResource[];
 }
