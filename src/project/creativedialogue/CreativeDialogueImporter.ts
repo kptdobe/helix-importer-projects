@@ -21,7 +21,6 @@ import { Response } from 'node-fetch';
 import { JSDOM, Document } from 'jsdom';
 import DOMUtils from '../../product/utils/DOMUtils';
 
-const DEFAULT_TOPIC = 'Creative Dialogue';
 const DEFAULT_AUTHOR = 'Adobe Korea';
 
 export default class CreativeDialogueImporter extends PageImporter {
@@ -53,7 +52,7 @@ export default class CreativeDialogueImporter extends PageImporter {
     });
   }
 
-  process(document: Document, url: string): PageImporterResource[] {
+  process(document: Document, url: string, entryParams?: any): PageImporterResource[] {
 
     const main = document.querySelector('main');
 
@@ -101,22 +100,22 @@ export default class CreativeDialogueImporter extends PageImporter {
     content.before(JSDOM.fragment('<hr>'));
 
     // topics / products
-    const topics = [];
-    const products = [];
-    const cats = document.querySelectorAll('.post_categories a');
-    cats.forEach((cat) => {
-      topics.push(cat.textContent.trim());
-    });
+    const topics = entryParams.topics;
+    const products = entryParams.products;
+    // const cats = document.querySelectorAll('.post_categories a');
+    // cats.forEach((cat) => {
+    //   topics.push(cat.textContent.trim());
+    // });
 
-    const tags = document.querySelectorAll('.post_tags a');
-    tags.forEach((tag) => {
-      const t = tag.textContent.trim().replace(/\s\(.*\)/gm, '');
-      products.push(t);
-    });
+    // const tags = document.querySelectorAll('.post_tags a');
+    // tags.forEach((tag) => {
+    //   const t = tag.textContent.trim().replace(/\s\(.*\)/gm, '');
+    //   products.push(t);
+    // });
 
     main.appendChild(JSDOM.fragment(`
       <hr>
-      <p>Topics: ${topics.length > 0 ? topics.join(', ') + ', ' : ''}${DEFAULT_TOPIC}</p>
+      <p>Topics: ${topics.join(', ')}</p>
       <p>Products: ${products.join(', ')}</p>
     `));
 
@@ -137,8 +136,13 @@ export default class CreativeDialogueImporter extends PageImporter {
       h.replaceWith(JSDOM.fragment(`<h3>${h.textContent}</h3>`));
     });
 
-    const p = path.parse(new URL(url).pathname);
-    const pir = new PageImporterResource(p.name, folderDate, main, null);
+    let name = path.parse(new URL(url).pathname).name;
+    if (name.endsWith('-kr') || name.endsWith('-ko')) {
+      // remove -kr or -ko prefix
+      name = name.substring(0, name.length - 3);
+    }
+
+    const pir = new PageImporterResource(name, folderDate, main, null);
 
     return [pir];
   }

@@ -38,7 +38,8 @@ async function main() {
     }
   });
 
-  const csv = await handler.get('explorer_result.csv');
+  const csv = await handler.get('provided_full.csv');
+  // const csv = await handler.get('provided.csv');
   const entries = CSV.toArray(csv.toString());
 
   const importer = new CreativeDialogueImporter({
@@ -46,13 +47,88 @@ async function main() {
     blobHandler: blob
   });
 
+  const getTranslations = async () => {
+    const trans = {};
+    const json = JSON.parse(await handler.get('translations.json'));
+    if (json && json.data) {
+      json.data.forEach(item => {
+        trans[item.Original] = item['Level 3'] || item['Level 2'] || item['Level 1'];
+      });
+    }
+    return trans;
+  }
+
+  const translate = (array, trans) => {
+    return array.map(a => {
+      if (!trans[a]) {
+        console.error(`Unknown translation for ${a}`);
+      }
+      return trans[a] || `Unknown translation for ${a}`
+    });
+  }
+
+  const getTopics = (e) => {
+    let topics = [];
+
+    // e.Category: Insight & Inspiration-Creativity-Creative Inspiration & Trends| Illustration
+    // e.Tags: Products-Creative Cloud-Photoshop /  Internal-Corporate Alignment-Creative Cloud
+
+    if (e.Category) {
+      const s = e.Category.split('-');
+      if (s.length > 0) {
+        topics = topics.concat(s[s.length - 1].split('|').map(p => p.trim()));
+      }
+    }
+
+    if (e.Tags) {
+      let s = e.Tags.split('/');
+      if (s.length > 1) {
+        s = s[1].split('-');
+        if (s.length > 0) {
+          topics = topics.concat(s[s.length - 1].split('|').map(p => p.trim()));
+        }
+      }
+    }
+
+    return topics;
+  };
+
+  const getProducts = (e) => {
+    let products = [];
+    // e.Tags: Products-Creative Cloud-Photoshop| Illustrator| Fresco| Aero| Premiere / Internal-Corporate Alignment-Creative Cloud
+    if (e.Tags) {
+      let s = e.Tags.split('/');
+      if (s.length > 0) {
+        s = s[0].split('-');
+        if (s.length > 0) {
+          products = s[s.length - 1].split('|').map(p => p.trim());
+        }
+      }
+    }
+    return products;
+  };
+
+  const translations = await getTranslations();
   const results = [];
 
+  let output = `source;url;topics;products;\n`;
   Utils.asyncForEach(entries, async (e) => {
-    const files = await importer.import(e.url);
-    files.forEach((f) => {
-      console.log(`${e.url} -> ${f}`);
-    })
+    const url = e.Page;
+    try {
+      const topics = translate(getTopics(e), translations)
+      const products = translate(getProducts(e), translations)
+      const files = await importer.import(e.Page, {
+        topics,
+        products
+      });
+      files.forEach((f) => {
+        console.log(`${url} -> ${f}`);
+        output += `${url};${f};${topics.join(', ')};${products.join(', ')};\n`;
+      });
+      await handler.put('importer_output.csv', output)
+    } catch(error) {
+      console.error(`Could not import ${url}`);
+    }
   });
   console.log('Done');
 
