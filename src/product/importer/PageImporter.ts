@@ -30,14 +30,18 @@ import parse from 'rehype-parse';
 import rehype2remark from 'rehype-remark';
 import stringify from 'remark-stringify';
 import all from 'hast-util-to-mdast/lib/all';
+import fs from 'fs-extra';
 
 export default abstract class PageImporter implements Importer {
   params: PageImporterParams;
   logger: Logger;
+  useCache: boolean;
 
   constructor(params: PageImporterParams) {
       this.params = params;
       this.logger = console;
+
+      this.useCache = !!params.cache;
   }
 
   async createMarkdownFile(resource: PageImporterResource) {
@@ -108,85 +112,25 @@ export default abstract class PageImporter implements Importer {
           if (!imageLocation) {
             // copy img to blob handler
 
-            const usedCache = false;
-            // if (this.cache) {
-            //   // check first in local cache if image can be found
-            //   const localAssets = path.resolve(`${this.cache}/assets`);
-            //   const imgPath = new URL(src).pathname;
-            //   const localPathToImg = path.resolve(`${localAssets}/${imgPath.replace(/\/files/gm, '').replace(/\/wp-content\/uploads/gm, '')}`);
-            //   if (await fs.exists(localPathToImg)) {
-            //     const buffer = await fs.readFile(localPathToImg);
-            //     // eslint-disable-next-line max-len
-            //     const resource = this.blobHandler.createExternalResource(buffer, null, null, localPathToImg);
-            //     if (!await this.blobHandler.checkBlobExists(resource)) {
-            //       await this.blobHandler.upload(resource);
-            //     }
-            //     newSrc = resource.uri;
-            //     usedCache = true;
-            //   }
-            // }
+            let blob;
 
-            if (!usedCache) {
-              // use direct url
-              let blob;
-              try {
-                blob = await this.params.blobHandler.getBlob(src);
-              } catch (error) {
-                // ignore non exiting images, otherwise throw an error
-                if (error.message.indexOf('StatusCodeError: 404') === -1) {
-                  this.logger.error(`Cannot upload blob for ${src}: ${error.message}`);
-                  throw new Error(`Cannot upload blob for ${src}: ${error.message}`);
-                }
-              }
-              if (blob) {
-                newSrc = blob.uri;
-              } else {
-                this.logger.error(`Image could not be copied to blob handler: ${src}`);
-              }
-            }
-          } else {
-            let response;
             try {
-              response = await this.fetch(src);
+              blob = await this.params.blobHandler.getBlob(src);
             } catch (error) {
-              // ignore 404 images but throw an error for other issues
-              if (error.statusCode !== 404) {
-                this.logger.error(`Cannot download image for ${src}: ${error.message}`);
-                throw new Error(`Cannot download image for ${src}: ${error.message}`);
+              // ignore non exiting images, otherwise throw an error
+              if (error.message.indexOf('StatusCodeError: 404') === -1) {
+                this.logger.error(`Cannot upload blob for ${src}: ${error.message}`);
+                throw new Error(`Cannot upload blob for ${src}: ${error.message}`);
               }
             }
 
-            if (response) {
-              let { ext } = path.parse(src);
-              if (!ext) {
-                const dispo = response.headers['content-disposition'];
-                if (dispo) {
-                  // content-disposition:"inline; filename="xyz.jpeg""
-                  try {
-                    // eslint-disable-next-line prefer-destructuring
-                    ext = `.${dispo.match(/\.(.*)"/)[1]}`;
-                  } catch (e) {
-                    this.logger.error(`Cannot find extension for ${src} with content-disposition`);
-                  }
-                } else {
-                  // use content-type
-                  const type = response.headers['content-type'];
-                  try {
-                    // eslint-disable-next-line prefer-destructuring
-                    ext = `.${type.match(/\/(.*)/)[1]}`;
-                  } catch (e) {
-                    this.logger.error(`Cannot find an extension for ${src} with content-type`);
-                  }
-                }
-              }
-              const imgName = `${sanitizedName}${index > 0 ? `-${index}` : ''}${ext}`;
-              newSrc = `${imageLocation}/${imgName}`;
-              await this.params.storageHandler.put(newSrc, response.body);
-              this.logger.log(`Image file created: ${newSrc}`);
-              // absolute link
-              newSrc = `/${newSrc}`;
+            if (blob) {
+              newSrc = blob.uri;
+            } else {
+              this.logger.error(`Image could not be copied to blob handler: ${src}`);
             }
           }
+
           contents = contents.replace(new RegExp(`${src.replace('.', '\\.')}`, 'gm'), newSrc);
         }
       });
@@ -213,29 +157,51 @@ export default abstract class PageImporter implements Importer {
       .forEach((tag) => DOMUtils.reviewInlineElement(document, tag));
   }
 
-  async import(url: string, entryParams?: object) {
-    const startTime = new Date().getTime();
+  async download(url: string): Promise<string> {
+    const getLocalCacheName = (p) => {
+      return path.resolve(p, `${new URL(url).pathname.replace(/^\/+|\/+$/g, '').replace(/\//gm, '_')}.html`);
+    };
+
+    if (this.useCache) {
+      const localPath = getLocalCacheName(this.params.cache);
+      if (await fs.exists(localPath)) {
+        return fs.readFile(localPath);
+      }
+    }
 
     const res = await this.fetch(url);
-
-    const results = [];
     if (!res.ok) {
       console.error(`${url}: Invalid response`, res);
       throw new Error(`${url}: Invalid response - ${res.statusText}`)
     } else {
-      const text = await res.text();
+      const html = await res.text();
 
-      if (text) {
-        const { document } = (new JSDOM(text)).window;
-
-        this.preProcess(document)
-        const entries = this.process(document, url, entryParams, text);
-
-        await Utils.asyncForEach(entries, async (entry) => {
-          const file = await this.createMarkdownFile(entry);
-          results.push(file);
-        });
+      if (this.useCache) {
+        const localPath = getLocalCacheName(this.params.cache);
+        await fs.mkdirs(path.dirname(localPath));
+        await fs.writeFile(localPath, html);
       }
+
+      return html;
+    }
+  }
+
+  async import(url: string, entryParams?: object) {
+    const startTime = new Date().getTime();
+
+    const html = await this.download(url);
+
+    const results = [];
+    if (html) {
+      const { document } = (new JSDOM(html)).window;
+
+      this.preProcess(document)
+      const entries = this.process(document, url, entryParams, html);
+
+      await Utils.asyncForEach(entries, async (entry) => {
+        const file = await this.createMarkdownFile(entry);
+        results.push(file);
+      });
     }
 
     console.log();

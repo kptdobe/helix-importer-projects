@@ -18,4 +18,5 @@ import { BlobHandler } from '@adobe/helix-documents-support';
 export default class PageImporterParams implements ImporterParams {
   storageHandler: StorageHandler;
   blobHandler: BlobHandler;
+  cache?: string;
 }

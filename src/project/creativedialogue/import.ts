@@ -44,7 +44,8 @@ async function main() {
 
   const importer = new CreativeDialogueImporter({
     storageHandler: handler,
-    blobHandler: blob
+    blobHandler: blob,
+    cache: '.cache/creativedialogue'
   });
 
   const getTranslations = async () => {
@@ -127,7 +128,7 @@ async function main() {
       });
       await handler.put('importer_output.csv', output)
     } catch(error) {
-      console.error(`Could not import ${url}`);
+      console.error(`Could not import ${url}`, error);
     }
   });
   console.log('Done');

@@ -14,3 +14,5 @@ input
 build
 
 *.js
+
+.cache
