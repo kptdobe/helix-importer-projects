@@ -37,4 +37,20 @@ describe.only('CSV tests', () => {
   it('CSV#toArray missing properties', () => {
     deepStrictEqual(CSV.toArray(`a;b;${os.EOL}a1;b1;${os.EOL}a2;;${os.EOL}`), [{ a: 'a1', b: 'b1' }, { a: 'a2', b: '' }]);
   });
+
+  it('CSV#toArray no trailing semi-column in header', () => {
+    deepStrictEqual(CSV.toArray(`a;b${os.EOL}a1;b1;${os.EOL}a2;b2;${os.EOL}`), [{ a: 'a1', b: 'b1' }, { a: 'a2', b: 'b2' }]);
+  });
+
+  it('CSV#toArray no trailing semi-column in one row', () => {
+    deepStrictEqual(CSV.toArray(`a;b;${os.EOL}a1;b1;${os.EOL}a2;b2${os.EOL}`), [{ a: 'a1', b: 'b1' }, { a: 'a2', b: 'b2' }]);
+  });
+
+  it('CSV#toArray no trailing semi-column at all', () => {
+    deepStrictEqual(CSV.toArray(`a;b${os.EOL}a1;b1${os.EOL}a2;b2${os.EOL}`), [{ a: 'a1', b: 'b1' }, { a: 'a2', b: 'b2' }]);
+  });
+
+  it('CSV#toArray no trailing EOL', () => {
+    deepStrictEqual(CSV.toArray(`a;b${os.EOL}a1;b1;${os.EOL}a2;b2;`), [{ a: 'a1', b: 'b1' }, { a: 'a2', b: 'b2' }]);
+  });
 });

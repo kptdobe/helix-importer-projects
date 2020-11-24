@@ -37,8 +37,11 @@ export default class CSV {
 
   static toArray(csv: string, delimiter = ';') {
     const rows = csv.split(os.EOL);
-    // remove last element
-    rows.pop();
+
+    if (rows[rows.length-1] === '') {
+      // remove last element
+      rows.pop();
+    }
 
     let headers = [];
     const array = [];
@@ -47,12 +50,16 @@ export default class CSV {
       if (i === 0) {
         // headers
         headers = r.split(delimiter);
-        // remove last element
-        headers.pop();
+
+        if (headers[headers.length-1] === '') {
+          // remove last element
+          headers.pop();
+        }
       } else {
-        const values = r.split(delimiter);
-        // remove last element
-        values.pop();
+        let values = r.split(delimiter);
+
+        // remove last element(s)
+        values = values.slice(0, headers.length)
 
         const obj = {};
         values.forEach((v, index) => {
