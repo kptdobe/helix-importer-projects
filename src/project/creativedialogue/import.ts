@@ -38,8 +38,8 @@ async function main() {
     }
   });
 
-  const csv = await handler.get('provided_full.csv');
-  // const csv = await handler.get('provided.csv');
+  // const csv = await handler.get('provided_full.csv');
+  const csv = await handler.get('provided.csv');
   const entries = CSV.toArray(csv.toString());
 
   const importer = new CreativeDialogueImporter({

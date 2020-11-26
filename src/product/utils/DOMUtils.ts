@@ -14,14 +14,20 @@ import { JSDOM, Document } from 'jsdom';
 
 export default class DOMUtils {
   static reviewInlineElement(document: Document, tagName: string) {
-    // collaspe consecutive <tag>
-    // and make sure element does not start ends with spaces while it is before / after some text
     const tags = [...document.querySelectorAll(tagName)];
+    // first pass, remove empty nodes
     for (let i = tags.length - 1; i >= 0; i -= 1) {
       const tag = tags[i];
       if (tag.textContent === '') {
         tag.remove();
-      } else if (tag.innerHTML === '&nbsp;') {
+      }
+    }
+
+    // collaspe consecutive <tag>
+    // and make sure element does not start ends with spaces while it is before / after some text
+    for (let i = tags.length - 1; i >= 0; i -= 1) {
+      const tag = tags[i];
+      if (tag.innerHTML === '&nbsp;') {
           tag.replaceWith(JSDOM.fragment(' '));
       } else if (tag.innerHTML === '.' || tag.innerHTML === '. ' || tag.innerHTML === ':' || tag.innerHTML === ': ') {
           tag.replaceWith(JSDOM.fragment(tag.innerHTML));
@@ -36,9 +42,15 @@ export default class DOMUtils {
             (!tag.previousSibling.href ||
               tag.previousSibling.href === tag.href
             )) {
-            // previous sibling is an <tag>, merge current one inside the previous one
-            $previousSibling.append(innerHTML);
-            tag.remove();
+              if (tag.hasChildNodes()) {
+                [...tag.childNodes].forEach(child => {
+                  $previousSibling.append(child);
+                });
+              } else {
+                // previous sibling is an <tag>, merge current one inside the previous one
+                $previousSibling.append(innerHTML);
+              }
+              tag.remove();
           }
         } else {
           if (innerHTML) {
@@ -55,6 +67,17 @@ export default class DOMUtils {
             }
           }
         }
+      }
+    }
+  }
+
+  static reviewParagraphs(document: Document) {
+    const tags = [...document.querySelectorAll('p')];
+    for (let i = tags.length - 1; i >= 0; i -= 1) {
+      const tag = tags[i];
+      // remove useless paragraphs
+      if (tag.textContent === '' || tag.textContent === ' ' || tag.textContent === '&nbsp;'  || tag.textContent.charCodeAt(0) === 160) {
+        tag.remove();
       }
     }
   }

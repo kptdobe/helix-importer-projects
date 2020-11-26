@@ -178,20 +178,15 @@ export default abstract class PageImporter implements Importer {
 
     document.body.innerHTML = document.body.innerHTML
     // remove html comments
-      .replace(/<!--(?!>)[\S\s]*?-->/gm, '')
-      // // remove bold colon
-      // .replace(/\<strong\>: \<\/strong\>/gm, ':')
-      // .replace(/\<strong\>:\<\/strong\>/gm, ':')
-      // // remove bold dots
-      // .replace(/\<strong\>. \<\/strong\>/gm, '.')
-      // .replace(/\<strong\>.\<\/strong\>/gm, '.');
+      .replace(/<!--(?!>)[\S\s]*?-->/gm, '');
   }
 
   preProcess(document: Document) {
     this.cleanup(document);
+    DOMUtils.reviewHeadings(document);
+    DOMUtils.reviewParagraphs(document);
     ['b', 'a', 'big', 'code', 'em', 'i', 'label', 's', 'small', 'span', 'strong', 'sub', 'sup', 'u', 'var']
       .forEach((tag) => DOMUtils.reviewInlineElement(document, tag));
-    DOMUtils.reviewHeadings(document);
   }
 
   async download(url: string): Promise<string> {

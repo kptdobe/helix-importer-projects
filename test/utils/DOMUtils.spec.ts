@@ -47,6 +47,33 @@ describe('DOMUtils#reviewInlineElement tests', () => {
   it('reviewInlineElement cleans up &nbsp;', () => {
     test('<p><strong>So</strong><strong>me</strong><strong> – </strong><strong>complicated&nbsp;</strong><strong>setup&nbsp;</strong><strong>found&nbsp;</strong><strong>on&nbsp;</strong><strong>real site.</strong></p>', 'strong', '<p><strong>Some – complicated setup found on real site.</strong></p>');
   });
+
+  it('reviewInlineElement nested tags', () => {
+    const intermediate = '<p><strong><em>emphasis</em><em> space </em><em>another emphasis</em></strong> <strong><em>last emphasis</em></strong></p>';
+    test('<p><strong><em>emphasis</em></strong><strong><em> space </em></strong><strong><em>another emphasis</em></strong> <strong><em>last emphasis</em></strong></p>', 'strong', intermediate);
+    test(intermediate, 'em', '<p><strong><em>emphasis space another emphasis</em></strong> <strong><em>last emphasis</em></strong></p>');
+  });
+
+  it('reviewInlineElement removes empty tags', () => {
+    test('<p><strong></strong><strong>only strong</strong></p>', 'strong', '<p><strong>only strong</strong></p>');
+    test('<p><strong><em></em></strong><strong><em>only strong</em></strong></p>', 'strong', '<p><strong><em>only strong</em></strong></p>');
+  });
+
+});
+
+describe('DOMUtils#reviewParagraphs tests', () => {
+  const test = (input: string, expected: string) => {
+    const { document } = (new JSDOM(input)).window;
+    DOMUtils.reviewParagraphs(document);
+    strictEqual(document.body.innerHTML, expected);
+  }
+
+  it('reviewParagraphs remove useless paragraphs', () => {
+    test('<p><strong><em>&nbsp;</em></strong></p><p>usefull</p>', '<p>usefull</p>');
+    test('<p><em>&nbsp;</em></p><p>usefull</p>', '<p>usefull</p>');
+    test('<p>usefull</p><p>&nbsp;</p>', '<p>usefull</p>');
+    test('<p>usefull</p><p>&nbsp;</p><p>usefull too</p>', '<p>usefull</p><p>usefull too</p>');
+  });
 });
 
 describe('DOMUtils#reviewHeadings tests', () => {
