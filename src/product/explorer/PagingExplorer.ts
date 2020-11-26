@@ -70,6 +70,6 @@ export default abstract class PagingExplorer implements Explorer {
     return results;
   }
 
-  abstract async fetch(page: number): Promise<Response>;
+  abstract fetch(page: number): Promise<Response>;
   abstract process(document: Document, entries: object[]): object[];
 }

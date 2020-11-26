@@ -238,6 +238,6 @@ export default abstract class PageImporter implements Importer {
     return results;
   }
 
-  abstract async fetch(url: string): Promise<Response>;
+  abstract fetch(url: string): Promise<Response>;
   abstract process(document: Document, url: string, entryParams?: object, raw?: string): PageImporterResource[];
 }
