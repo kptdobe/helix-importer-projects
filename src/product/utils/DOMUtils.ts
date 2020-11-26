@@ -23,7 +23,10 @@ export default class DOMUtils {
         tag.remove();
       } else if (tag.innerHTML === '&nbsp;') {
           tag.replaceWith(JSDOM.fragment(' '));
+      } else if (tag.innerHTML === '.' || tag.innerHTML === '. ' || tag.innerHTML === ':' || tag.innerHTML === ': ') {
+          tag.replaceWith(JSDOM.fragment(tag.innerHTML));
       } else {
+        tag.innerHTML = tag.innerHTML.replace(/\&nbsp;/gm, ' ');
         let innerHTML = tag.innerHTML;
         if (tag.previousSibling) {
           const $previousSibling = tag.previousSibling;
@@ -52,6 +55,18 @@ export default class DOMUtils {
             }
           }
         }
+      }
+    }
+  }
+
+  static reviewHeadings(document: Document) {
+    const tags = [...document.querySelectorAll('h1, h2, h3, h4, h5, h6')];
+    for (let i = tags.length - 1; i >= 0; i -= 1) {
+      const tag = tags[i];
+      // remove useless strong tags
+      tag.innerHTML = tag.innerHTML.replace(/\<strong\>|\<\\strong\>/gm,'');
+      if (tag.innerHTML === '') {
+        tag.remove();
       }
     }
   }

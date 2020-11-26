@@ -17,7 +17,7 @@ import { describe, it } from "mocha";
 
 import os from 'os';
 
-describe.only('CSV tests', () => {
+describe('CSV tests', () => {
   it('CSV#toCSV empty', () => {
     strictEqual(CSV.toCSV([]), '');
   });
