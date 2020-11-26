@@ -44,11 +44,31 @@ export default abstract class PageImporter implements Importer {
       this.useCache = !!params.cache;
   }
 
+  async upload(src) {
+    let blob;
+
+    try {
+      blob = await this.params.blobHandler.getBlob(src);
+    } catch (error) {
+      // ignore non exiting images, otherwise throw an error
+      if (error.message.indexOf('StatusCodeError: 404') === -1) {
+        this.logger.error(`Cannot upload blob for ${src}: ${error.message}`);
+        throw new Error(`Cannot upload blob for ${src}: ${error.message}`);
+      }
+    }
+
+    if (blob) {
+      return blob.uri;
+    } else {
+      this.logger.error(`Asset could not be uploaded to blob handler: ${src}`);
+    }
+    return src;
+  }
+
   async createMarkdownFile(resource: PageImporterResource) {
     const name = resource.name;
     const directory = resource.directory;
     const sanitizedName = FileUtils.sanitizeFilename(name);
-    const imageLocation = false;
     this.logger.log(`Creating a new MD file: ${directory}/${sanitizedName}.md`);
 
     const processor = unified()
@@ -102,39 +122,47 @@ export default abstract class PageImporter implements Importer {
 
     // process image links
     const document = resource.document;
+    const assets = [];
     const imgs = document.querySelectorAll('img');
-    if (imgs && imgs.length > 0) {
-      await Utils.asyncForEach(imgs, async (img, index) => {
-        const src = decodeURI(img.src);
-        const isEmbed = img.classList.contains('hlx-embed');
-        if (!isEmbed && src && src !== '' && contents.indexOf(src) !== -1) {
-          let newSrc = '';
-          if (!imageLocation) {
-            // copy img to blob handler
+    imgs.forEach(img => {
+      const src = decodeURI(img.src);
+      const isEmbed = img.classList.contains('hlx-embed');
+      if (!isEmbed && src && src !== '' && contents.indexOf(src) !== -1) {
+        assets.push({
+          url: src
+        });
+      }
+    });
 
-            let blob;
-
-            try {
-              blob = await this.params.blobHandler.getBlob(src);
-            } catch (error) {
-              // ignore non exiting images, otherwise throw an error
-              if (error.message.indexOf('StatusCodeError: 404') === -1) {
-                this.logger.error(`Cannot upload blob for ${src}: ${error.message}`);
-                throw new Error(`Cannot upload blob for ${src}: ${error.message}`);
-              }
-            }
-
-            if (blob) {
-              newSrc = blob.uri;
-            } else {
-              this.logger.error(`Image could not be copied to blob handler: ${src}`);
-            }
+    const as = document.querySelectorAll('a');
+    as.forEach(a => {
+      const href = decodeURI(a.href);
+      if (href && href !== '' && contents.indexOf(href) !== -1) {
+        try {
+          const url = new URL(href);
+          const ext = path.extname(url.href);
+          if (ext === '.mp4') {
+            // upload mp4
+            assets.push({
+              url: href,
+              append: '#image.mp4',
+            });
           }
-
-          contents = contents.replace(new RegExp(`${src.replace('.', '\\.')}`, 'gm'), newSrc);
+        } catch (error) {
+          console.warn(`Invalid link in the page: ${href}`);
         }
-      });
-    }
+      }
+    });
+
+    // upload all assets
+    await Utils.asyncForEach(assets, async (asset) => {
+      let newSrc = await this.upload(asset.url);
+      if (asset.append) {
+        newSrc = `${newSrc}${asset.append}`
+      }
+      contents = contents.replace(new RegExp(`${asset.url.replace('.', '\\.')}`, 'gm'), newSrc);
+    });
+
     if (resource.prepend) {
       contents = resource.prepend + contents;
     }
