@@ -74,6 +74,13 @@ describe('DOMUtils#reviewParagraphs tests', () => {
     test('<p>usefull</p><p>&nbsp;</p>', '<p>usefull</p>');
     test('<p>usefull</p><p>&nbsp;</p><p>usefull too</p>', '<p>usefull</p><p>usefull too</p>');
   });
+
+  it('reviewParagraphs does not remove usefull paragraphs', () => {
+    test('<p><img src="animage.jpg"></p>', '<p><img src="animage.jpg"></p>');
+    test('<p><div></div></p>', '<div></div>');
+    test('<p><video width="320" height="240" controls=""><source src="movie.mp4" type="video/mp4"></video></p>', '<p><video width="320" height="240" controls=""><source src="movie.mp4" type="video/mp4"></video></p>');
+    test('<p><iframe src="www.iframe.com"></iframe></p>', '<p><iframe src="www.iframe.com"></iframe></p>');
+  });
 });
 
 describe('DOMUtils#reviewHeadings tests', () => {

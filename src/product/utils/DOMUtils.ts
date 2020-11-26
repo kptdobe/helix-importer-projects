@@ -13,6 +13,8 @@
 import { JSDOM, Document } from 'jsdom';
 
 export default class DOMUtils {
+  static EMPTY_TAGS_TO_PRESERVE = ['img', 'video', 'iframe', 'div', 'picture'];
+
   static reviewInlineElement(document: Document, tagName: string) {
     const tags = [...document.querySelectorAll(tagName)];
     // first pass, remove empty nodes
@@ -76,8 +78,12 @@ export default class DOMUtils {
     for (let i = tags.length - 1; i >= 0; i -= 1) {
       const tag = tags[i];
       // remove useless paragraphs
-      if (tag.textContent === '' || tag.textContent === ' ' || tag.textContent === '&nbsp;'  || tag.textContent.charCodeAt(0) === 160) {
-        tag.remove();
+      if ((tag.textContent === '' ||
+        tag.textContent === ' ' ||
+        tag.textContent === '&nbsp;' ||
+        tag.textContent.charCodeAt(0) === 160) &&
+        !tag.querySelector(DOMUtils.EMPTY_TAGS_TO_PRESERVE.join(','))) {
+          tag.remove();
       }
     }
   }

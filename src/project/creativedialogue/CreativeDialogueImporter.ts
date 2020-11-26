@@ -126,6 +126,12 @@ export default class CreativeDialogueImporter extends PageImporter {
       '.post_tags'
     ]);
 
+    // some images are in headings...
+    main.querySelectorAll('h1 img, h2 img, h3 img, h4 img, h5 img, h6 img').forEach((img) => {
+      // move image after its parent heading
+      img.parentNode.parentNode.insertBefore(img, img.parentNode.nextSibling);
+    });
+
     // convert h4 -> h2
     main.querySelectorAll('h4').forEach((h) => {
       h.replaceWith(JSDOM.fragment(`<h2>${h.textContent}</h2>`));
