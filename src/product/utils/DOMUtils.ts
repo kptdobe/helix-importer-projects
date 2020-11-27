@@ -88,6 +88,11 @@ export default class DOMUtils {
     }
   }
 
+  static escapeSpecialCharacters(document: Document) {
+    document.body.innerHTML = document.body.innerHTML
+      .replace(/\~/gm, '\\~');
+  }
+
   static reviewHeadings(document: Document) {
     const tags = [...document.querySelectorAll('h1, h2, h3, h4, h5, h6')];
     for (let i = tags.length - 1; i >= 0; i -= 1) {

@@ -104,11 +104,23 @@ describe('DOMUtils#reviewHeadings tests', () => {
 
   it('reviewHeadings filters all headings', () => {
     test('<h1><strong>H1</strong></h1><h2><strong>H2</strong></h2><h3><strong>H3</strong></h3><h4><strong>H4</strong></h4><h5><strong>H5</strong></h5><h6><strong>H6</strong></h6>', '<h1>H1</h1><h2>H2</h2><h3>H3</h3><h4>H4</h4><h5>H5</h5><h6>H6</h6>');
- });
+  });
 
- it('reviewHeadings removes empty headings', () => {
-  test('<h1><strong>H1</strong></h1><h2><strong></strong></h2><h3><strong>H3</strong></h3><h4></h4><h5><strong>H5</strong></h5><h6></h6>', '<h1>H1</h1><h3>H3</h3><h5>H5</h5>');
+  it('reviewHeadings removes empty headings', () => {
+    test('<h1><strong>H1</strong></h1><h2><strong></strong></h2><h3><strong>H3</strong></h3><h4></h4><h5><strong>H5</strong></h5><h6></h6>', '<h1>H1</h1><h3>H3</h3><h5>H5</h5>');
+  });
 });
+
+describe('DOMUtils#escapeSpecialCharacters tests', () => {
+  const test = (input: string, expected: string) => {
+    const { document } = (new JSDOM(input)).window;
+    DOMUtils.escapeSpecialCharacters(document);
+    strictEqual(document.body.innerHTML, expected);
+  };
+
+  it('escapeSpecialCharacters escape tidles', () => {
+    test('<p>Paragraph with 2 tildes: 20~30 and 40~50</p>', '<p>Paragraph with 2 tildes: 20\\~30 and 40\\~50</p>');
+  });
 });
 
 describe('DOMUtils#remove tests', () => {

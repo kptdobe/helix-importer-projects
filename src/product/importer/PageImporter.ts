@@ -167,6 +167,8 @@ export default abstract class PageImporter implements Importer {
       contents = resource.prepend + contents;
     }
 
+    contents = this.postProcess(contents);
+
     await this.params.storageHandler.put(p, contents);
     this.logger.log(`MD file created: ${p}`);
 
@@ -185,8 +187,14 @@ export default abstract class PageImporter implements Importer {
     this.cleanup(document);
     DOMUtils.reviewHeadings(document);
     DOMUtils.reviewParagraphs(document);
+    DOMUtils.escapeSpecialCharacters(document);
     ['b', 'a', 'big', 'code', 'em', 'i', 'label', 's', 'small', 'span', 'strong', 'sub', 'sup', 'u', 'var']
       .forEach((tag) => DOMUtils.reviewInlineElement(document, tag));
+  }
+
+  postProcess(md: string) {
+    return md
+      .replace(/\\\\\~/gm, '\\~');
   }
 
   async download(url: string): Promise<string> {
