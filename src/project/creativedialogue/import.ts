@@ -82,13 +82,13 @@ async function main() {
     }
 
     if (e.Tags) {
-      let s = e.Tags.split('/');
-      if (s.length > 1) {
-        s = s[1].split('-');
-        if (s.length > 0) {
-          topics = topics.concat(s[s.length - 1].split('|').map(p => p.trim()));
+      const s = e.Tags.split('/');
+      s.forEach(element => {
+        const sub = element.split('-');
+        if (sub.length > 0 && sub[0].toLowerCase() !== 'products') {
+          topics = topics.concat(sub[sub.length - 1].split('|').map(p => p.trim()));
         }
-      }
+      });
     }
 
     return topics;
@@ -98,13 +98,13 @@ async function main() {
     let products = [];
     // e.Tags: Products-Creative Cloud-Photoshop| Illustrator| Fresco| Aero| Premiere / Internal-Corporate Alignment-Creative Cloud
     if (e.Tags) {
-      let s = e.Tags.split('/');
-      if (s.length > 0) {
-        s = s[0].split('-');
-        if (s.length > 0) {
-          products = s[s.length - 1].split('|').map(p => p.trim());
+      const s = e.Tags.split('/');
+      s.forEach(element => {
+        const sub = element.split('-');
+        if (sub.length > 0 && sub[0].toLowerCase() === 'products') {
+          products = products.concat(sub[sub.length - 1].split('|').map(p => p.trim()));
         }
-      }
+      });
     }
     return products;
   };
