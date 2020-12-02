@@ -181,6 +181,15 @@ export default abstract class PageImporter implements Importer {
     document.body.innerHTML = document.body.innerHTML
     // remove html comments
       .replace(/<!--(?!>)[\S\s]*?-->/gm, '');
+
+    // remove spans
+    document.querySelectorAll('span').forEach(span => {
+      if (span.textContent === '') {
+        span.remove();
+      } else {
+        span.replaceWith(JSDOM.fragment(span.innerHTML));
+      }
+    });
   }
 
   preProcess(document: Document) {
@@ -188,7 +197,7 @@ export default abstract class PageImporter implements Importer {
     DOMUtils.reviewHeadings(document);
     DOMUtils.reviewParagraphs(document);
     DOMUtils.escapeSpecialCharacters(document);
-    ['b', 'a', 'big', 'code', 'em', 'i', 'label', 's', 'small', 'span', 'strong', 'sub', 'sup', 'u', 'var']
+    ['b', 'a', 'big', 'code', 'em', 'i', 'label', 's', 'small', /*'span'*/, 'strong', 'sub', 'sup', 'u', 'var']
       .forEach((tag) => DOMUtils.reviewInlineElement(document, tag));
   }
 

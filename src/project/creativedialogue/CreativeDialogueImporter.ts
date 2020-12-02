@@ -20,6 +20,7 @@ import moment from 'moment';
 import { Response } from 'node-fetch';
 import { JSDOM, Document } from 'jsdom';
 import DOMUtils from '../../product/utils/DOMUtils';
+import { isTemplateExpression } from 'typescript';
 
 const DEFAULT_AUTHOR = 'Adobe Korea';
 
@@ -37,7 +38,7 @@ export default class CreativeDialogueImporter extends PageImporter {
     });
 
     document.querySelectorAll('video').forEach((video) => {
-      const anim = JSDOM.fragment(`<table><tr><th>Animation</th></tr><tr><td>${video.outerHTML}</td></tr></table>`);
+      const anim = JSDOM.fragment(`<table><tr><th>Video</th></tr><tr><td>${video.outerHTML}</td></tr></table>`);
       video.replaceWith(anim);
     });
   }
@@ -63,9 +64,21 @@ export default class CreativeDialogueImporter extends PageImporter {
       '.content > .post_categories'
     ]);
 
+    this.replaceCaptions(main, ['.wp-caption-text']);
+
+    // an h5 following an image / video is a caption
+    main.querySelectorAll('p img, video').forEach(item => {
+      if ((item.parentNode.nextElementSibling && item.parentNode.nextElementSibling.tagName === 'H5') ||
+        (item.nextElementSibling && item.nextElementSibling.tagName === 'H5')) {
+          const elem = item.parentNode.nextElementSibling && item.parentNode.nextElementSibling.tagName === 'H5' ? item.parentNode.nextElementSibling : item.nextElementSibling;
+          const captionText = elem.textContent.trim();
+          elem.parentNode.insertBefore(JSDOM.fragment(`<p><em>${captionText}</em><p>`), elem);
+          elem.remove();
+      }
+    });
+
     // embeds
     this.replaceEmbeds(main);
-    this.replaceCaptions(main, ['.wp-caption-text']);
 
     const heading = main.querySelector('.content h1');
     heading.after(JSDOM.fragment('<hr>'));
@@ -126,10 +139,33 @@ export default class CreativeDialogueImporter extends PageImporter {
       '.post_tags'
     ]);
 
+    // extract "emphasis" from links
+    // see https://github.com/adobe/helix-pipeline/issues/895
+    main.querySelectorAll('a strong').forEach((elem) => {
+      const parent = elem.parentNode;
+      if (parent.childNodes.length === 1) {
+        // only cover case with 1 child
+        const txt = elem.textContent;
+        // only treat links
+        if (txt && (txt.indexOf('.') !== -1 || txt.indexOf(':') !== -1 )) {
+          elem.innerHTML = '';
+          // take out of parent
+          parent.parentNode.insertBefore(elem, parent.nextSibling);
+          elem.appendChild(parent);
+          parent.innerHTML = txt;
+        }
+      }
+    });
+
     // some images are in headings...
     main.querySelectorAll('h1 img, h2 img, h3 img, h4 img, h5 img, h6 img').forEach((img) => {
       // move image after its parent heading
       img.parentNode.parentNode.insertBefore(img, img.parentNode.nextSibling);
+    });
+
+    // heading could be full of tags
+    main.querySelectorAll('h1, h2, h3, h4, h5, h6').forEach((h) => {
+      h.innerHTML = h.textContent;
     });
 
     // convert h4 -> h2

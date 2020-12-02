@@ -49,14 +49,18 @@ describe('DOMUtils#reviewInlineElement tests', () => {
   });
 
   it('reviewInlineElement nested tags', () => {
-    const intermediate = '<p><strong><em>emphasis</em><em> space </em><em>another emphasis</em></strong> <strong><em>last emphasis</em></strong></p>';
+    const intermediate = '<p><strong><em>emphasis</em><em> space </em><em>another emphasis</em> <em>last emphasis</em></strong></p>';
     test('<p><strong><em>emphasis</em></strong><strong><em> space </em></strong><strong><em>another emphasis</em></strong> <strong><em>last emphasis</em></strong></p>', 'strong', intermediate);
-    test(intermediate, 'em', '<p><strong><em>emphasis space another emphasis</em></strong> <strong><em>last emphasis</em></strong></p>');
+    test(intermediate, 'em', '<p><strong><em>emphasis space another emphasis last emphasis</em></strong></p>');
   });
 
   it('reviewInlineElement removes empty tags', () => {
     test('<p><strong></strong><strong>only strong</strong></p>', 'strong', '<p><strong>only strong</strong></p>');
     test('<p><strong><em></em></strong><strong><em>only strong</em></strong></p>', 'strong', '<p><strong><em>only strong</em></strong></p>');
+  });
+
+  it('reviewInlineElement digests spaces', () => {
+    test('<p><strong>Sentence</strong> <strong>must</strong> <strong>be</strong> <strong>strong!</strong></p>', 'strong', '<p><strong>Sentence must be strong!</strong></p>');
   });
 
 });

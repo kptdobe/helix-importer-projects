@@ -16,41 +16,59 @@ export default class DOMUtils {
   static EMPTY_TAGS_TO_PRESERVE = ['img', 'video', 'iframe', 'div', 'picture'];
 
   static reviewInlineElement(document: Document, tagName: string) {
-    const tags = [...document.querySelectorAll(tagName)];
+    let tags = [...document.querySelectorAll(tagName)];
     // first pass, remove empty nodes
     for (let i = tags.length - 1; i >= 0; i -= 1) {
       const tag = tags[i];
       if (tag.textContent === '') {
         tag.remove();
+      } else {
+        tag.innerHTML = tag.innerHTML.replace(/\&nbsp;/gm, ' ');
       }
     }
 
+    tags = [...document.querySelectorAll(tagName)];
+    // make a first pass to find <tag>x</tag> <tag>y</tag> and move the space
+    for (let i = tags.length - 1; i >= 0; i -= 1) {
+      const tag = tags[i];
+      if (tag.nextSibling && tag.nextSibling.textContent === ' ') {
+        // next is a space, check next next
+        const nextNext = tag.nextSibling.nextSibling;
+          if (
+            nextNext &&
+            nextNext.tagName &&
+            nextNext.tagName.toLowerCase() === tagName) {
+              // same tag
+              tag.nextSibling.remove();
+              tag.innerHTML = `${tag.innerHTML} `;
+            }
+      }
+    }
+
+    tags = [...document.querySelectorAll(tagName)];
     // collaspe consecutive <tag>
     // and make sure element does not start ends with spaces while it is before / after some text
     for (let i = tags.length - 1; i >= 0; i -= 1) {
       const tag = tags[i];
-      if (tag.innerHTML === '&nbsp;') {
-          tag.replaceWith(JSDOM.fragment(' '));
-      } else if (tag.innerHTML === '.' || tag.innerHTML === '. ' || tag.innerHTML === ':' || tag.innerHTML === ': ') {
+      if (tag.innerHTML === '.' || tag.innerHTML === '. ' || tag.innerHTML === ':' || tag.innerHTML === ': ') {
           tag.replaceWith(JSDOM.fragment(tag.innerHTML));
       } else {
-        tag.innerHTML = tag.innerHTML.replace(/\&nbsp;/gm, ' ');
         let innerHTML = tag.innerHTML;
         if (tag.previousSibling) {
-          const $previousSibling = tag.previousSibling;
+          const previous = tag.previousSibling;
           if (
-            tag.previousSibling.tagName &&
-            tag.previousSibling.tagName.toLowerCase() === tagName &&
-            (!tag.previousSibling.href ||
-              tag.previousSibling.href === tag.href
+            previous.tagName &&
+            previous.tagName.toLowerCase() === tagName &&
+            (!previous.href ||
+              previous.href === tag.href
             )) {
               if (tag.hasChildNodes()) {
                 [...tag.childNodes].forEach(child => {
-                  $previousSibling.append(child);
+                  previous.append(child);
                 });
               } else {
                 // previous sibling is an <tag>, merge current one inside the previous one
-                $previousSibling.append(innerHTML);
+                previous.append(innerHTML);
               }
               tag.remove();
           }
