@@ -125,9 +125,9 @@ export default abstract class PageImporter implements Importer {
     const assets = [];
     const imgs = document.querySelectorAll('img');
     imgs.forEach(img => {
-      const src = decodeURI(img.src);
+      const { src } = img;
       const isEmbed = img.classList.contains('hlx-embed');
-      if (!isEmbed && src && src !== '' && contents.indexOf(src) !== -1) {
+      if (!isEmbed && src && src !== '' && (contents.indexOf(src) !== -1 || contents.indexOf(decodeURI(src)) !== -1)) {
         assets.push({
           url: src
         });
@@ -136,8 +136,8 @@ export default abstract class PageImporter implements Importer {
 
     const as = document.querySelectorAll('a');
     as.forEach(a => {
-      const href = decodeURI(a.href);
-      if (href && href !== '' && contents.indexOf(href) !== -1) {
+      const { href } = a.href;
+      if (href && href !== '' && (contents.indexOf(href) !== -1) || contents.indexOf(decodeURI(href)) !== -1) {
         try {
           const url = new URL(href);
           const ext = path.extname(url.href);
@@ -156,11 +156,13 @@ export default abstract class PageImporter implements Importer {
 
     // upload all assets
     await Utils.asyncForEach(assets, async (asset) => {
-      let newSrc = await this.upload(asset.url);
+      let newSrc = await this.upload(decodeURI(asset.url));
       if (asset.append) {
         newSrc = `${newSrc}${asset.append}`
       }
-      contents = contents.replace(new RegExp(`${asset.url.replace('.', '\\.')}`, 'gm'), newSrc);
+      contents = contents
+        .replace(new RegExp(`${asset.url.replace('.', '\\.')}`, 'gm'), newSrc)
+        .replace(new RegExp(`${decodeURI(asset.url).replace('.', '\\.')}`, 'gm'), newSrc);
     });
 
     if (resource.prepend) {
