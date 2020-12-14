@@ -136,7 +136,7 @@ export default abstract class PageImporter implements Importer {
 
     const as = document.querySelectorAll('a');
     as.forEach(a => {
-      const { href } = a.href;
+      const { href } = a;
       if (href && href !== '' && (contents.indexOf(href) !== -1) || contents.indexOf(decodeURI(href)) !== -1) {
         try {
           const url = new URL(href);
@@ -150,6 +150,32 @@ export default abstract class PageImporter implements Importer {
           }
         } catch (error) {
           console.warn(`Invalid link in the page: ${href}`);
+        }
+      }
+    });
+
+    const vs = document.querySelectorAll('video source');
+    vs.forEach(s => {
+      const { src } = s;
+      if (src && src !== '' && (contents.indexOf(src) !== -1) || contents.indexOf(decodeURI(src)) !== -1) {
+        try {
+          const url = new URL(src);
+          const ext = path.extname(url.href);
+          if (ext === '.mp4') {
+            const poster = s.parentNode.getAttribute('poster');
+            if (poster) {
+              assets.push({
+                url: poster
+              });  
+            }
+            // upload mp4
+            assets.push({
+              url: src,
+              append: '#image.mp4',
+            });
+          }
+        } catch (error) {
+          console.warn(`Invalid video in the page: ${src}`);
         }
       }
     });

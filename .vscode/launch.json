@@ -75,6 +75,26 @@
       "preLaunchTask": "tsc: build - tsconfig.json",
       "outFiles": ["${workspaceFolder}/build/**/*.js"]
     },{
+      "name": "DigitalEurope: import",
+      "program": "${workspaceFolder}/src/project/digitaleurope/import.ts",
+      "request": "launch",
+      "skipFiles": [
+        "<node_internals>/**"
+      ],
+      "type": "node",
+      "preLaunchTask": "tsc: build - tsconfig.json",
+      "outFiles": ["${workspaceFolder}/build/**/*.js"]
+    },{
+      "name": "DigitalEurope: explore",
+      "program": "${workspaceFolder}/src/project/digitaleurope/explore.ts",
+      "request": "launch",
+      "skipFiles": [
+        "<node_internals>/**"
+      ],
+      "type": "node",
+      "preLaunchTask": "tsc: build - tsconfig.json",
+      "outFiles": ["${workspaceFolder}/build/**/*.js"]
+    },{
       "name": "Debug",
       "program": "${workspaceFolder}/src/project/importers/debug.ts",
       "request": "launch",
@@ -116,5 +136,15 @@
     ],
     "console": "integratedTerminal",
     "internalConsoleOptions": "neverOpen"
+  },{
+    "name": "Import asset",
+    "program": "${workspaceFolder}/src/project/assetimport.ts",
+    "request": "launch",
+    "skipFiles": [
+      "<node_internals>/**"
+    ],
+    "type": "node",
+    "preLaunchTask": "tsc: build - tsconfig.json",
+    "outFiles": ["${workspaceFolder}/build/**/*.js"]
   }]
 }

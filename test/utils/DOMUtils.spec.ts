@@ -59,6 +59,10 @@ describe('DOMUtils#reviewInlineElement tests', () => {
     test('<p><strong><em></em></strong><strong><em>only strong</em></strong></p>', 'strong', '<p><strong><em>only strong</em></strong></p>');
   });
 
+  it('reviewInlineElement does not remove useful tags', () => {
+    test('<p><a href="animage.jpg"><img src="animage.jpg"></a></p>', 'a', '<p><a href="animage.jpg"><img src="animage.jpg"></a></p>');
+  });
+
   it('reviewInlineElement digests spaces', () => {
     test('<p><strong>Sentence</strong> <strong>must</strong> <strong>be</strong> <strong>strong!</strong></p>', 'strong', '<p><strong>Sentence must be strong!</strong></p>');
   });
@@ -81,6 +85,7 @@ describe('DOMUtils#reviewParagraphs tests', () => {
 
   it('reviewParagraphs does not remove usefull paragraphs', () => {
     test('<p><img src="animage.jpg"></p>', '<p><img src="animage.jpg"></p>');
+    test('<p><a href="animage.jpg"><img src="animage.jpg"></a></p>', '<p><a href="animage.jpg"><img src="animage.jpg"></a></p>');
     test('<p><div></div></p>', '<div></div>');
     test('<p><video width="320" height="240" controls=""><source src="movie.mp4" type="video/mp4"></video></p>', '<p><video width="320" height="240" controls=""><source src="movie.mp4" type="video/mp4"></video></p>');
     test('<p><iframe src="www.iframe.com"></iframe></p>', '<p><iframe src="www.iframe.com"></iframe></p>');

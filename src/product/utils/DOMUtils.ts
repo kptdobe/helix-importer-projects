@@ -20,7 +20,7 @@ export default class DOMUtils {
     // first pass, remove empty nodes
     for (let i = tags.length - 1; i >= 0; i -= 1) {
       const tag = tags[i];
-      if (tag.textContent === '') {
+      if (tag.textContent === '' && !tag.querySelector(DOMUtils.EMPTY_TAGS_TO_PRESERVE.join(','))) {
         tag.remove();
       } else {
         tag.innerHTML = tag.innerHTML.replace(/\&nbsp;/gm, ' ');

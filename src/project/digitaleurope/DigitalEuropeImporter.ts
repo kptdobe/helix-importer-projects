@@ -21,10 +21,10 @@ import { Response } from 'node-fetch';
 import { JSDOM, Document } from 'jsdom';
 import DOMUtils from '../../product/utils/DOMUtils';
 
-const DEFAULT_MAIN_CATEGORY = 'Creativity';
-const IMPORT_TAG = 'Creative EMEA';
+const DEFAULT_MAIN_CATEGORY = 'Digital Transformation';
+const IMPORT_TAG = 'Digital EMEA';
 
-export default class CreativeImporter extends PageImporter {
+export default class DigitalEuropeImporter extends PageImporter {
   async fetch(url): Promise<Response> {
     return fetch(url);
   }
@@ -55,14 +55,13 @@ export default class CreativeImporter extends PageImporter {
 
   process(document: Document, url: string, entryParams?: any): PageImporterResource[] {
 
-    const main = document.querySelector('section');
+    const main = document.querySelector('main');
 
     DOMUtils.remove(main, [
-      '.menu_container',
-      'aside',
-      '.post_listing_navigation',
+      '.post_navigation',
+      '#discussion',
       '#comments',
-      '.entry_share_container'
+      '.content > .post_categories'
     ]);
 
     this.replaceCaptions(main, ['.wp-caption-text']);
@@ -81,40 +80,39 @@ export default class CreativeImporter extends PageImporter {
     // embeds
     this.replaceEmbeds(main);
 
-    const heading = main.querySelector('article h1');
+    const heading = main.querySelector('.content h1');
+    heading.after(JSDOM.fragment('<hr>'));
 
-    const hero = main.querySelector('.feature_image');
+    const hero = main.querySelector('.post_image');
 
-    // find style to extract image src
-    if (hero) {
-      const placeholder = hero.querySelector('img');
-      if (placeholder) {
-        placeholder.remove();
-      }
-      if (hero.previousSibling && hero.previousSibling.tagName === 'STYLE') {
-        // take first image of the styles
-        const g = /\.feature_image {.*?background:url\((.*?)\)/gm.exec(hero.previousSibling.textContent);
-        const img = g && g.length > 1 ? g[1] : '';
-        if (img === '') {
-          throw new Error(`Do not know how to handle hero image for ${url} - no url found.`);
-        }
+    // convert hero data-size image
+    if (hero && hero.dataset) {
+      const img = hero.dataset['size-6'] || hero.dataset['size-5'] || hero.dataset['size-4'] || hero.dataset['size-3'] || hero.dataset['size-2'] || hero.dataset['size-1'];
+      if (img) {
         // add img as DOM element
         hero.append(JSDOM.fragment(`<img src="${img.replace(/url\((.*)\)/, '$1')}">`));
-      } else {
-        throw new Error(`Do not know how to handle hero image for ${url} - no style found`);
       }
     }
 
     // date
-    const authorDateCatContainer = document.querySelector('.date_category_author');
+    const dateContainer = document.querySelector('.author .author_date');
     let folderDate = '';
     let authoredDate = '';
-      
-    const d = moment(authorDateCatContainer.textContent, 'MMM DD, YYYY');
-    folderDate = d.format('YYYY/MM/DD');
-    authoredDate = d.format('MM-DD-YYYY');
+    if (dateContainer) {
+      const d = moment(dateContainer.textContent, 'MM-DD-YYYY');
+      folderDate = d.format('YYYY/MM/DD');
+      authoredDate = d.format('MM-DD-YYYY');
+      dateContainer.remove();
+    }
 
     const author = main.querySelector('[rel=author]').textContent;
+
+    const content = main.querySelector('.post_content');
+
+    // // author and date
+    content.before(JSDOM.fragment('<hr>'));
+    content.before(JSDOM.fragment(`<p>by ${author}</p><p>Posted on ${authoredDate}</p>`));
+    content.before(JSDOM.fragment('<hr>'));
 
     let lang = 'en';
     // determine language
@@ -139,16 +137,6 @@ export default class CreativeImporter extends PageImporter {
     } else if (main.textContent.toLowerCase().indexOf(' di ') !== -1) {
       lang = 'it';
     }
-
-    // reschuffle the dom and insert hr
-    heading.after(JSDOM.fragment('<hr>'));
-    heading.after(JSDOM.fragment(`<p>by ${author}</p><p>Posted on ${authoredDate}</p>`));
-    heading.after(JSDOM.fragment('<hr>'));
-
-    if (hero) {
-      heading.after(hero);
-    }
-    heading.after(JSDOM.fragment('<hr>'));
 
     // topics / products
     let list = [];
@@ -205,14 +193,11 @@ export default class CreativeImporter extends PageImporter {
       <p>Products: ${products.join(', ')}</p>
     `));
 
-    authorDateCatContainer.remove();
-
     // final cleanup
     DOMUtils.remove(main, [
-      'style',
+      '.author',
       '.post_categories',
-      '.post_tags',
-      '.post_author'
+      '.post_tags'
     ]);
 
     // extract "emphasis" from links
@@ -233,12 +218,6 @@ export default class CreativeImporter extends PageImporter {
       }
     });
 
-    // some image links are in headings...
-    main.querySelectorAll('h1 a img, h2 a img, h3 a img, h4 a img, h5 a img, h6 a img').forEach((img) => {
-      // move image link after its parent heading
-      img.parentNode.parentNode.parentNode.insertBefore(img.parentNode, img.parentNode.parentNode.nextSibling);
-    });
-
     // some images are in headings...
     main.querySelectorAll('h1 img, h2 img, h3 img, h4 img, h5 img, h6 img').forEach((img) => {
       // move image after its parent heading
@@ -248,10 +227,16 @@ export default class CreativeImporter extends PageImporter {
     // heading could be full of tags
     main.querySelectorAll('h1, h2, h3, h4, h5, h6').forEach((h) => {
       h.innerHTML = h.textContent;
+    });
 
-      if (h.innerHTML === '') {
-        h.remove();
-      }
+    // convert h4 -> h2
+    main.querySelectorAll('h4').forEach((h) => {
+      h.replaceWith(JSDOM.fragment(`<h2>${h.textContent}</h2>`));
+    });
+
+    // convert h5 -> h3
+    main.querySelectorAll('h5').forEach((h) => {
+      h.replaceWith(JSDOM.fragment(`<h3>${h.textContent}</h3>`));
     });
 
     let name = path.parse(new URL(url).pathname).name;

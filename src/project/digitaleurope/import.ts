@@ -10,7 +10,7 @@
  * governing permissions and limitations under the License.
  */
 
-import CreativeImporter from './CreativeImporter';
+import DigitalEuropeImporter from './DigitalEuropeImporter';
 import FSHandler from '../../product/storage/FSHandler';
 
 import { BlobHandler } from '@adobe/helix-documents-support';
@@ -24,7 +24,7 @@ import Utils from '../../product/utils/Utils';
 config();
 
 async function main() {
-  const handler = new FSHandler('output/creative', console);
+  const handler = new FSHandler('output/digitaleurope', console);
   // tslint:disable-next-line: no-empty
   const noop = () => {};
   const blob = new BlobHandler({
@@ -38,7 +38,7 @@ async function main() {
     }
   });
 
-  const csv = await handler.get('posts.csv');
+  const csv = await handler.get('explorer_result_full.csv');
   const entries = CSV.toArray(csv.toString());
 
   const taxonomy = JSON.parse(await handler.get('taxonomy.json'));
@@ -55,10 +55,10 @@ async function main() {
   });
       
 
-  const importer = new CreativeImporter({
+  const importer = new DigitalEuropeImporter({
     storageHandler: handler,
     blobHandler: blob,
-    cache: '.cache/creative'
+    cache: '.cache/digitaleurope'
   });
 
   let output = `source;file;lang;author;date;topics;products;\n`;
@@ -79,6 +79,8 @@ async function main() {
     }
   });
   console.log('Done');
+
+  // await importer.import(entries[11].url);
 }
 
 main();
