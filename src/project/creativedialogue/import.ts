@@ -53,61 +53,42 @@ async function main() {
     const json = JSON.parse(await handler.get('translations.json'));
     if (json && json.data) {
       json.data.forEach(item => {
-        trans[item.Original] = item['Level 3'] || item['Level 2'] || item['Level 1'];
+        if (!trans[item.Original]) {
+          trans[item.Original] = {
+            name: item['Level 3'] || item['Level 2'] || item['Level 1'],
+            isProduct: item.Type === 'Products'
+          };
+        } else {
+          trans[item.Original].isProduct = trans[item.Original].isProduct || item.Type === 'Products';
+        }
       });
     }
     return trans;
   }
 
-  const translate = (array, trans) => {
-    return array.map(a => {
-      if (!trans[a]) {
-        console.error(`Unknown translation for ${a}`);
-      }
-      return trans[a] || `Unknown translation for ${a}`
-    });
+  const translate = (item, trans) => {
+    const r = {
+      products: [],
+      topics: [],
+    };
+
+    if (item.Tags) {
+      item.Tags.split('|').forEach(t => {
+        const a = t.trim();
+        if (!trans[a]) {
+          console.error(`Unknown translation for ${a}`);
+          r.topics.push(`Unknown translation for ${a}`);
+        } else {
+          if(trans[a].isProduct) {
+            r.products.push(trans[a].name);
+          } else {
+            r.topics.push(trans[a].name);
+          }
+        }
+      });
+    }
+    return r;
   }
-
-  const getTopics = (e) => {
-    let topics = [];
-
-    // e.Category: Insight & Inspiration-Creativity-Creative Inspiration & Trends| Illustration
-    // e.Tags: Products-Creative Cloud-Photoshop /  Internal-Corporate Alignment-Creative Cloud
-
-    if (e.Category) {
-      const s = e.Category.split('-');
-      if (s.length > 0) {
-        topics = topics.concat(s[s.length - 1].split('|').map(p => p.trim()));
-      }
-    }
-
-    if (e.Tags) {
-      const s = e.Tags.split('/');
-      s.forEach(element => {
-        const sub = element.split('-');
-        if (sub.length > 0 && sub[0].toLowerCase() !== 'products') {
-          topics = topics.concat(sub[sub.length - 1].split('|').map(p => p.trim()));
-        }
-      });
-    }
-
-    return topics;
-  };
-
-  const getProducts = (e) => {
-    let products = [];
-    // e.Tags: Products-Creative Cloud-Photoshop| Illustrator| Fresco| Aero| Premiere / Internal-Corporate Alignment-Creative Cloud
-    if (e.Tags) {
-      const s = e.Tags.split('/');
-      s.forEach(element => {
-        const sub = element.split('-');
-        if (sub.length > 0 && sub[0].toLowerCase() === 'products') {
-          products = products.concat(sub[sub.length - 1].split('|').map(p => p.trim()));
-        }
-      });
-    }
-    return products;
-  };
 
   const translations = await getTranslations();
   const results = [];
@@ -116,15 +97,15 @@ async function main() {
   Utils.asyncForEach(entries, async (e) => {
     const url = e.Page;
     try {
-      const topics = translate(getTopics(e), translations)
-      const products = translate(getProducts(e), translations)
+      const { products, topics } = translate(e, translations);
+
       const files = await importer.import(e.Page, {
         topics,
         products
       });
       files.forEach((f) => {
-        console.log(`${url} -> ${f}`);
-        output += `${url};${f};${topics.join(', ')};${products.join(', ')};\n`;
+        console.log(`${url} -> ${f.file}`);
+        output += `${url};${f.file};${topics.join(', ')};${products.join(', ')};\n`;
       });
       await handler.put('importer_output.csv', output)
     } catch(error) {

@@ -12,7 +12,7 @@
 
 import os from 'os';
 export default class CSV {
-  static toCSV(entries: object[], delimiter = ';') {
+  static toCSV(entries: object[], delimiter = ';', noheader = false) {
     let ret = '';
     if (entries && entries.length > 0) {
       // headers
@@ -20,10 +20,15 @@ export default class CSV {
       for (const name in entries[0]) {
         if (entries[0].hasOwnProperty(name)) {
           headers.push(name);
-          ret += name + delimiter;
+          if (noheader) {
+            ret += name + delimiter;
+          }
         }
       }
-      ret += os.EOL;
+
+      if (noheader) {
+        ret += os.EOL;
+      }
 
       entries.forEach((e) => {
         headers.forEach((h) => {

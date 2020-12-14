@@ -178,7 +178,7 @@ export default abstract class PageImporter implements Importer {
   }
 
   cleanup(document: Document) {
-    DOMUtils.remove(document, ['script', 'style', 'hr']);
+    DOMUtils.remove(document, ['script', 'hr']);
 
     document.body.innerHTML = document.body.innerHTML
     // remove html comments
@@ -251,7 +251,9 @@ export default abstract class PageImporter implements Importer {
 
       await Utils.asyncForEach(entries, async (entry) => {
         const file = await this.createMarkdownFile(entry);
-        results.push(file);
+        entry.source = url;
+        entry.file = file;
+        results.push(entry);
       });
     }
 

@@ -4,8 +4,17 @@
   // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
   "version": "0.2.0",
   "configurations": [
-
     {
+      "name": "XD: import",
+      "program": "${workspaceFolder}/src/project/xd/import.ts",
+      "request": "launch",
+      "skipFiles": [
+        "<node_internals>/**"
+      ],
+      "type": "node",
+      "preLaunchTask": "tsc: build - tsconfig.json",
+      "outFiles": ["${workspaceFolder}/build/**/*.js"]
+    }, {
       "name": "Adobe Life: import",
       "program": "${workspaceFolder}/src/project/adobelife/import.ts",
       "request": "launch",
@@ -46,6 +55,26 @@
       "preLaunchTask": "tsc: build - tsconfig.json",
       "outFiles": ["${workspaceFolder}/build/**/*.js"]
     },{
+      "name": "Creative: import",
+      "program": "${workspaceFolder}/src/project/creative/import.ts",
+      "request": "launch",
+      "skipFiles": [
+        "<node_internals>/**"
+      ],
+      "type": "node",
+      "preLaunchTask": "tsc: build - tsconfig.json",
+      "outFiles": ["${workspaceFolder}/build/**/*.js"]
+    },{
+      "name": "Creative: explore",
+      "program": "${workspaceFolder}/src/project/creative/explore.ts",
+      "request": "launch",
+      "skipFiles": [
+        "<node_internals>/**"
+      ],
+      "type": "node",
+      "preLaunchTask": "tsc: build - tsconfig.json",
+      "outFiles": ["${workspaceFolder}/build/**/*.js"]
+    },{
       "name": "Debug",
       "program": "${workspaceFolder}/src/project/importers/debug.ts",
       "request": "launch",
@@ -72,5 +101,20 @@
       "console": "integratedTerminal",
       "internalConsoleOptions": "neverOpen",
       "protocol": "inspector"
+  },{
+    "type": "node",
+    "request": "launch",
+    "name": "Mocha Current File",
+    "program": "${workspaceFolder}/node_modules/mocha/bin/_mocha",
+    "args": [
+      "-r",
+      "ts-node/register",
+      "--timeout",
+      "999999",
+      "--colors",
+      "${file}"
+    ],
+    "console": "integratedTerminal",
+    "internalConsoleOptions": "neverOpen"
   }]
 }

@@ -14,7 +14,7 @@ import { Response } from 'node-fetch';
 import { Document } from 'jsdom';
 
 export default interface Explorer {
-  explore(): Promise<Object[]>;
+  explore(page?: number, pageCallback?: (entries: any[], index: number, results: any[]) => Promise<void>): Promise<Object[]>;
   fetch(page: Number): Promise<Response>;
   process(document: Document, entries: Object[]): Object[];
 

@@ -25,10 +25,9 @@ export default abstract class PagingExplorer implements Explorer {
       this.params = params;
   }
 
-  async explore(): Promise<object[]> {
+  async explore(page = 1, pageCallback?: (entries: any[], index: number, results: any[]) => Promise<void>): Promise<object[]> {
     const startTime = new Date().getTime();
 
-    let page = 1;
     let results = [];
 
     while(page <= this.params.nbMaxPages) {
@@ -49,6 +48,9 @@ export default abstract class PagingExplorer implements Explorer {
 
           if (entries && entries.length > 0) {
             results = results.concat(entries);
+            if (pageCallback) {
+              await pageCallback(entries, page, results);
+            }
           } else {
             console.log(`${this.params.url}: No entries found on page ${page}`);
           }

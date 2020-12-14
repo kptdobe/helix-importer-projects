@@ -19,11 +19,13 @@ export default class PageImporterResource implements ImporterResource {
   name: string;
   directory: string;
   prepend: string;
+  extra: any[];
 
-  constructor(name: string, directory: string, document: Document, prepend: string) {
+  constructor(name: string, directory: string, document: Document, prepend: string, extra?: any) {
     this.name = name;
     this.directory = directory;
     this.document = document;
     this.prepend = prepend;
+    this.extra = extra;
   }
 }
