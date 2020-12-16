@@ -128,4 +128,21 @@ export default class DOMUtils {
       document.querySelectorAll(s).forEach((n) => n.remove());
     });
   }
+
+  static removeComments(document: Document) {
+    document.body.innerHTML = document.body.innerHTML
+    // remove html comments
+      .replace(/<!--(?!>)[\S\s]*?-->/gm, '');
+  }
+
+  static removeSpans(document: Document) {
+    // remove spans
+    document.querySelectorAll('span').forEach(span => {
+      if (span.textContent === '') {
+        span.remove();
+      } else {
+        span.replaceWith(JSDOM.fragment(span.innerHTML));
+      }
+    });
+  }
 }

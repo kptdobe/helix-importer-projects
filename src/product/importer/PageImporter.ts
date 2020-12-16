@@ -22,7 +22,6 @@ import Utils from '../utils/Utils';
 
 import { Response } from 'node-fetch';
 import { JSDOM, Document } from 'jsdom';
-import { Logger } from 'tslint/lib/runner';
 
 import path from 'path';
 import unified from 'unified';
@@ -34,7 +33,7 @@ import fs from 'fs-extra';
 
 export default abstract class PageImporter implements Importer {
   params: PageImporterParams;
-  logger: Logger;
+  logger: any;
   useCache: boolean;
 
   constructor(params: PageImporterParams) {
@@ -149,7 +148,7 @@ export default abstract class PageImporter implements Importer {
             });
           }
         } catch (error) {
-          console.warn(`Invalid link in the page: ${href}`);
+          this.logger.warn(`Invalid link in the page: ${href}`);
         }
       }
     });
@@ -175,7 +174,7 @@ export default abstract class PageImporter implements Importer {
             });
           }
         } catch (error) {
-          console.warn(`Invalid video in the page: ${src}`);
+          this.logger.warn(`Invalid video in the page: ${src}`);
         }
       }
     });
@@ -205,19 +204,8 @@ export default abstract class PageImporter implements Importer {
 
   cleanup(document: Document) {
     DOMUtils.remove(document, ['script', 'hr']);
-
-    document.body.innerHTML = document.body.innerHTML
-    // remove html comments
-      .replace(/<!--(?!>)[\S\s]*?-->/gm, '');
-
-    // remove spans
-    document.querySelectorAll('span').forEach(span => {
-      if (span.textContent === '') {
-        span.remove();
-      } else {
-        span.replaceWith(JSDOM.fragment(span.innerHTML));
-      }
-    });
+    DOMUtils.removeComments(document);
+    DOMUtils.removeSpans(document);    
   }
 
   preProcess(document: Document) {
@@ -248,7 +236,7 @@ export default abstract class PageImporter implements Importer {
 
     const res = await this.fetch(url);
     if (!res.ok) {
-      console.error(`${url}: Invalid response`, res);
+      this.logger.error(`${url}: Invalid response`, res);
       throw new Error(`${url}: Invalid response - ${res.statusText}`)
     } else {
       const html = await res.text();
@@ -283,8 +271,8 @@ export default abstract class PageImporter implements Importer {
       });
     }
 
-    console.log();
-    console.log(`${url}: Process took ${(new Date().getTime() - startTime) / 1000}s.`);
+    this.logger.log('');
+    this.logger.log(`${url}: Process took ${(new Date().getTime() - startTime) / 1000}s.`);
 
     return results;
   }

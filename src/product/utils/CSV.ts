@@ -12,7 +12,15 @@
 
 import os from 'os';
 export default class CSV {
-  static toCSV(entries: object[], delimiter = ';', noheader = false) {
+  /**
+   * Minimalisatic CVS conversion of an array of objects: first object keys determine the CVS headers.
+   * Note: delimiter character is not supported in values
+   * @param {object[]} entries List of object
+   * @param {string} delimiter CSV delimiter
+   * @param {boolean} noheader True to skip the headers
+   * @returns {string} CSV string
+   */
+  static toCSV(entries: object[], delimiter = ';', noheader = false): string {
     let ret = '';
     if (entries && entries.length > 0) {
       // headers
@@ -40,6 +48,12 @@ export default class CSV {
     return ret;
   }
 
+  /**
+   * Converts a CSV string into an array of object
+   * @param {string} csv The CSV string
+   * @param {string} delimiter Delimiter string
+   * @returns {object[]} An array of object for which each CSV column is a property
+   */
   static toArray(csv: string, delimiter = ';') {
     const rows = csv.split(os.EOL);
 

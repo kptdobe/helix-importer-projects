@@ -147,3 +147,41 @@ describe('DOMUtils#remove tests', () => {
     test('<a class="badlink">link</a><p>paragraph</p><a>link2</a>', ['.badlink'], '<p>paragraph</p><a>link2</a>');
   });
 });
+
+describe('DOMUtils#removeCommments tests', () => {
+  const test = (input: string, expected: string) => {
+    const { document } = (new JSDOM(input)).window;
+    DOMUtils.removeComments(document);
+    strictEqual(document.body.innerHTML, expected);
+  };
+
+  it('remove comments', () => {
+    // do nothing
+    test('<p></p>', '<p></p>');
+
+    // remove comments
+    test('<p><!-- useless comment --></p>', '<p></p>');
+    test('<p><!-- useless comment \n multiline --></p>', '<p></p>');
+    test('<p><!-- useless comment \n multiline \n multiline --></p>', '<p></p>');
+    test('<!-- useless comment --><p>The content stays</p><!-- another useless comment with \n line break -->', '<p>The content stays</p>');
+  });
+
+  describe('DOMUtils#removeSpans tests', () => {
+    const test = (input: string, expected: string) => {
+      const { document } = (new JSDOM(input)).window;
+      DOMUtils.removeSpans(document);
+      strictEqual(document.body.innerHTML, expected);
+    };
+  
+    it('remove spans', () => {
+      // do nothing
+      test('<p></p>', '<p></p>');
+  
+      // remove spans
+      test('<p><span></span></p>', '<p></p>');
+      test('<p><span>Content should remain</span> the same</p>', '<p>Content should remain the same</p>');
+      test('<p>Spacing<span> should</span> remain the same</p>', '<p>Spacing should remain the same</p>');
+      test('<p>Spacing<span> should</span> remain the <span>same even</span> with<span> multiple spans</span></p>', '<p>Spacing should remain the same even with multiple spans</p>');
+    });
+  });
+});
