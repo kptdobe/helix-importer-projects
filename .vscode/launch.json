@@ -95,6 +95,26 @@
       "preLaunchTask": "tsc: build - tsconfig.json",
       "outFiles": ["${workspaceFolder}/build/**/*.js"]
     },{
+      "name": "Brasil: import",
+      "program": "${workspaceFolder}/src/project/brasil/import.ts",
+      "request": "launch",
+      "skipFiles": [
+        "<node_internals>/**"
+      ],
+      "type": "node",
+      "preLaunchTask": "tsc: build - tsconfig.json",
+      "outFiles": ["${workspaceFolder}/build/**/*.js"]
+    },{
+      "name": "Brasil: explore",
+      "program": "${workspaceFolder}/src/project/brasil/explore.ts",
+      "request": "launch",
+      "skipFiles": [
+        "<node_internals>/**"
+      ],
+      "type": "node",
+      "preLaunchTask": "tsc: build - tsconfig.json",
+      "outFiles": ["${workspaceFolder}/build/**/*.js"]
+    },{
       "name": "Debug",
       "program": "${workspaceFolder}/src/project/importers/debug.ts",
       "request": "launch",
