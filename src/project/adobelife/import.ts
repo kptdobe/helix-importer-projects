@@ -24,6 +24,7 @@ config();
 async function main() {
   const handler = new FSHandler('output/adobelife', console);
   const blob = new BlobHandler({
+    skipSchedule: true,
     azureBlobSAS: process.env.AZURE_BLOB_SAS,
     azureBlobURI: process.env.AZURE_BLOB_URI
   });
