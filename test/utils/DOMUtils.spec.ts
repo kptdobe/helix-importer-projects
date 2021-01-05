@@ -167,16 +167,17 @@ describe('DOMUtils#removeCommments tests', () => {
   });
 
   describe('DOMUtils#removeSpans tests', () => {
+    // tslint:disable-next-line: no-shadowed-variable
     const test = (input: string, expected: string) => {
       const { document } = (new JSDOM(input)).window;
       DOMUtils.removeSpans(document);
       strictEqual(document.body.innerHTML, expected);
-    };
-  
+    }
+
     it('remove spans', () => {
       // do nothing
       test('<p></p>', '<p></p>');
-  
+
       // remove spans
       test('<p><span></span></p>', '<p></p>');
       test('<p><span>Content should remain</span> the same</p>', '<p>Content should remain the same</p>');
