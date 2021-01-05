@@ -29,7 +29,9 @@ async function main() {
   let csv = '';
   try {
     csv = await handler.get('explorer_result_full.csv');
-  } catch(e) {}
+  } catch(e) {
+    // ignore
+  }
 
   const entries = await pager.explore(1, async (page, index) => {
     csv += CSV.toCSV(page, ';', index === 1);

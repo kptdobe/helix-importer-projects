@@ -53,7 +53,7 @@ async function main() {
       topics.push(name);
     }
   });
-      
+
 
   const importer = new CreativeImporter({
     storageHandler: handler,

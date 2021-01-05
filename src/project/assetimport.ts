@@ -23,11 +23,12 @@ async function main() {
     azureBlobURI: process.env.AZURE_BLOB_URI
   });
 
-  const print = async function(url) {
-    console.log(`RESULT IS: [](${(await blobHandler.getBlob(url)).uri}#image.mp4)`);
+  const print = async (url) => {
+    // tslint:disable-next-line: no-console
+    console.log(`RESULT IS: [](${(await blobHandler.getBlob(url)).uri})`);
   }
-  
-  await print('');
+
+  await print('https://blogsimages.adobe.com/creative/files/2020/10/01_Glyph_Snapping_v01.gif');
 
 }
 

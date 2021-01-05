@@ -53,7 +53,6 @@ async function main() {
       topics.push(name);
     }
   });
-      
 
   const importer = new DigitalEuropeImporter({
     storageHandler: handler,

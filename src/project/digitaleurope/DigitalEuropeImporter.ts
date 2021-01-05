@@ -126,16 +126,17 @@ export default class DigitalEuropeImporter extends PageImporter {
       lang = 'es';
     } else if (author.indexOf('Italia') !== -1) {
       lang = 'it';
-    } else 
-    // use unique keywords to try to determine language
-    if (main.textContent.toLowerCase().indexOf(' das ') !== -1) {
-      lang = 'de';
-    } else if (main.textContent.toLowerCase().indexOf(' à ') !== -1) {
-      lang = 'fr';
-    } else if (main.textContent.toLowerCase().indexOf('ñ') !== -1) {
-      lang = 'es';
-    } else if (main.textContent.toLowerCase().indexOf(' di ') !== -1) {
-      lang = 'it';
+    } else {
+      // use unique keywords to try to determine language
+      if (main.textContent.toLowerCase().indexOf(' das ') !== -1) {
+        lang = 'de';
+      } else if (main.textContent.toLowerCase().indexOf(' à ') !== -1) {
+        lang = 'fr';
+      } else if (main.textContent.toLowerCase().indexOf('ñ') !== -1) {
+        lang = 'es';
+      } else if (main.textContent.toLowerCase().indexOf(' di ') !== -1) {
+        lang = 'it';
+      }
     }
 
     // topics / products
@@ -174,7 +175,7 @@ export default class DigitalEuropeImporter extends PageImporter {
             if (!topics.includes(t)) topics.push(t);
           }
     });
-    
+
     if (!oneTopicMatch) {
       // no topic for taxonomy found (i.e. no main category). Define one
       topics = [DEFAULT_MAIN_CATEGORY].concat(topics);
@@ -239,7 +240,7 @@ export default class DigitalEuropeImporter extends PageImporter {
       h.replaceWith(JSDOM.fragment(`<h3>${h.textContent}</h3>`));
     });
 
-    let name = path.parse(new URL(url).pathname).name;
+    const name = path.parse(new URL(url).pathname).name;
 
     const pir = new PageImporterResource(name, `${lang}/${folderDate}`, main, null, {
       topics,

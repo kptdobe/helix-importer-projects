@@ -109,7 +109,7 @@ export default class CreativeImporter extends PageImporter {
     const authorDateCatContainer = document.querySelector('.date_category_author');
     let folderDate = '';
     let authoredDate = '';
-      
+
     const d = moment(authorDateCatContainer.textContent, 'MMM DD, YYYY');
     folderDate = d.format('YYYY/MM/DD');
     authoredDate = d.format('MM-DD-YYYY');
@@ -128,7 +128,7 @@ export default class CreativeImporter extends PageImporter {
       lang = 'es';
     } else if (author.indexOf('Italia') !== -1) {
       lang = 'it';
-    } else 
+    } else
     // use unique keywords to try to determine language
     if (main.textContent.toLowerCase().indexOf(' das ') !== -1) {
       lang = 'de';
@@ -186,7 +186,7 @@ export default class CreativeImporter extends PageImporter {
             if (!topics.includes(t)) topics.push(t);
           }
     });
-    
+
     if (!oneTopicMatch) {
       // no topic for taxonomy found (i.e. no main category). Define one
       topics = [DEFAULT_MAIN_CATEGORY].concat(topics);
@@ -254,7 +254,7 @@ export default class CreativeImporter extends PageImporter {
       }
     });
 
-    let name = path.parse(new URL(url).pathname).name;
+    const name = path.parse(new URL(url).pathname).name;
 
     const pir = new PageImporterResource(name, `${lang}/${folderDate}`, main, null, {
       topics,

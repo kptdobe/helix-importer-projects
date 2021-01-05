@@ -165,7 +165,7 @@ export default abstract class PageImporter implements Importer {
             if (poster) {
               assets.push({
                 url: poster
-              });  
+              });
             }
             // upload mp4
             assets.push({
@@ -205,7 +205,7 @@ export default abstract class PageImporter implements Importer {
   cleanup(document: Document) {
     DOMUtils.remove(document, ['script', 'hr']);
     DOMUtils.removeComments(document);
-    DOMUtils.removeSpans(document);    
+    DOMUtils.removeSpans(document);
   }
 
   preProcess(document: Document) {
