@@ -202,16 +202,6 @@ export default class DigitalEuropeImporter extends PageImporter {
       h.innerHTML = h.textContent;
     });
 
-    // convert h4 -> h2
-    main.querySelectorAll('h4').forEach((h) => {
-      h.replaceWith(JSDOM.fragment(`<h2>${h.textContent}</h2>`));
-    });
-
-    // convert h5 -> h3
-    main.querySelectorAll('h5').forEach((h) => {
-      h.replaceWith(JSDOM.fragment(`<h3>${h.textContent}</h3>`));
-    });
-
     const name = path.parse(new URL(url).pathname).name;
 
     const pir = new PageImporterResource(name, `${lang}/${folderDate}`, main, null, {
