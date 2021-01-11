@@ -115,8 +115,8 @@
       "preLaunchTask": "tsc: build - tsconfig.json",
       "outFiles": ["${workspaceFolder}/build/**/*.js"]
     },{
-      "name": "Debug",
-      "program": "${workspaceFolder}/src/project/importers/debug.ts",
+      "name": "Spark: import",
+      "program": "${workspaceFolder}/src/project/spark/import.ts",
       "request": "launch",
       "skipFiles": [
         "<node_internals>/**"
@@ -124,8 +124,28 @@
       "type": "node",
       "preLaunchTask": "tsc: build - tsconfig.json",
       "outFiles": ["${workspaceFolder}/build/**/*.js"]
-    },
-    {
+    },{
+      "name": "Spark: explore",
+      "program": "${workspaceFolder}/src/project/spark/explore.ts",
+      "request": "launch",
+      "skipFiles": [
+        "<node_internals>/**"
+      ],
+      "type": "node",
+      "preLaunchTask": "tsc: build - tsconfig.json",
+      "outFiles": ["${workspaceFolder}/build/**/*.js"]
+    },{
+        "name": "Spark Make: import",
+        "program": "${workspaceFolder}/src/project/sparkmake/import.ts",
+        "request": "launch",
+        "skipFiles": [
+          "<node_internals>/**"
+        ],
+        "type": "node",
+        "preLaunchTask": "tsc: build - tsconfig.json",
+        "outFiles": ["${workspaceFolder}/build/**/*.js"]
+      
+    },{
       "type": "node",
       "request": "launch",
       "name": "Mocha All",
@@ -166,5 +186,15 @@
     "type": "node",
     "preLaunchTask": "tsc: build - tsconfig.json",
     "outFiles": ["${workspaceFolder}/build/**/*.js"]
+    },{
+      "name": "Debug",
+      "program": "${workspaceFolder}/src/project/importers/debug.ts",
+      "request": "launch",
+      "skipFiles": [
+        "<node_internals>/**"
+      ],
+      "type": "node",
+      "preLaunchTask": "tsc: build - tsconfig.json",
+      "outFiles": ["${workspaceFolder}/build/**/*.js"]
   }]
 }

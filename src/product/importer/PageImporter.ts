@@ -64,7 +64,7 @@ export default abstract class PageImporter implements Importer {
     return src;
   }
 
-  async createMarkdownFile(resource: PageImporterResource) {
+  async createMarkdownFile(resource: PageImporterResource, url: string) {
     const name = resource.name;
     const directory = resource.directory;
     const sanitizedName = FileUtils.sanitizeFilename(name);
@@ -138,8 +138,8 @@ export default abstract class PageImporter implements Importer {
       const { href } = a;
       if (href && href !== '' && (contents.indexOf(href) !== -1) || contents.indexOf(decodeURI(href)) !== -1) {
         try {
-          const url = new URL(href);
-          const ext = path.extname(url.href);
+          const u = new URL(href, url);
+          const ext = path.extname(u.href);
           if (ext === '.mp4') {
             // upload mp4
             assets.push({
@@ -158,8 +158,8 @@ export default abstract class PageImporter implements Importer {
       const { src } = s;
       if (src && src !== '' && (contents.indexOf(src) !== -1) || contents.indexOf(decodeURI(src)) !== -1) {
         try {
-          const url = new URL(src);
-          const ext = path.extname(url.href);
+          const u = new URL(src, url);
+          const ext = path.extname(u.href);
           if (ext === '.mp4') {
             const poster = s.parentNode.getAttribute('poster');
             if (poster) {
@@ -181,7 +181,8 @@ export default abstract class PageImporter implements Importer {
 
     // upload all assets
     await Utils.asyncForEach(assets, async (asset) => {
-      let newSrc = await this.upload(decodeURI(asset.url));
+      const u = new URL(decodeURI(asset.url), url);
+      let newSrc = await this.upload(u.href);
       if (asset.append) {
         newSrc = `${newSrc}${asset.append}`
       }
@@ -264,7 +265,7 @@ export default abstract class PageImporter implements Importer {
       const entries = this.process(document, url, entryParams, html);
 
       await Utils.asyncForEach(entries, async (entry) => {
-        const file = await this.createMarkdownFile(entry);
+        const file = await this.createMarkdownFile(entry, url);
         entry.source = url;
         entry.file = file;
         results.push(entry);
