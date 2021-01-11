@@ -145,4 +145,28 @@ export default class DOMUtils {
       }
     });
   }
+
+  static replaceByCaptions(document: Document, selectors: string[]) {
+    selectors.forEach((selector) => {
+      document.querySelectorAll(selector).forEach((elem) => {
+        const captionText = elem.textContent.trim();
+        elem.parentNode.insertBefore(JSDOM.fragment(`<p><em>${captionText}</em><p>`), elem);
+        elem.remove();
+      })
+    });
+  }
+
+  static replaceEmbeds(document: Document) {
+    document.querySelectorAll('iframe').forEach((iframe) => {
+      if (iframe.src) {
+        iframe.after(JSDOM.fragment(`<hlxembed>${iframe.src}</hlxembed>`));
+      }
+      iframe.remove();
+    });
+
+    document.querySelectorAll('video').forEach((video) => {
+      const anim = JSDOM.fragment(`<table><tr><th>Video</th></tr><tr><td>${video.outerHTML}</td></tr></table>`);
+      video.replaceWith(anim);
+    });
+  }
 }

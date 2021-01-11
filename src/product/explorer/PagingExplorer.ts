@@ -53,6 +53,7 @@ export default abstract class PagingExplorer implements Explorer {
             }
           } else {
             console.log(`${this.params.url}: No entries found on page ${page}`);
+            break;
           }
 
         } else {

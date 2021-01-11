@@ -22,6 +22,7 @@ import { JSDOM, Document } from 'jsdom';
 import DOMUtils from '../../product/utils/DOMUtils';
 import Utils from '../../product/utils/Utils';
 import { strict } from 'assert';
+import WPUtils from '../wp/WPUtils';
 
 const DEFAULT_MAIN_CATEGORY = '';
 const IMPORT_TAG = 'SparkMake';
@@ -31,74 +32,12 @@ export default class SparkMakeImporter extends PageImporter {
     return fetch(url);
   }
 
-  replaceEmbeds(document: Document) {
-    document.querySelectorAll('iframe').forEach((iframe) => {
-      if (iframe.src) {
-        iframe.after(JSDOM.fragment(`<hlxembed>${iframe.src}</hlxembed>`));
-      }
-      iframe.remove();
-    });
-
-    document.querySelectorAll('video').forEach((video) => {
-      const anim = JSDOM.fragment(`<table><tr><th>Video</th></tr><tr><td>${video.outerHTML}</td></tr></table>`);
-      video.replaceWith(anim);
-    });
-  }
-
-  replaceCaptions(document: Document, selectors: string[]) {
-    selectors.forEach((selector) => {
-      document.querySelectorAll(selector).forEach((elem) => {
-        const captionText = elem.textContent.trim();
-        elem.parentNode.insertBefore(JSDOM.fragment(`<p><em>${captionText}</em><p>`), elem);
-        elem.remove();
-      })
-    });
-  }
-
   process(document: Document, url: string, entryParams?: any): PageImporterResource[] {
 
-    // an h5 following an image / video is a caption
-    document.querySelectorAll('p img, video').forEach(item => {
-      if ((item.parentNode.nextElementSibling && item.parentNode.nextElementSibling.tagName === 'H5') ||
-        (item.nextElementSibling && item.nextElementSibling.tagName === 'H5')) {
-          const elem = item.parentNode.nextElementSibling && item.parentNode.nextElementSibling.tagName === 'H5' ? item.parentNode.nextElementSibling : item.nextElementSibling;
-          const captionText = elem.textContent.trim();
-          elem.parentNode.insertBefore(JSDOM.fragment(`<p><em>${captionText}</em><p>`), elem);
-          elem.remove();
-      }
-    });
+    WPUtils.handleCaptions(document);
+    DOMUtils.replaceEmbeds(document);
 
-    // embeds
-    this.replaceEmbeds(document);
-
-    // extract "emphasis" from links
-    // see https://github.com/adobe/helix-pipeline/issues/895
-    document.querySelectorAll('a strong').forEach((elem) => {
-      const parent = elem.parentNode;
-      if (parent.childNodes.length === 1) {
-        // only cover case with 1 child
-        const txt = elem.textContent;
-        // only treat links
-        if (txt && (txt.indexOf('.') !== -1 || txt.indexOf(':') !== -1 )) {
-          elem.innerHTML = '';
-          // take out of parent
-          parent.parentNode.insertBefore(elem, parent.nextSibling);
-          elem.appendChild(parent);
-          parent.innerHTML = txt;
-        }
-      }
-    });
-
-    // some images are in headings...
-    document.querySelectorAll('h1 img, h2 img, h3 img, h4 img, h5 img, h6 img').forEach((img) => {
-      // move image after its parent heading
-      img.parentNode.parentNode.insertBefore(img, img.parentNode.nextSibling);
-    });
-
-    // heading could be full of tags
-    document.querySelectorAll('h1, h2, h3, h4, h5, h6').forEach((h) => {
-      h.innerHTML = h.textContent;
-    });
+    WPUtils.genericDOMCleanup(document);
 
     const fbPixel = document.querySelector('img')
     if (fbPixel) {

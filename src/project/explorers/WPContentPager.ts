@@ -27,7 +27,7 @@ export class WPContentPager extends PagingExplorer {
 
   process(document: Document, all: any[]): object[] {
     const entries = [];
-    document.querySelectorAll('.content .entry, .entries .entry').forEach((el) => {
+    document.querySelectorAll('main .content .entry, main .entries .entry').forEach((el) => {
       const link = el.querySelector('h2 a');
       if (link) {
         const url = link.getAttribute('href');
