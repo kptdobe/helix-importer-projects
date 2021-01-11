@@ -216,9 +216,31 @@ export default abstract class PageImporter implements Importer {
     DOMUtils.escapeSpecialCharacters(document);
     ['b', 'a', 'big', 'code', 'em', 'i', 'label', 's', 'small', /*'span'*/, 'strong', 'sub', 'sup', 'u', 'var']
       .forEach((tag) => DOMUtils.reviewInlineElement(document, tag));
+
+    const imgs = document.querySelectorAll('img');
+    imgs.forEach(img => {
+      let src = img.getAttribute('src');
+      const ori = src;
+      const dataSrc = img.getAttribute('data-src');
+      if (!src && dataSrc) {
+        // lazy loading case
+        img.setAttribute('src', dataSrc);
+      }
+
+      if (dataSrc && src.indexOf('data:') === 0) {
+        // b64 img, try replace with dataSrc
+        img.setAttribute('src', dataSrc);
+      }
+
+      src = img.getAttribute('src');
+      if (src.indexOf('data:') === 0) {
+        // we cannot handle b64 asset for now, remove
+        img.remove();
+      }
+    });
   }
 
-  postProcess(md: string) {
+  postProcess(md: string): string {
     return md
       .replace(/\\\\\~/gm, '\\~');
   }
@@ -252,17 +274,29 @@ export default abstract class PageImporter implements Importer {
     }
   }
 
+  async get(url: string): Promise<any> {
+    const html = await this.download(url);
+
+    if (html) {
+      const { document } = (new JSDOM(DOMUtils.removeNoscripts(html.toString()))).window;
+      this.preProcess(document);
+      return {
+        document,
+        html,
+      };
+    }
+
+    return null;
+  }
+
   async import(url: string, entryParams?: object) {
     const startTime = new Date().getTime();
 
-    const html = await this.download(url);
+    const { document, html } = await this.get(url);
 
     const results = [];
-    if (html) {
-      const { document } = (new JSDOM(html)).window;
-
-      this.preProcess(document)
-      const entries = this.process(document, url, entryParams, html);
+    if (document) {
+      const entries = await this.process(document, url, entryParams, html);
 
       await Utils.asyncForEach(entries, async (entry) => {
         const file = await this.createMarkdownFile(entry, url);
@@ -279,5 +313,5 @@ export default abstract class PageImporter implements Importer {
   }
 
   abstract fetch(url: string): Promise<Response>;
-  abstract process(document: Document, url: string, entryParams?: object, raw?: string): PageImporterResource[];
+  abstract process(document: Document, url: string, entryParams?: object, raw?: string): Promise<PageImporterResource[]>;
 }

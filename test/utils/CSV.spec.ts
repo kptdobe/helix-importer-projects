@@ -26,6 +26,10 @@ describe('CSV tests', () => {
     strictEqual(CSV.toCSV([{ a: 'a1', b: 'b1' }, { a: 'a2', b: 'b2' }]), `a;b;${os.EOL}a1;b1;${os.EOL}a2;b2;${os.EOL}`);
   });
 
+  it('CSV#toCSV conversion - skip headers', () => {
+    strictEqual(CSV.toCSV([{ a: 'a1', b: 'b1' }, { a: 'a2', b: 'b2' }], ';', true), `a1;b1;${os.EOL}a2;b2;${os.EOL}`);
+  });
+
   it('CSV#toCSV missing properties', () => {
     strictEqual(CSV.toCSV([{ a: 'a1', b: 'b1' }, { b: 'b2' }]), `a;b;${os.EOL}a1;b1;${os.EOL};b2;${os.EOL}`);
   });

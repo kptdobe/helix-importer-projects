@@ -14,7 +14,7 @@ import { Document } from 'jsdom';
 
 export default interface Importer {
   import(url: string, entryParams?: object): Promise<string[]>;
-  process(document: Document, url: string): ImporterResource[];
+  process(document: Document, url: string): Promise<ImporterResource[]>;
 }
 
 export interface ImporterResource {

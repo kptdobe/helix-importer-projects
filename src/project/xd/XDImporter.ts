@@ -52,7 +52,7 @@ export default class XDImporter extends PageImporter {
     });
   }
 
-  process(document: Document, url: string, params: object[], raw: string): PageImporterResource[] {
+  async process(document: Document, url: string, params: object[], raw: string): Promise<PageImporterResource[]> {
 
     const main = document.querySelector('main');
 

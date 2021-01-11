@@ -32,7 +32,7 @@ export default class SparkMakeImporter extends PageImporter {
     return fetch(url);
   }
 
-  process(document: Document, url: string, entryParams?: any): PageImporterResource[] {
+  async process(document: Document, url: string, entryParams?: any): Promise<PageImporterResource[]> {
 
     WPUtils.handleCaptions(document);
     DOMUtils.replaceEmbeds(document);
@@ -54,7 +54,7 @@ export default class SparkMakeImporter extends PageImporter {
         const src = /url\((.*)\)/.exec(bkgImg)[1];
         hero.before(JSDOM.fragment(`<img src="${src}">`));
       }
-      hero.after(JSDOM.fragment(`<hr>`))
+      hero.after(JSDOM.fragment(`<hr>`));
     }
 
     // templates

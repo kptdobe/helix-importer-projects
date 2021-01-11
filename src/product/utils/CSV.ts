@@ -17,10 +17,10 @@ export default class CSV {
    * Note: delimiter character is not supported in values
    * @param {object[]} entries List of object
    * @param {string} delimiter CSV delimiter
-   * @param {boolean} noheader True to skip the headers
+   * @param {boolean} skipHeaders True to skip the headers
    * @returns {string} CSV string
    */
-  static toCSV(entries: object[], delimiter = ';', noheader = false): string {
+  static toCSV(entries: object[], delimiter = ';', skipHeaders = false): string {
     let ret = '';
     if (entries && entries.length > 0) {
       // headers
@@ -28,13 +28,13 @@ export default class CSV {
       for (const name in entries[0]) {
         if (entries[0].hasOwnProperty(name)) {
           headers.push(name);
-          if (noheader) {
+          if (!skipHeaders) {
             ret += name + delimiter;
           }
         }
       }
 
-      if (noheader) {
+      if (!skipHeaders) {
         ret += os.EOL;
       }
 
@@ -82,7 +82,7 @@ export default class CSV {
 
         const obj = {};
         values.forEach((v, index) => {
-          obj[headers[index]] = v;
+          obj[headers[index].trim()] = v ? v.trim() : '';
         });
         array.push(obj);
       }

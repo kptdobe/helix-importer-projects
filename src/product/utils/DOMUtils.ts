@@ -169,4 +169,8 @@ export default class DOMUtils {
       video.replaceWith(anim);
     });
   }
+
+  static removeNoscripts(html: string) {
+    return html.replace(/<noscript>((.|\n)*?)<\/noscript>/gm, '');
+  }
 }

@@ -30,7 +30,7 @@ export default class CreativeDialogueImporter extends PageImporter {
     return fetch(url);
   }
 
-  process(document: Document, url: string, entryParams?: any): PageImporterResource[] {
+  async process(document: Document, url: string, entryParams?: any): Promise<PageImporterResource[]> {
 
     const main = document.querySelector('main');
 

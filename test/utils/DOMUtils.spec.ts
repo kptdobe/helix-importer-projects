@@ -185,4 +185,21 @@ describe('DOMUtils#removeCommments tests', () => {
       test('<p>Spacing<span> should</span> remain the <span>same even</span> with<span> multiple spans</span></p>', '<p>Spacing should remain the same even with multiple spans</p>');
     });
   });
+
+  describe('DOMUtils#removeNoscripts tests', () => {
+    // tslint:disable-next-line: no-shadowed-variable
+    const test = (input: string, expected: string) => {
+      strictEqual(DOMUtils.removeNoscripts(input), expected);
+    }
+
+    it.only('remove no scripts', () => {
+      // do nothing
+      // test('<p>Some content</p>', '<p>Some content</p>');
+
+      // remove noscript
+      test('<body>Do A<noscript>Do Z</noscript></body>', '<body>Do A</body>');
+      test('<body>Do A<noscript>Do Z</noscript> but also do B<noscript>and X</noscript></body>', '<body>Do A but also do B</body>');
+      test('<body>Do A<noscript>Do Z\n Do X</noscript> but also do B<noscript>and W \ and Y</noscript></body>', '<body>Do A but also do B</body>');
+    });
+  });
 });
