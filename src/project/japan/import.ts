@@ -40,6 +40,7 @@ async function main() {
   });
 
   const csv = await handler.get('explorer_result_full.csv');
+  // const csv = await handler.get('one.csv');
 
   const entries = CSV.toArray(csv.toString());
 

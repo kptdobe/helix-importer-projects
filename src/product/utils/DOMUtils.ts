@@ -158,8 +158,11 @@ export default class DOMUtils {
 
   static replaceEmbeds(document: Document) {
     document.querySelectorAll('iframe').forEach((iframe) => {
-      if (iframe.src) {
-        iframe.after(JSDOM.fragment(`<hlxembed>${iframe.src}</hlxembed>`));
+      const src = iframe.getAttribute('src');
+      const dataSrc = iframe.getAttribute('data-src');
+      const url = dataSrc ? dataSrc : src;
+      if (url) {
+        iframe.after(JSDOM.fragment(`<hlxembed>${url}</hlxembed>`));
       }
       iframe.remove();
     });

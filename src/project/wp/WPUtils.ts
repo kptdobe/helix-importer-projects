@@ -15,7 +15,7 @@ import DOMUtils from '../../product/utils/DOMUtils';
 
 export default class WPUtils {
   static handleCaptions(document: Document) {
-    DOMUtils.replaceByCaptions(document, ['.wp-caption-text']);
+    DOMUtils.replaceByCaptions(document, ['.wp-caption-text', 'figcaption']);
 
     // an h5 following an image / video is a caption
     document.querySelectorAll('p img, video').forEach(item => {
