@@ -205,6 +205,26 @@
       "preLaunchTask": "tsc: build - tsconfig.json",
       "outFiles": ["${workspaceFolder}/build/**/*.js"]
     },{
+      "name": "TechComm: explore",
+      "program": "${workspaceFolder}/src/project/techcomm/explore.ts",
+      "request": "launch",
+      "skipFiles": [
+        "<node_internals>/**"
+      ],
+      "type": "node",
+      "preLaunchTask": "tsc: build - tsconfig.json",
+      "outFiles": ["${workspaceFolder}/build/**/*.js"]
+    },{
+      "name": "TechComm: import",
+      "program": "${workspaceFolder}/src/project/techcomm/import.ts",
+      "request": "launch",
+      "skipFiles": [
+        "<node_internals>/**"
+      ],
+      "type": "node",
+      "preLaunchTask": "tsc: build - tsconfig.json",
+      "outFiles": ["${workspaceFolder}/build/**/*.js"]
+    },{
       "type": "node",
       "request": "launch",
       "name": "Mocha All",

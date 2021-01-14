@@ -23,9 +23,10 @@ import DOMUtils from '../../product/utils/DOMUtils';
 import WPUtils from '../wp/WPUtils';
 
 const DEFAULT_AUTHOR = 'Adobe';
-const DEFAULT_MAIN_CATEGORY = 'Security';
+const DEFAULT_MAIN_CATEGORY = 'Technologies';
+const IMPORT_TOPIC = 'TechComm Import';
 
-export default class SecurityImporter extends PageImporter {
+export default class TechCommImporter extends PageImporter {
   async fetch(url): Promise<Response> {
     return fetch(url);
   }
@@ -119,6 +120,8 @@ export default class SecurityImporter extends PageImporter {
       const t = tag.textContent.trim().replace(/\s\(.*\)/gm, '');
       topics.push(t);
     });
+
+    topics.push(IMPORT_TOPIC);
 
     topics = topics.filter((t, i) => topics.indexOf(t) === i);
     products = products.filter((t, i) => products.indexOf(t) === i)
