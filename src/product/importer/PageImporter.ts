@@ -187,7 +187,7 @@ export default abstract class PageImporter implements Importer {
         newSrc = `${newSrc}${asset.append}`
       }
       contents = contents
-        .replace(new RegExp(`${asset.url.replace('.', '\\.')}`, 'gm'), newSrc)
+        .replace(new RegExp(`${asset.url.replace('.', '\\.').replace('?', '\\?')}`, 'gm'), newSrc)
         .replace(new RegExp(`${decodeURI(asset.url).replace('.', '\\.')}`, 'gm'), newSrc);
     });
 

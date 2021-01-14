@@ -22,9 +22,10 @@ import { JSDOM, Document } from 'jsdom';
 import DOMUtils from '../../product/utils/DOMUtils';
 import WPUtils from '../wp/WPUtils';
 
-const DEFAULT_AUTHOR = 'Adobe Japan';
+const DEFAULT_AUTHOR = 'Adobe';
+const DEFAULT_MAIN_CATEGORY = 'Security';
 
-export default class JapanImporter extends PageImporter {
+export default class SecurityImporter extends PageImporter {
   async fetch(url): Promise<Response> {
     return fetch(url);
   }
@@ -32,7 +33,7 @@ export default class JapanImporter extends PageImporter {
   async handleAuthor(url: string, name: string) {
     const { document } = await this.get(url);
     if (document) {
-      const content = document.querySelector('.content');
+      const content = document.querySelector('.author');
 
       content.querySelectorAll('h1').forEach(h => {
         // downgrade to h2 to match template
@@ -55,10 +56,16 @@ export default class JapanImporter extends PageImporter {
     const heading = main.querySelector('.content h1');
 
     // find hero image
-    const hero = main.querySelector('.post_header_image');
+    const hero = main.querySelector('.post_image');
+
     if (hero) {
-      const src = /url\('(.*)'\)/.exec(hero.outerHTML)[1];
-      heading.after(JSDOM.fragment(`<img src="${src}">`));
+      if (hero && hero.dataset) {
+        const img = hero.dataset['size-6'] || hero.dataset['size-5'] || hero.dataset['size-4'] || hero.dataset['size-3'] || hero.dataset['size-2'] || hero.dataset['size-1'];
+        if (img) {
+          // add img as DOM element
+          hero.append(JSDOM.fragment(`<img src="${img.replace(/url\((.*)\)/, '$1')}">`));
+        }
+      }
     }
 
     heading.after(JSDOM.fragment('<hr>'));
@@ -68,7 +75,7 @@ export default class JapanImporter extends PageImporter {
     let folderDate = '';
     let authoredDate = '';
     if (dateContainer) {
-      const d = moment(dateContainer.textContent, 'YYYY.MM.DD');
+      const d = moment(dateContainer.textContent, 'MM-DD-YYYY');
       folderDate = d.format('YYYY/MM/DD');
       authoredDate = d.format('MM-DD-YYYY');
       dateContainer.remove();
@@ -100,7 +107,7 @@ export default class JapanImporter extends PageImporter {
     }
 
     // topics / products
-    const topics = [];
+    const topics = [DEFAULT_MAIN_CATEGORY];
     const products = [];
     const cats = document.querySelectorAll('.post_categories a');
     cats.forEach((cat) => {
@@ -131,16 +138,6 @@ export default class JapanImporter extends PageImporter {
     ]);
 
     WPUtils.genericDOMCleanup(main);
-
-    // "upgrade" h4 -> h2
-    main.querySelectorAll('h4').forEach((h) => {
-      h.replaceWith(JSDOM.fragment(`<h2>${h.textContent}</h2>`));
-    });
-
-    // "upgrade" h5 -> h3
-    main.querySelectorAll('h5').forEach((h) => {
-      h.replaceWith(JSDOM.fragment(`<h3>${h.textContent}</h3>`));
-    });
 
     const name = path.parse(new URL(url).pathname).name;
 
