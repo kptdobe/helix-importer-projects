@@ -39,7 +39,9 @@ async function main() {
     }
   });
 
-  const csv = await handler.get('en.csv');
+  const csv = await handler.get('one.csv');
+  // const csv = await handler.get('en.csv');
+  // const csv = await handler.get('en_templates.csv');
   const entries = CSV.toArray(csv.toString());
 
   const importer = new SparkMakeImporter({
@@ -49,7 +51,7 @@ async function main() {
   });
 
   let output = `source;file;\n`;
-  Utils.asyncForEach(entries, async (e) => {
+  await Utils.asyncForEach(entries, async (e) => {
     const { url } = e;
     try {
       const resources = await importer.import(url);

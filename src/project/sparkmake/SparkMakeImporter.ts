@@ -60,9 +60,19 @@ export default class SparkMakeImporter extends PageImporter {
     // templates
   document.querySelectorAll('.template-examples').forEach(templateExample => {
       const table = document.createElement('table');
-      templateExample.after(table);
+      let row = document.createElement('tr');
+      table.append(row);
+
+      const hCell = document.createElement('th');
+      row.append(hCell);
+
+      hCell.innerHTML = 'Template List';
+      hCell.setAttribute('colspan', 2);
+
+      let hasOne = false;
+
       templateExample.querySelectorAll('.example').forEach(t => {
-        const row = document.createElement('tr');
+        row = document.createElement('tr');
         table.append(row);
 
         const imgCell = document.createElement('td');
@@ -77,11 +87,63 @@ export default class SparkMakeImporter extends PageImporter {
         row.append(linkCell);
         const link = t.querySelector('a');
         if (link) {
+          if (!link.textContent || link.textContent.trim() === '') {
+            link.innerHTML = 'Edit this template';
+          }
           linkCell.append(link);
         }
+
+        hasOne = true;
       });
 
+      if (hasOne) {
+        templateExample.after(table);
+      }
+
       templateExample.remove();
+    });
+
+    // tips
+    document.querySelectorAll('.tip-list').forEach(tipList => {
+      const table = document.createElement('table');
+
+      let row = document.createElement('tr');
+      table.append(row);
+
+      const hCell = document.createElement('th');
+      row.append(hCell);
+
+      hCell.innerHTML = 'How-to Steps';
+      hCell.setAttribute('colspan', 2);
+
+      let hasOne = false;
+      tipList.querySelectorAll('.tip').forEach(tip => {
+        row = document.createElement('tr');
+        table.append(row);
+
+        const titleCell = document.createElement('td');
+        row.append(titleCell);
+
+        const h3 = tip.querySelector('h3');
+        if (h3) {
+          titleCell.append(h3.textContent);
+        }
+
+        const textCell = document.createElement('td');
+        row.append(textCell);
+
+        const text = tip.querySelector('.tip-text');
+        if (text) {
+          textCell.append(text);
+        }
+        hasOne = true;
+      });
+
+      if (hasOne) {
+        tipList.after(table);
+      }
+
+      tipList.remove();
     });
 
     DOMUtils.remove(document, [
