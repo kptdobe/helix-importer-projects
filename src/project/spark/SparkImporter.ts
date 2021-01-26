@@ -43,14 +43,21 @@ export default class SparkImporter extends PageImporter {
 
     // insta embeds
     main.querySelectorAll('.instagram-media').forEach(insta => {
-      const link = insta.getAttribute('data-instgrm-permalink');
+      let link = insta.getAttribute('data-instgrm-permalink');
+      if (!link) {
+        const a = insta.querySelector('a:last-child')
+        if (a) {
+          link = a.href;
+        }
+      }
+
       if (link) {
         insta.after(JSDOM.fragment(`<hlxembed>${link}</hlxembed>`));
       }
       insta.remove();
     });
 
-    main.querySelectorAll('.twitter-tweet a:last-child').forEach(tweet => {
+    main.querySelectorAll('.twitter-tweet p:last-child a').forEach(tweet => {
       const link = tweet.getAttribute('href');
       if (link) {
         tweet.parentNode.parentNode.after(JSDOM.fragment(`<hlxembed>${link}</hlxembed>`));

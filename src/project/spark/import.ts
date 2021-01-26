@@ -50,7 +50,7 @@ async function main() {
   });
 
   let output = `source;file;author;date;tags;\n`;
-  Utils.asyncForEach(entries, async (e) => {
+  await Utils.asyncForEach(entries, async (e) => {
     const { url } = e;
     try {
       const resources = await importer.import(url);

@@ -146,6 +146,12 @@ export default class SparkMakeImporter extends PageImporter {
       tipList.remove();
     });
 
+    const intro = document.querySelector('.intro');
+    const container = document.querySelector('.container');
+    if (intro && container) {
+      container.before(intro);
+    }
+
     DOMUtils.remove(document, [
       'header',
       'footer',
