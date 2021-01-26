@@ -195,7 +195,7 @@ export default abstract class PageImporter implements Importer {
       contents = resource.prepend + contents;
     }
 
-    contents = this.postProcess(contents);
+    contents = this.postProcessMD(contents);
 
     await this.params.storageHandler.put(p, contents);
     this.logger.log(`MD file created: ${p}`);
@@ -233,14 +233,27 @@ export default abstract class PageImporter implements Importer {
       }
 
       src = img.getAttribute('src');
-      if (src.indexOf('data:') === 0) {
+      if (!src || src.indexOf('data:') === 0) {
         // we cannot handle b64 asset for now, remove
         img.remove();
       }
     });
   }
 
-  postProcess(md: string): string {
+  postProcess(document: Document) {
+    const imgs = document.querySelectorAll('img');
+    imgs.forEach(img => {
+      if (img.closest('table')) {
+        // if image is in a table
+        if (img.title && img.title.indexOf('|') !== -1) {
+          // pipes in title do not get encoded
+          img.title = img.title.replace(/\|/gm, '\\|');
+        }
+      }
+    });
+  }
+
+  postProcessMD(md: string): string {
     return md
       .replace(/\\\\\~/gm, '\\~');
   }
@@ -297,6 +310,8 @@ export default abstract class PageImporter implements Importer {
     const results = [];
     if (document) {
       const entries = await this.process(document, url, entryParams, html);
+
+      this.postProcess(document);
 
       await Utils.asyncForEach(entries, async (entry) => {
         const file = await this.createMarkdownFile(entry, url);

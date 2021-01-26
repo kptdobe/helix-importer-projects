@@ -168,7 +168,11 @@ export default class DOMUtils {
     });
 
     document.querySelectorAll('video').forEach((video) => {
-      const anim = JSDOM.fragment(`<table><tr><th>Video</th></tr><tr><td>${video.outerHTML}</td></tr></table>`);
+      let blockType = 'Video';
+      if (video.autoplay) {
+        blockType = 'Animation';
+      }
+      const anim = JSDOM.fragment(`<table><tr><th>${blockType}</th></tr><tr><td>${video.outerHTML}</td></tr></table>`);
       video.replaceWith(anim);
     });
   }
