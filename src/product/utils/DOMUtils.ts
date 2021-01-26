@@ -150,7 +150,7 @@ export default class DOMUtils {
     selectors.forEach((selector) => {
       document.querySelectorAll(selector).forEach((elem) => {
         const captionText = elem.textContent.trim();
-        elem.parentNode.insertBefore(JSDOM.fragment(`<p><em>${captionText}</em><p>`), elem);
+        elem.parentNode.insertBefore(JSDOM.fragment(`<p><em>${captionText}</em></p>`), elem);
         elem.remove();
       })
     });

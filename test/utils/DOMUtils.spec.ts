@@ -192,14 +192,30 @@ describe('DOMUtils#removeCommments tests', () => {
       strictEqual(DOMUtils.removeNoscripts(input), expected);
     }
 
-    it.only('remove no scripts', () => {
+    it('remove no scripts', () => {
       // do nothing
-      // test('<p>Some content</p>', '<p>Some content</p>');
+      test('<p>Some content</p>', '<p>Some content</p>');
 
       // remove noscript
       test('<body>Do A<noscript>Do Z</noscript></body>', '<body>Do A</body>');
       test('<body>Do A<noscript>Do Z</noscript> but also do B<noscript>and X</noscript></body>', '<body>Do A but also do B</body>');
       test('<body>Do A<noscript>Do Z\n Do X</noscript> but also do B<noscript>and W \ and Y</noscript></body>', '<body>Do A but also do B</body>');
+    });
+  });
+
+  describe('DOMUtils#replaceByCaptions tests', () => {
+    // tslint:disable-next-line: no-shadowed-variable
+    const test = (input: string, selectors: string[], expected: string) => {
+      const { document } = (new JSDOM(input)).window;
+      DOMUtils.replaceByCaptions(document, selectors)
+      strictEqual(document.body.innerHTML, expected);
+    }
+
+    it('replace by captions', () => {
+      // do nothing
+      test('<p>Some content</p>', ['i'], '<p>Some content</p>');
+      test('<p>Some content</p><img src="image.png"><figcaption>Copyright to author.</figcaption><p>Some more content</p>', ['figcaption'], '<p>Some content</p><img src="image.png"><p><em>Copyright to author.</em></p><p>Some more content</p>');
+      test('<p>Some content</p><img src="image.png"><figcaption>Copyright to author.</figcaption><div class="custom-caption">Another copyright to author.</div><p>Some more content</p>', ['figcaption', '.custom-caption'], '<p>Some content</p><img src="image.png"><p><em>Copyright to author.</em></p><p><em>Another copyright to author.</em></p><p>Some more content</p>');
     });
   });
 });
