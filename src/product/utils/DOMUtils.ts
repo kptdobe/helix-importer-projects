@@ -180,4 +180,17 @@ export default class DOMUtils {
   static removeNoscripts(html: string) {
     return html.replace(/<noscript>((.|\n)*?)<\/noscript>/gm, '');
   }
+
+  static encodeImagesForTable(document) {
+    const imgs = document.querySelectorAll('img');
+    imgs.forEach(img => {
+      if (img.closest('table')) {
+        // if image is in a table
+        if (img.title && img.title.indexOf('|') !== -1) {
+          // pipes in title do not get encoded
+          img.title = img.title.replace(/\|/gm, '\\|');
+        }
+      }
+    });
+  }
 }

@@ -241,16 +241,7 @@ export default abstract class PageImporter implements Importer {
   }
 
   postProcess(document: Document) {
-    const imgs = document.querySelectorAll('img');
-    imgs.forEach(img => {
-      if (img.closest('table')) {
-        // if image is in a table
-        if (img.title && img.title.indexOf('|') !== -1) {
-          // pipes in title do not get encoded
-          img.title = img.title.replace(/\|/gm, '\\|');
-        }
-      }
-    });
+    DOMUtils.encodeImagesForTable(document);
   }
 
   postProcessMD(md: string): string {

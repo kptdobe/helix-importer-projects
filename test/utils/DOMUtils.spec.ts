@@ -214,8 +214,57 @@ describe('DOMUtils#removeCommments tests', () => {
     it('replace by captions', () => {
       // do nothing
       test('<p>Some content</p>', ['i'], '<p>Some content</p>');
+
       test('<p>Some content</p><img src="image.png"><figcaption>Copyright to author.</figcaption><p>Some more content</p>', ['figcaption'], '<p>Some content</p><img src="image.png"><p><em>Copyright to author.</em></p><p>Some more content</p>');
       test('<p>Some content</p><img src="image.png"><figcaption>Copyright to author.</figcaption><div class="custom-caption">Another copyright to author.</div><p>Some more content</p>', ['figcaption', '.custom-caption'], '<p>Some content</p><img src="image.png"><p><em>Copyright to author.</em></p><p><em>Another copyright to author.</em></p><p>Some more content</p>');
+    });
+  });
+
+  describe('DOMUtils#replaceEmbeds', () => {
+    // tslint:disable-next-line: no-shadowed-variable
+    const test = (input: string, expected: string) => {
+      const { document } = (new JSDOM(input)).window;
+      DOMUtils.replaceEmbeds(document)
+      strictEqual(document.body.innerHTML, expected);
+    }
+
+    it('replace embeds', () => {
+      // do nothing
+      test('<p>Some content</p>', '<p>Some content</p>');
+    });
+
+    it('replace embeds deals with iframes', () => {
+      test('<p>Some content</p><iframe src="https://www.youtube.com/xyz"></iframe>', '<p>Some content</p><hlxembed>https://www.youtube.com/xyz</hlxembed>');
+      test('<p>Some content</p><iframe data-src="https://www.youtube.com/xyz"></iframe>', '<p>Some content</p><hlxembed>https://www.youtube.com/xyz</hlxembed>');
+      test('<p>Some content</p><iframe data-src="https://www.youtube.com/data-src" src="https://www.youtube.com/src"></iframe>', '<p>Some content</p><hlxembed>https://www.youtube.com/data-src</hlxembed>');
+    });
+
+    it('replace embeds deals video tag / content blocks', () => {
+      // Video block
+      test('<p>Some content</p><video src="https://www.server.com/video.mp4"></video>', '<p>Some content</p><table><tbody><tr><th>Video</th></tr><tr><td><video src="https://www.server.com/video.mp4"></video></td></tr></tbody></table>');
+
+      // Animation block
+      test('<p>Some content</p><video src="https://www.server.com/video.mp4" autoplay="true"></video>', '<p>Some content</p><table><tbody><tr><th>Animation</th></tr><tr><td><video src="https://www.server.com/video.mp4" autoplay="true"></video></td></tr></tbody></table>');
+    });
+  });
+
+  describe('DOMUtils#encodeImagesForTable', () => {
+    // tslint:disable-next-line: no-shadowed-variable
+    const test = (input: string, expected: string) => {
+      const { document } = (new JSDOM(input)).window;
+      DOMUtils.encodeImagesForTable(document)
+      strictEqual(document.body.innerHTML, expected);
+    }
+
+    it('encode images for table', () => {
+      // do nothing
+      test('<p>Some content</p>', '<p>Some content</p>');
+
+      // encode pipe if image is in table
+      test('<p>Some content</p><table><tr><td><img src="https://www.server.com/image.jpg" title="Some title | which contains a pipe"></td></tr></table>', '<p>Some content</p><table><tbody><tr><td><img src="https://www.server.com/image.jpg" title="Some title \\| which contains a pipe"></td></tr></tbody></table>');
+
+      // don't encode pipe if image is not in a table
+      test('<p>Some content</p><img src="https://www.server.com/image.jpg" title="Some title | which contains a pipe">', '<p>Some content</p><img src="https://www.server.com/image.jpg" title="Some title | which contains a pipe">');
     });
   });
 });
