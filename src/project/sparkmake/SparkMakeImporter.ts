@@ -22,7 +22,7 @@ import { JSDOM, Document } from 'jsdom';
 import DOMUtils from '../../product/utils/DOMUtils';
 import Utils from '../../product/utils/Utils';
 import { strict } from 'assert';
-import WPUtils from '../wp/WPUtils';
+import WPUtils from '../../product/wp/WPUtils';
 import { SIGVTALRM } from 'constants';
 
 const DEFAULT_MAIN_CATEGORY = '';

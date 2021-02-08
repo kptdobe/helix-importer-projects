@@ -12,7 +12,7 @@
 
 /* tslint:disable: no-console */
 
-import PagingExplorer from '../../product/explorer/PagingExplorer';
+import PagingExplorer from '../../explorer/PagingExplorer';
 
 import FormData from 'form-data';
 import fetch from 'node-fetch';

@@ -12,7 +12,7 @@
 
 /* tslint:disable: no-console */
 
-import { WPAdminAjaxPager } from '../explorers/WPAdminAjaxPager';
+import { WPAdminAjaxPager } from '../../product/wp/explorers/WPAdminAjaxPager';
 import FSHandler from '../../product/storage/FSHandler';
 
 import CSV from '../../product/utils/CSV';

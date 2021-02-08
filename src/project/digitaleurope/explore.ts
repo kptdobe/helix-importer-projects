@@ -16,7 +16,7 @@
 import FSHandler from '../../product/storage/FSHandler';
 
 import CSV from '../../product/utils/CSV';
-import { WPContentPager } from '../explorers/WPContentPager';
+import { WPContentPager } from '../../product/wp/explorers/WPContentPager';
 
 
 async function main() {

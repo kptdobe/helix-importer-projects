@@ -20,7 +20,7 @@ import moment from 'moment';
 import { Response } from 'node-fetch';
 import { JSDOM, Document } from 'jsdom';
 import DOMUtils from '../../product/utils/DOMUtils';
-import WPUtils from '../wp/WPUtils';
+import WPUtils from '../../product/wp/WPUtils';
 
 const DEFAULT_MAIN_CATEGORY = '';
 const IMPORT_TAG = 'Spark';

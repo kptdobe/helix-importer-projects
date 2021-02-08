@@ -11,7 +11,7 @@
  */
 /* tslint:disable: no-console */
 
-import PagingExplorer from '../../product/explorer/PagingExplorer';
+import PagingExplorer from '../../explorer/PagingExplorer';
 
 import fetch from 'node-fetch';
 import { Response } from 'node-fetch';
@@ -19,7 +19,7 @@ import { Document } from 'jsdom';
 
 const API = 'page/';
 
-export class WPPostWrapPager extends PagingExplorer {
+export class WPContentPager extends PagingExplorer {
   async fetch(page: number): Promise<Response> {
     const api = `${this.params.url}${API}${page}`;
     return fetch(api);
@@ -27,18 +27,23 @@ export class WPPostWrapPager extends PagingExplorer {
 
   process(document: Document, all: any[]): object[] {
     const entries = [];
-    document.querySelectorAll('.post-meta-wrap').forEach((el) => {
-      const link = el.querySelector('.post-item > a');
-      const url = link.getAttribute('href');
+    document.querySelectorAll('main .content .entry, main .entries .entry, article .entries .entry').forEach((el) => {
+      const link = el.querySelector('h2 a');
+      if (link) {
+        const url = link.getAttribute('href');
 
-      const entryDate = el.querySelector('.post-date');
-      const date = entryDate.textContent.trim();
+        const entryDate = el.querySelector('.date') || el.querySelector('.entry_footer');
+        let date = '';
+        if (entryDate) {
+          date = entryDate.textContent.trim();
+        }
 
-      if (all.findIndex((entry) => entry.url === url) === -1) {
-        entries.push({
-          date,
-          url
-        });
+        if (all.findIndex((entry) => entry.url === url) === -1) {
+          entries.push({
+            date,
+            url
+          });
+        }
       }
     });
     return entries;

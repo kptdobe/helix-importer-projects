@@ -21,7 +21,7 @@ import { Response } from 'node-fetch';
 import { JSDOM, Document } from 'jsdom';
 import DOMUtils from '../../product/utils/DOMUtils';
 
-import WPUtils from '../wp/WPUtils';
+import WPUtils from '../../product/wp/WPUtils';
 
 export default class NRImporter extends PageImporter {
   async fetch(url: string): Promise<Response> {

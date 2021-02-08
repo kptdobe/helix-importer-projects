@@ -11,7 +11,7 @@
  */
 import { JSDOM, Document } from 'jsdom';
 
-import DOMUtils from '../../product/utils/DOMUtils';
+import DOMUtils from '../utils/DOMUtils';
 
 export default class WPUtils {
   static handleCaptions(document: Document) {

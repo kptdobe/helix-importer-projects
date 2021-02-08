@@ -21,7 +21,7 @@ import { Response } from 'node-fetch';
 import { JSDOM, Document } from 'jsdom';
 import DOMUtils from '../../product/utils/DOMUtils';
 import { isTemplateExpression } from 'typescript';
-import WPUtils from '../wp/WPUtils';
+import WPUtils from '../../product/wp/WPUtils';
 
 const DEFAULT_AUTHOR = 'Adobe Korea';
 

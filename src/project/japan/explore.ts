@@ -12,7 +12,7 @@
 
 /* tslint:disable: no-console */
 
-import { WPContentPager } from '../explorers/WPContentPager';
+import { WPContentPager } from '../../product/wp/explorers/WPContentPager';
 import FSHandler from '../../product/storage/FSHandler';
 
 import CSV from '../../product/utils/CSV';
