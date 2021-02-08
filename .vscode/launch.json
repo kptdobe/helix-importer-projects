@@ -145,6 +145,16 @@
         "preLaunchTask": "tsc: build - tsconfig.json",
         "outFiles": ["${workspaceFolder}/build/**/*.js"]
     },{
+        "name": "NR: import",
+        "program": "${workspaceFolder}/src/project/nr/import.ts",
+        "request": "launch",
+        "skipFiles": [
+          "<node_internals>/**"
+        ],
+        "type": "node",
+        "preLaunchTask": "tsc: build - tsconfig.json",
+        "outFiles": ["${workspaceFolder}/build/**/*.js"]
+    },{
       "name": "Japan: explore",
       "program": "${workspaceFolder}/src/project/japan/explore.ts",
       "request": "launch",
