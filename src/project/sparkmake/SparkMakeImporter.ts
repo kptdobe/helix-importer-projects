@@ -23,6 +23,7 @@ import DOMUtils from '../../product/utils/DOMUtils';
 import Utils from '../../product/utils/Utils';
 import { strict } from 'assert';
 import WPUtils from '../wp/WPUtils';
+import { SIGVTALRM } from 'constants';
 
 const DEFAULT_MAIN_CATEGORY = '';
 const IMPORT_TAG = 'SparkMake';
@@ -85,12 +86,9 @@ export default class SparkMakeImporter extends PageImporter {
 
         const linkCell = document.createElement('td');
         row.append(linkCell);
-        const link = t.querySelector('a');
-        if (link) {
-          if (!link.textContent || link.textContent.trim() === '') {
-            link.innerHTML = 'Edit this template';
-          }
-          linkCell.append(link);
+        const title = t.querySelector('.title');
+        if (title) {
+          linkCell.append(title.parentNode);
         }
 
         hasOne = true;
@@ -146,11 +144,73 @@ export default class SparkMakeImporter extends PageImporter {
       tipList.remove();
     });
 
-    const intro = document.querySelector('.intro');
+    // remove empty divs
+    document.querySelectorAll('.intro > div').forEach(div => {
+      if (div.textContent.trim() === '') {
+        div.remove();
+      }
+    });
+
+    // first div is intro
+    const intro = document.querySelector('.intro > div');
     const container = document.querySelector('.container');
     if (intro && container) {
       container.before(intro);
     }
+
+    // try to find tips
+    document.querySelectorAll('.intro > div').forEach(div => {
+      const tipList = div.querySelector('.text');
+      if (tipList && div.textContent.trim().toLowerCase().indexOf('how to') === 0) {
+        // found an How To / Tips section
+
+        const table = document.createElement('table');
+
+        let row = document.createElement('tr');
+        table.append(row);
+
+        const hCell = document.createElement('th');
+        row.append(hCell);
+
+        hCell.innerHTML = 'How-to Steps';
+        hCell.setAttribute('colspan', 2);
+
+        let hasOne = false;
+        let index = 0;
+        tipList.querySelectorAll('p').forEach(tip => {
+          if (index%2 === 0) {
+            // odd p is title
+            row = document.createElement('tr');
+            table.append(row);
+
+            const titleCell = document.createElement('td');
+            row.append(titleCell);
+
+            if (tip.textContent.trim().match(/\d. /)) {
+              titleCell.append(tip.textContent.trim().substring(3));
+            } else {
+              titleCell.append(tip.textContent.trim());
+            }
+          } else {
+            // even p is text
+            const textCell = document.createElement('td');
+            row.append(textCell);
+
+            textCell.append(tip.textContent.trim());
+          }
+          index++;
+          hasOne = true;
+        });
+
+        if (hasOne) {
+          tipList.after(table);
+        }
+
+        // div.firstElementChild.replaceWith(JSDOM.fragment(`<h2>${div.firstElementChild.textContent}</h2>`));
+
+        tipList.remove();
+      }
+    });
 
     DOMUtils.remove(document, [
       'header',
