@@ -6,7 +6,7 @@
   "configurations": [
     {
       "name": "XD: import",
-      "program": "${workspaceFolder}/src/project/xd/import.ts",
+      "program": "${workspaceFolder}/src/xd/import.ts",
       "request": "launch",
       "skipFiles": [
         "<node_internals>/**"
@@ -16,7 +16,7 @@
       "outFiles": ["${workspaceFolder}/build/**/*.js"]
     }, {
       "name": "Adobe Life: import",
-      "program": "${workspaceFolder}/src/project/adobelife/import.ts",
+      "program": "${workspaceFolder}/src/adobelife/import.ts",
       "request": "launch",
       "skipFiles": [
         "<node_internals>/**"
@@ -26,7 +26,7 @@
       "outFiles": ["${workspaceFolder}/build/**/*.js"]
     },{
       "name": "Adobe Life: explore",
-      "program": "${workspaceFolder}/src/project/adobelife/explore.ts",
+      "program": "${workspaceFolder}/src/adobelife/explore.ts",
       "request": "launch",
       "skipFiles": [
         "<node_internals>/**"
@@ -36,7 +36,7 @@
       "outFiles": ["${workspaceFolder}/build/**/*.js"]
     },{
       "name": "Creative Dialogue: import",
-      "program": "${workspaceFolder}/src/project/creativedialogue/import.ts",
+      "program": "${workspaceFolder}/src/creativedialogue/import.ts",
       "request": "launch",
       "skipFiles": [
         "<node_internals>/**"
@@ -46,7 +46,7 @@
       "outFiles": ["${workspaceFolder}/build/**/*.js"]
     },{
       "name": "Creative Dialogue: explore",
-      "program": "${workspaceFolder}/src/project/creativedialogue/explore.ts",
+      "program": "${workspaceFolder}/src/creativedialogue/explore.ts",
       "request": "launch",
       "skipFiles": [
         "<node_internals>/**"
@@ -56,7 +56,7 @@
       "outFiles": ["${workspaceFolder}/build/**/*.js"]
     },{
       "name": "Creative: import",
-      "program": "${workspaceFolder}/src/project/creative/import.ts",
+      "program": "${workspaceFolder}/src/creative/import.ts",
       "request": "launch",
       "skipFiles": [
         "<node_internals>/**"
@@ -66,7 +66,7 @@
       "outFiles": ["${workspaceFolder}/build/**/*.js"]
     },{
       "name": "Creative: explore",
-      "program": "${workspaceFolder}/src/project/creative/explore.ts",
+      "program": "${workspaceFolder}/src/creative/explore.ts",
       "request": "launch",
       "skipFiles": [
         "<node_internals>/**"
@@ -76,7 +76,7 @@
       "outFiles": ["${workspaceFolder}/build/**/*.js"]
     },{
       "name": "DigitalEurope: import",
-      "program": "${workspaceFolder}/src/project/digitaleurope/import.ts",
+      "program": "${workspaceFolder}/src/digitaleurope/import.ts",
       "request": "launch",
       "skipFiles": [
         "<node_internals>/**"
@@ -86,7 +86,7 @@
       "outFiles": ["${workspaceFolder}/build/**/*.js"]
     },{
       "name": "DigitalEurope: explore",
-      "program": "${workspaceFolder}/src/project/digitaleurope/explore.ts",
+      "program": "${workspaceFolder}/src/digitaleurope/explore.ts",
       "request": "launch",
       "skipFiles": [
         "<node_internals>/**"
@@ -96,7 +96,7 @@
       "outFiles": ["${workspaceFolder}/build/**/*.js"]
     },{
       "name": "Brasil: import",
-      "program": "${workspaceFolder}/src/project/brasil/import.ts",
+      "program": "${workspaceFolder}/src/brasil/import.ts",
       "request": "launch",
       "skipFiles": [
         "<node_internals>/**"
@@ -106,7 +106,7 @@
       "outFiles": ["${workspaceFolder}/build/**/*.js"]
     },{
       "name": "Brasil: explore",
-      "program": "${workspaceFolder}/src/project/brasil/explore.ts",
+      "program": "${workspaceFolder}/src/brasil/explore.ts",
       "request": "launch",
       "skipFiles": [
         "<node_internals>/**"
@@ -116,7 +116,7 @@
       "outFiles": ["${workspaceFolder}/build/**/*.js"]
     },{
       "name": "Spark: import",
-      "program": "${workspaceFolder}/src/project/spark/import.ts",
+      "program": "${workspaceFolder}/src/spark/import.ts",
       "request": "launch",
       "skipFiles": [
         "<node_internals>/**"
@@ -126,7 +126,7 @@
       "outFiles": ["${workspaceFolder}/build/**/*.js"]
     },{
       "name": "Spark: explore",
-      "program": "${workspaceFolder}/src/project/spark/explore.ts",
+      "program": "${workspaceFolder}/src/spark/explore.ts",
       "request": "launch",
       "skipFiles": [
         "<node_internals>/**"
@@ -136,7 +136,7 @@
       "outFiles": ["${workspaceFolder}/build/**/*.js"]
     },{
         "name": "Spark Make: import",
-        "program": "${workspaceFolder}/src/project/sparkmake/import.ts",
+        "program": "${workspaceFolder}/src/sparkmake/import.ts",
         "request": "launch",
         "skipFiles": [
           "<node_internals>/**"
@@ -146,7 +146,7 @@
         "outFiles": ["${workspaceFolder}/build/**/*.js"]
     },{
         "name": "NR: import",
-        "program": "${workspaceFolder}/src/project/nr/import.ts",
+        "program": "${workspaceFolder}/src/nr/import.ts",
         "request": "launch",
         "skipFiles": [
           "<node_internals>/**"
@@ -156,7 +156,7 @@
         "outFiles": ["${workspaceFolder}/build/**/*.js"]
     },{
       "name": "Japan: explore",
-      "program": "${workspaceFolder}/src/project/japan/explore.ts",
+      "program": "${workspaceFolder}/src/japan/explore.ts",
       "request": "launch",
       "skipFiles": [
         "<node_internals>/**"
@@ -166,7 +166,7 @@
       "outFiles": ["${workspaceFolder}/build/**/*.js"]
     },{
       "name": "Japan: import",
-      "program": "${workspaceFolder}/src/project/japan/import.ts",
+      "program": "${workspaceFolder}/src/japan/import.ts",
       "request": "launch",
       "skipFiles": [
         "<node_internals>/**"
@@ -176,7 +176,7 @@
       "outFiles": ["${workspaceFolder}/build/**/*.js"]
     },{
       "name": "LATAM: explore",
-      "program": "${workspaceFolder}/src/project/latam/explore.ts",
+      "program": "${workspaceFolder}/src/latam/explore.ts",
       "request": "launch",
       "skipFiles": [
         "<node_internals>/**"
@@ -186,7 +186,7 @@
       "outFiles": ["${workspaceFolder}/build/**/*.js"]
     },{
       "name": "LATAM: import",
-      "program": "${workspaceFolder}/src/project/latam/import.ts",
+      "program": "${workspaceFolder}/src/latam/import.ts",
       "request": "launch",
       "skipFiles": [
         "<node_internals>/**"
@@ -196,7 +196,7 @@
       "outFiles": ["${workspaceFolder}/build/**/*.js"]
     },{
       "name": "Security: explore",
-      "program": "${workspaceFolder}/src/project/security/explore.ts",
+      "program": "${workspaceFolder}/src/security/explore.ts",
       "request": "launch",
       "skipFiles": [
         "<node_internals>/**"
@@ -206,7 +206,7 @@
       "outFiles": ["${workspaceFolder}/build/**/*.js"]
     },{
       "name": "Security: import",
-      "program": "${workspaceFolder}/src/project/security/import.ts",
+      "program": "${workspaceFolder}/src/security/import.ts",
       "request": "launch",
       "skipFiles": [
         "<node_internals>/**"
@@ -216,7 +216,7 @@
       "outFiles": ["${workspaceFolder}/build/**/*.js"]
     },{
       "name": "TechComm: explore",
-      "program": "${workspaceFolder}/src/project/techcomm/explore.ts",
+      "program": "${workspaceFolder}/src/techcomm/explore.ts",
       "request": "launch",
       "skipFiles": [
         "<node_internals>/**"
@@ -226,7 +226,7 @@
       "outFiles": ["${workspaceFolder}/build/**/*.js"]
     },{
       "name": "TechComm: import",
-      "program": "${workspaceFolder}/src/project/techcomm/import.ts",
+      "program": "${workspaceFolder}/src/techcomm/import.ts",
       "request": "launch",
       "skipFiles": [
         "<node_internals>/**"
@@ -236,7 +236,7 @@
       "outFiles": ["${workspaceFolder}/build/**/*.js"]
     },{
       "name": "AdobeConnect: explore",
-      "program": "${workspaceFolder}/src/project/adobeconnect/explore.ts",
+      "program": "${workspaceFolder}/src/adobeconnect/explore.ts",
       "request": "launch",
       "skipFiles": [
         "<node_internals>/**"
@@ -246,7 +246,7 @@
       "outFiles": ["${workspaceFolder}/build/**/*.js"]
     },{
       "name": "AdobeConnect: import",
-      "program": "${workspaceFolder}/src/project/adobeconnect/import.ts",
+      "program": "${workspaceFolder}/src/adobeconnect/import.ts",
       "request": "launch",
       "skipFiles": [
         "<node_internals>/**"
@@ -287,7 +287,7 @@
     "internalConsoleOptions": "neverOpen"
   },{
     "name": "Import asset",
-    "program": "${workspaceFolder}/src/project/assetimport.ts",
+    "program": "${workspaceFolder}/src/assetimport.ts",
     "request": "launch",
     "skipFiles": [
       "<node_internals>/**"
@@ -297,7 +297,7 @@
     "outFiles": ["${workspaceFolder}/build/**/*.js"]
     },{
       "name": "Debug",
-      "program": "${workspaceFolder}/src/project/importers/debug.ts",
+      "program": "${workspaceFolder}/src/importers/debug.ts",
       "request": "launch",
       "skipFiles": [
         "<node_internals>/**"
