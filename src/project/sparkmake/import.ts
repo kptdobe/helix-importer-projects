@@ -11,14 +11,11 @@
  */
 
 import SparkMakeImporter from './SparkMakeImporter';
-import FSHandler from '../../product/storage/FSHandler';
 
+import { FSHandler, CSV, Utils } from '@adobe/helix-importer';
 import { BlobHandler } from '@adobe/helix-documents-support';
 
 import { config } from 'dotenv';
-import CSV from '../../product/utils/CSV';
-import Utils from '../../product/utils/Utils';
-
 /* tslint:disable: no-console */
 
 config();

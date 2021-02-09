@@ -11,15 +11,13 @@
  */
 /* eslint-disable no-console */
 
-import PageImporter from '../../product/importer/PageImporter';
-import PageImporterResource from '../../product/importer/PageImporterResource';
+import { PageImporter, PageImporterResource, DOMUtils } from '@adobe/helix-importer';
 
 import fetch from 'node-fetch';
 import path from 'path';
 import moment from 'moment';
 import { Response } from 'node-fetch';
 import { JSDOM, Document } from 'jsdom';
-import DOMUtils from '../../product/utils/DOMUtils';
 
 const DEFAULT_TOPIC = 'Adobe Life';
 const DEFAULT_AUTHOR = 'Adobe Life Team';

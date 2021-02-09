@@ -12,10 +12,7 @@
 
 /* tslint:disable: no-console */
 
-import { WPContentPager } from '../../product/wp/explorers/WPContentPager';
-import FSHandler from '../../product/storage/FSHandler';
-
-import CSV from '../../product/utils/CSV';
+import { WPContentPager, FSHandler, CSV } from '@adobe/helix-importer';
 
 async function main() {
   const handler = new FSHandler('output/techcomm', console);

@@ -11,16 +11,13 @@
  */
 /* eslint-disable no-console */
 
-import PageImporter from '../../product/importer/PageImporter';
-import PageImporterResource from '../../product/importer/PageImporterResource';
+import { PageImporter, PageImporterResource, DOMUtils, WPUtils } from '@adobe/helix-importer';
 
 import fetch from 'node-fetch';
 import path from 'path';
 import moment from 'moment';
 import { Response } from 'node-fetch';
 import { JSDOM, Document } from 'jsdom';
-import DOMUtils from '../../product/utils/DOMUtils';
-import WPUtils from '../../product/wp/WPUtils';
 
 const DEFAULT_AUTHOR = 'Adobe';
 const DEFAULT_MAIN_CATEGORY = 'Adobe Connect';

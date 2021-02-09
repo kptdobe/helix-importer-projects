@@ -12,10 +12,7 @@
 
 /* tslint:disable: no-console */
 
-import { WPAdminAjaxPager } from '../../product/wp/explorers/WPAdminAjaxPager';
-import FSHandler from '../../product/storage/FSHandler';
-
-import CSV from '../../product/utils/CSV';
+import { WPAdminAjaxPager, FSHandler, CSV } from '@adobe/helix-importer';
 
 async function main() {
   const handler = new FSHandler('output/adobelife', console);

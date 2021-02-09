@@ -11,8 +11,8 @@
  */
 
 import XDImporter from './XDImporter';
-import FSHandler from '../../product/storage/FSHandler';
 
+import { FSHandler } from '@adobe/helix-importer';
 import { BlobHandler } from '@adobe/helix-documents-support';
 
 import { config } from 'dotenv';
