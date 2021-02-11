@@ -77,11 +77,17 @@ export default class SparkMakeImporter extends PageImporter {
           imgCell.append(img);
         }
 
-        const linkCell = document.createElement('td');
-        row.append(linkCell);
+        const titleCell = document.createElement('td');
+        row.append(titleCell);
         const title = t.querySelector('.title');
         if (title) {
-          linkCell.append(title.parentNode);
+          titleCell.append(title.parentNode);
+        } else {
+          const a = t.querySelector('a');
+          if (a) {
+            a.textContent = 'Template';
+            imgCell.append(a);
+          }
         }
 
         hasOne = true;
