@@ -255,6 +255,26 @@
       "preLaunchTask": "tsc: build - tsconfig.json",
       "outFiles": ["${workspaceFolder}/build/**/*.js"]
     },{
+    "name": "acrolaw: explore",
+      "program": "${workspaceFolder}/src/acrolaw/explore.ts",
+      "request": "launch",
+      "skipFiles": [
+        "<node_internals>/**"
+      ],
+      "type": "node",
+      "preLaunchTask": "tsc: build - tsconfig.json",
+      "outFiles": ["${workspaceFolder}/build/**/*.js"]
+    },{
+      "name": "acrolaw: import",
+      "program": "${workspaceFolder}/src/acrolaw/import.ts",
+      "request": "launch",
+      "skipFiles": [
+        "<node_internals>/**"
+      ],
+      "type": "node",
+      "preLaunchTask": "tsc: build - tsconfig.json",
+      "outFiles": ["${workspaceFolder}/build/**/*.js"]
+    },{
       "type": "node",
       "request": "launch",
       "name": "Mocha All",
