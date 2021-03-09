@@ -21,9 +21,9 @@ async function main() {
     url: 'https://blogs.adobe.com/creative/'
   });
 
-  let csv = await handler.get('explorer_result_full.csv');
-  const entries = await pager.explore(311, async (page, index) => {
-    csv += CSV.toCSV(page, ';', index === 1);
+  let csv = '';
+  const entries = await pager.explore(1, async (page, index) => {
+    csv += CSV.toCSV(page, ';', index !== 1);
     await handler.put('explorer_result_full.csv', csv);
   });
   console.log(`Received ${entries.length} entries!`);
