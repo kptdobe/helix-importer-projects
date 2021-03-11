@@ -49,7 +49,7 @@ export default class SparkImporter extends PageImporter {
       }
 
       if (link) {
-        insta.after(JSDOM.fragment(`<hlxembed>${link}</hlxembed>`));
+        insta.after(JSDOM.fragment(`<table><tr><th>Embed</th></tr><tr><td>${link}</td></tr></table>`));
       }
       insta.remove();
     });
@@ -57,7 +57,7 @@ export default class SparkImporter extends PageImporter {
     main.querySelectorAll('.twitter-tweet p:last-child a').forEach(tweet => {
       const link = tweet.getAttribute('href');
       if (link) {
-        tweet.parentNode.parentNode.after(JSDOM.fragment(`<hlxembed>${link}</hlxembed>`));
+        tweet.parentNode.parentNode.after(JSDOM.fragment(`<table><tr><th>Embed</th></tr><tr><td>${link}</td></tr></table>`));
       }
       tweet.parentNode.parentNode.remove();
     });
@@ -103,7 +103,7 @@ export default class SparkImporter extends PageImporter {
     const findTOCNode = (doc) => {
       let parent = null;
       doc.querySelectorAll('b,strong').forEach(b => {
-        const txt = b.textContent ? b.textContent.trim().toLowerCase().replaceAll(/[\.\:]/gm, '') : null;
+        const txt = b.textContent ? b.textContent.trim().toLowerCase().replace(/[\.\:]/gm, '') : null;
         if ('table of contents' === txt) {
           parent = b.parentNode;
         }
