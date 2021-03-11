@@ -65,33 +65,37 @@ export default class SparkMakeImporter extends PageImporter {
 
       let hasOne = false;
 
-      templateExample.querySelectorAll('.example').forEach(t => {
-        row = document.createElement('tr');
-        table.append(row);
-
-        const imgCell = document.createElement('td');
-        row.append(imgCell);
-
-        const img = t.querySelector('img');
-        if (img) {
-          imgCell.append(img);
-        }
-
-        const titleCell = document.createElement('td');
-        row.append(titleCell);
-        const title = t.querySelector('.title');
-        if (title) {
-          titleCell.append(title.parentNode);
-        } else {
-          const a = t.querySelector('a');
-          if (a) {
-            a.textContent = 'Template';
-            imgCell.append(a);
-          }
-        }
-
+      if ('Refer to English page' === entryParams.template) {
         hasOne = true;
-      });
+      } else {
+        templateExample.querySelectorAll('.example').forEach(t => {
+          row = document.createElement('tr');
+          table.append(row);
+
+          const imgCell = document.createElement('td');
+          row.append(imgCell);
+
+          const img = t.querySelector('img');
+          if (img) {
+            imgCell.append(img);
+          }
+
+          const titleCell = document.createElement('td');
+          row.append(titleCell);
+          const title = t.querySelector('.title');
+          if (title) {
+            titleCell.append(title.parentNode);
+          } else {
+            const a = t.querySelector('a');
+            if (a) {
+              a.textContent = 'Template';
+              imgCell.append(a);
+            }
+          }
+
+          hasOne = true;
+        });
+      }
 
       if (hasOne) {
         templateExample.after(table);
@@ -220,7 +224,7 @@ export default class SparkMakeImporter extends PageImporter {
       '.more-related-designs'
     ]);
 
-    const parsed = path.parse(new URL(url).pathname);
+    const parsed = path.parse(new URL(`https://${entryParams.target}`).pathname);
     const name = parsed.name;
 
 

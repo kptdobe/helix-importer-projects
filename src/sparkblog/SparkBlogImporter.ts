@@ -100,6 +100,27 @@ export default class SparkImporter extends PageImporter {
       <p>Tags: ${tags.join(', ')}</p>
     `));
 
+    const findTOCNode = (doc) => {
+      let parent = null;
+      doc.querySelectorAll('b,strong').forEach(b => {
+        const txt = b.textContent ? b.textContent.trim().toLowerCase().replaceAll(/[\.\:]/gm, '') : null;
+        if ('table of contents' === txt) {
+          parent = b.parentNode;
+        }
+      });
+      return parent;
+    }
+
+    const toc = findTOCNode(main);
+    if (toc) {
+      toc.before(JSDOM.fragment(`<table><tr><th>Table of Contents</th></tr><tr><td>Levels</td><td>1</td></tr></table>`));
+      const list = toc.nextElementSibling;
+      if (list && (list.tagName === 'UL' || list.tagName === 'OL')) {
+        list.remove();
+      }
+      toc.remove();
+    }
+
     // final cleanup
     DOMUtils.remove(main, [
       '.entry-meta',
@@ -108,9 +129,10 @@ export default class SparkImporter extends PageImporter {
 
     WPUtils.genericDOMCleanup(main);
 
-    const name = path.parse(new URL(url).pathname).name;
+    const parsed = path.parse(new URL(`https://${entryParams.target}`).pathname);
+    const name = parsed.name;
 
-    const pir = new PageImporterResource(name, `${folderDate}`, main, null, {
+    const pir = new PageImporterResource(name, parsed.dir, main, null, {
       tags,
       author,
       date: authoredDate,

@@ -15,7 +15,7 @@
 import { WPContentPager, FSHandler, CSV } from '@adobe/helix-importer';
 
 async function main() {
-  const handler = new FSHandler('output/spark', console);
+  const handler = new FSHandler('output/sparkblog', console);
   const pager = new WPContentPager({
     nbMaxPages: 1000,
     url: 'https://blog.adobespark.com/'

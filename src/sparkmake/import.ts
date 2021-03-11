@@ -36,10 +36,10 @@ async function main() {
     }
   });
 
-  // const csv = await handler.get('one.csv');
-  // const csv = await handler.get('all.csv');
-  const csv = await handler.get('all_templates.csv');
-  // const csv = await handler.get('all_locale.csv');
+  // const csv = await handler.get('Sprout-To-Learn.csv');
+  // const csv = await handler.get('SEO-Pages-To-Migrate.csv');
+  const csv = await handler.get('one.csv');
+
   const entries = CSV.toArray(csv.toString());
 
   const importer = new SparkMakeImporter({
@@ -50,16 +50,16 @@ async function main() {
 
   let output = `source;file;\n`;
   await Utils.asyncForEach(entries, async (e) => {
-    const { url } = e;
+    const { URL } = e;
     try {
-      const resources = await importer.import(url);
+      const resources = await importer.import(URL, e);
       resources.forEach((entry) => {
         console.log(`${entry.source} -> ${entry.file}`);
         output += `${entry.source};${entry.file};\n`;
       });
       await handler.put('importer_output.csv', output)
     } catch(error) {
-      console.error(`Could not import ${url}`, error);
+      console.error(`Could not import ${URL}`, error);
     }
   });
   console.log('Done');

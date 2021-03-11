@@ -10,7 +10,7 @@
  * governing permissions and limitations under the License.
  */
 
-import SparkImporter from './SparkImporter';
+import SparkImporter from './SparkBlogImporter';
 
 import { FSHandler, CSV, Utils } from '@adobe/helix-importer';
 import { BlobHandler } from '@adobe/helix-documents-support';
@@ -22,7 +22,7 @@ import { config } from 'dotenv';
 config();
 
 async function main() {
-  const handler = new FSHandler('output/spark', console);
+  const handler = new FSHandler('output/sparkblog', console);
   // tslint:disable-next-line: no-empty
   const noop = () => {};
   const blob = new BlobHandler({
@@ -37,28 +37,27 @@ async function main() {
     }
   });
 
-  const csv = await handler.get('explorer_result_full.csv');
-  // const csv = await handler.get('one.csv');
+  const csv = await handler.get('Blog-To-Learn.csv');
   const entries = CSV.toArray(csv.toString());
 
   const importer = new SparkImporter({
     storageHandler: handler,
     blobHandler: blob,
-    cache: '.cache/spark'
+    cache: '.cache/sparkblog'
   });
 
   let output = `source;file;author;date;tags;\n`;
   await Utils.asyncForEach(entries, async (e) => {
-    const { url } = e;
+    const { URL } = e;
     try {
-      const resources = await importer.import(url);
+      const resources = await importer.import(URL, e);
       resources.forEach((entry) => {
         console.log(`${entry.source} -> ${entry.file}`);
         output += `${entry.source};${entry.file};${entry.extra.author};${entry.extra.date};${entry.extra.tags.join(', ')};\n`;
       });
       await handler.put('importer_output.csv', output)
     } catch(error) {
-      console.error(`Could not import ${url}`, error);
+      console.error(`Could not import ${URL}`, error);
     }
   });
   console.log('Done');
