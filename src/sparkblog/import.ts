@@ -37,7 +37,8 @@ async function main() {
     }
   });
 
-  const csv = await handler.get('Blog-To-Learn.csv');
+  // const csv = await handler.get('Blog-To-Learn.csv');
+  const csv = await handler.get('one.csv');
   const entries = CSV.toArray(csv.toString());
 
   const importer = new SparkImporter({

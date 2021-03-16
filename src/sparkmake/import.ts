@@ -36,11 +36,17 @@ async function main() {
     }
   });
 
-  // const csv = await handler.get('Sprout-To-Learn.csv');
-  // const csv = await handler.get('SEO-Pages-To-Migrate.csv');
-  const csv = await handler.get('one.csv');
-
+  // let csv = await handler.get('Sprout-To-Learn.csv');
+  let csv = await handler.get('SEO-Pages-To-Migrate.csv');
+  // let csv = await handler.get('one.csv');
   const entries = CSV.toArray(csv.toString());
+
+  csv = await handler.get('resources.csv');
+  const array = CSV.toArray(csv.toString());
+  const metadata = {};
+  array.forEach(r => {
+    metadata[`https://spark.adobe.com${r.route}`] = r;
+  });
 
   const importer = new SparkMakeImporter({
     storageHandler: handler,
@@ -52,7 +58,11 @@ async function main() {
   await Utils.asyncForEach(entries, async (e) => {
     const { URL } = e;
     try {
-      const resources = await importer.import(URL, e);
+      const params = {
+        ...e,
+        ...metadata[URL] ? metadata[URL] : null,
+      };
+      const resources = await importer.import(URL, params);
       resources.forEach((entry) => {
         console.log(`${entry.source} -> ${entry.file}`);
         output += `${entry.source};${entry.file};\n`;

@@ -4,6 +4,7 @@
   // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
   "version": "0.2.0",
   "configurations": [
+
     {
       "name": "XD: import",
       "program": "${workspaceFolder}/src/xd/import.ts",
@@ -115,7 +116,7 @@
       "preLaunchTask": "tsc: build - tsconfig.json",
       "outFiles": ["${workspaceFolder}/build/**/*.js"]
     },{
-      "name": "SparkBlog: import",
+      "name": "Spark Blog: import",
       "program": "${workspaceFolder}/src/sparkblog/import.ts",
       "request": "launch",
       "skipFiles": [
@@ -125,7 +126,7 @@
       "preLaunchTask": "tsc: build - tsconfig.json",
       "outFiles": ["${workspaceFolder}/build/**/*.js"]
     },{
-      "name": "SparkBlog: explore",
+      "name": "Spark Blog: explore",
       "program": "${workspaceFolder}/src/sparkblog/explore.ts",
       "request": "launch",
       "skipFiles": [
@@ -137,6 +138,16 @@
     },{
         "name": "Spark Make: import",
         "program": "${workspaceFolder}/src/sparkmake/import.ts",
+        "request": "launch",
+        "skipFiles": [
+          "<node_internals>/**"
+        ],
+        "type": "node",
+        "preLaunchTask": "tsc: build - tsconfig.json",
+        "outFiles": ["${workspaceFolder}/build/**/*.js"]
+    },{
+        "name": "Spark Make: extract resources",
+        "program": "${workspaceFolder}/src/sparkmake/extractResources.ts",
         "request": "launch",
         "skipFiles": [
           "<node_internals>/**"

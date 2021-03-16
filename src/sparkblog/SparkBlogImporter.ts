@@ -49,7 +49,7 @@ export default class SparkImporter extends PageImporter {
       }
 
       if (link) {
-        insta.after(JSDOM.fragment(`<table><tr><th>Embed</th></tr><tr><td>${link}</td></tr></table>`));
+        insta.after(DOMUtils.generateEmbed(link));
       }
       insta.remove();
     });
@@ -57,7 +57,7 @@ export default class SparkImporter extends PageImporter {
     main.querySelectorAll('.twitter-tweet p:last-child a').forEach(tweet => {
       const link = tweet.getAttribute('href');
       if (link) {
-        tweet.parentNode.parentNode.after(JSDOM.fragment(`<table><tr><th>Embed</th></tr><tr><td>${link}</td></tr></table>`));
+        tweet.parentNode.parentNode.after(DOMUtils.generateEmbed(link));
       }
       tweet.parentNode.parentNode.remove();
     });
@@ -96,9 +96,7 @@ export default class SparkImporter extends PageImporter {
       tags.push(t.textContent.trim());
     })
 
-    main.appendChild(JSDOM.fragment(`
-      <p>Tags: ${tags.join(', ')}</p>
-    `));
+    main.append(JSDOM.fragment(`<p>Tags: ${tags.join(', ')}</p>`));
 
     const findTOCNode = (doc) => {
       let parent = null;

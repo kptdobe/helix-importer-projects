@@ -17,6 +17,7 @@ import fetch from 'node-fetch';
 import path from 'path';
 import { Response } from 'node-fetch';
 import { JSDOM, Document } from 'jsdom';
+import Blocks from '../utils/Blocks';
 
 const DEFAULT_MAIN_CATEGORY = '';
 const IMPORT_TAG = 'SparkMake';
@@ -65,7 +66,7 @@ export default class SparkMakeImporter extends PageImporter {
 
       let hasOne = false;
 
-      if ('Refer to English page' === entryParams.template) {
+      if ('Refer to English page' === entryParams['Template reference tag']) {
         hasOne = true;
       } else {
         templateExample.querySelectorAll('.example').forEach(t => {
@@ -161,7 +162,7 @@ export default class SparkMakeImporter extends PageImporter {
       container.before(intro);
     }
 
-    // try to find tips
+    // try to find how-to-steps
     document.querySelectorAll('.intro > div').forEach(div => {
       const tipList = div.querySelector('.text');
       if (tipList && div.textContent.trim().toLowerCase().indexOf('how to') === 0) {
@@ -215,6 +216,20 @@ export default class SparkMakeImporter extends PageImporter {
       }
     });
 
+    const lang = (entryParams.Language || 'en-US') === 'EN' ? 'en-US' : entryParams.Language;
+
+    const h1 = document.querySelector('h1');
+    const h1Title = h1 ? h1.textContent : null;
+    const metaTitle = entryParams[`${lang}/Title`] || h1Title || entryParams['en-US/Title'];
+    const description = entryParams[`${lang}/Description`] || entryParams['en-US/Description'];
+    const shortTitle = entryParams[`${lang}/Design Name`] || entryParams['en-US/Design Name'];
+
+    document.body.append(Blocks.getMetadataBlock(document, {
+      'Title': metaTitle,
+      'Description': description,
+      'Short Title': shortTitle
+    }));
+
     DOMUtils.remove(document, [
       'header',
       'footer',
@@ -224,7 +239,7 @@ export default class SparkMakeImporter extends PageImporter {
       '.more-related-designs'
     ]);
 
-    const parsed = path.parse(new URL(`https://${entryParams.target}`).pathname);
+    const parsed = path.parse(new URL(`https://${entryParams['Proposed URL']}`).pathname);
     const name = parsed.name;
 
 
