@@ -33,7 +33,18 @@ export default class Blocks {
       keyCell.textContent = key;
       const valueCell = document.createElement('td');
       row.append(valueCell);
-      valueCell.textContent = metadata[key];
+      const value = metadata[key];
+      if (value) {
+        if (Array.isArray(value)) {
+          let list = '';
+          value.forEach(v => {
+            list += `hlx_replaceTag(p)${v}hlx_replaceTag(/p)`;
+          });
+          valueCell.textContent = list;
+        } else {
+          valueCell.textContent = value;
+        }
+      }
     }
 
     return table;

@@ -18,6 +18,7 @@ import path from 'path';
 import moment from 'moment';
 import { Response } from 'node-fetch';
 import { JSDOM, Document } from 'jsdom';
+import Blocks from '../utils/Blocks';
 
 const DEFAULT_MAIN_CATEGORY = '';
 const IMPORT_TAG = 'Spark';
@@ -27,13 +28,14 @@ export default class SparkImporter extends PageImporter {
     return fetch(url);
   }
 
+  getDocumentFromSnippet(html: string) {
+    const { document } = (new JSDOM(`<html><body>${html}</body></html>`)).window;
+    return document.body;
+  }
+
   async process(document: Document, url: string, entryParams?: any): Promise<PageImporterResource[]> {
 
     const main = document.querySelector('main article');
-
-    DOMUtils.remove(main, [
-      '.aspark-breadcrumb',
-    ]);
 
     WPUtils.handleCaptions(main);
     DOMUtils.replaceEmbeds(main);
@@ -75,28 +77,47 @@ export default class SparkImporter extends PageImporter {
 
     // date
     const dateContainer = document.querySelector('.entry-time');
-    let folderDate = '';
     let authoredDate = '';
     if (dateContainer) {
       const d = moment(dateContainer.textContent, 'MMM DD, YYYY');
-      folderDate = d.format('YYYY/MM/DD');
-      authoredDate = d.format('MM-DD-YYYY');
+      authoredDate = d.format('MM/DD/YYYY');
       dateContainer.remove();
     }
 
     const author = main.querySelector('[rel=author]').textContent;
 
-    const content = main.querySelector('.entry-content');
+    const resources = [];
+    if (entryParams.knownResources.indexOf(`authors/${author}`) === -1) {
+      entryParams.knownResources.push(`authors/${author}`);
+      let html = `<h1>${author}</h1>`;
+      const avatar = main.querySelector('img.photo');
+      if (avatar) {
+        html += avatar.outerHTML;
+      }
 
-    content.before(JSDOM.fragment(`<p>by ${author}</p><p>Posted on ${authoredDate}</p>`));
+      resources.push(new PageImporterResource(author, 'authors', this.getDocumentFromSnippet(html), null));
+    }
+
+    const cat = main.querySelector('.cat-link');
+    let category = '';
+    if (cat) {
+      category = cat.textContent;
+    }
 
     const tagList = main.querySelectorAll('[rel=tag]');
     const tags = [];
     tagList.forEach(t => {
-      tags.push(t.textContent.trim());
-    })
+      const tag = t.textContent.trim();
+      tags.push(tag);
 
-    main.append(JSDOM.fragment(`<p>Tags: ${tags.join(', ')}</p>`));
+      if (entryParams.knownResources.indexOf(`tags/${tag}`) === -1) {
+        entryParams.knownResources.push(`tags/${tags}`);
+        let html = `<h1>${tag}</h1>`;
+        html += `<table><tr><th>Blog Posts</th></tr><tr><td>Tags</td><td>${tag}</td></tr></table>`;
+
+        resources.push(new PageImporterResource(tag, 'tags', this.getDocumentFromSnippet(html), null));
+      }
+    })
 
     const findTOCNode = (doc) => {
       let parent = null;
@@ -119,23 +140,74 @@ export default class SparkImporter extends PageImporter {
       toc.remove();
     }
 
+    const relatedArticles = main.querySelectorAll('.related-posts-list li > a:first-child');
+    if (relatedArticles && entryParams.entries) {
+      let rows = '';
+      relatedArticles.forEach(a => {
+        rows += `<tr><td><a href="${a.href}">${a.href}</a></td></tr>`;
+      });
+      const table = JSDOM.fragment(`<table><tr><th>Blog Posts</th></tr>${rows}</table>`)
+      main.append(table);
+    }
+
+    main.append(Blocks.getMetadataBlock(document, {
+      'Author': author,
+      'Publication Date': authoredDate,
+      'Category': category,
+      'Tags': tags
+    }));
+
+    if (entryParams.knownResources.indexOf(`category/${category}`) === -1) {
+      entryParams.knownResources.push(`category/${category}`);
+      let html = `<h1>${category}</h1>`;
+      html += `<table><tr><th>Blog Posts</th></tr><tr><td>Tags</td><td>${category}</td></tr></table>`;
+
+      resources.push(new PageImporterResource(category, 'category', this.getDocumentFromSnippet(html), null));
+    }
+
     // final cleanup
     DOMUtils.remove(main, [
+      '.aspark-breadcrumb',
       '.entry-meta',
       '.entry-footer',
     ]);
 
     WPUtils.genericDOMCleanup(main);
 
+    main.querySelectorAll('a').forEach(a => {
+      const target = entryParams.urlMapping[a.href];
+      if (target) {
+        if (a.textContent === a.href) {
+          // also update the link text
+          a.textContent = target;
+        }
+        a.href = target;
+      }
+    });
+
+    main.querySelectorAll('img').forEach(img => {
+      // img is in a link
+      const parent = img.parentNode;
+      if (parent && parent.tagName === 'A') {
+        parent.before(img);
+        parent.before(JSDOM.fragment('<br>'));
+        parent.after(JSDOM.fragment('<br>'));
+        if (parent.textContent === '') {
+          // set text content to be the link
+          parent.textContent = parent.href;
+        }
+      }
+    });
+
     const parsed = path.parse(new URL(`https://${entryParams.target}`).pathname);
     const name = parsed.name;
 
-    const pir = new PageImporterResource(name, parsed.dir, main, null, {
+    resources.push(new PageImporterResource(name, parsed.dir, main, null, {
       tags,
       author,
       date: authoredDate,
-    });
+    }));
 
-    return [pir];
+    return resources;
   }
 }

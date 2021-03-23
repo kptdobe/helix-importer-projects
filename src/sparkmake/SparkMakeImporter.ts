@@ -89,7 +89,7 @@ export default class SparkMakeImporter extends PageImporter {
           } else {
             const a = t.querySelector('a');
             if (a) {
-              a.textContent = 'Template';
+              a.textContent = a.href;
               imgCell.append(a);
             }
           }
@@ -216,6 +216,51 @@ export default class SparkMakeImporter extends PageImporter {
       }
     });
 
+    // feature-list
+    // document.querySelectorAll('.features').forEach(div => {
+    //   const table = document.createElement('table');
+
+    //   let row = document.createElement('tr');
+    //   table.append(row);
+
+    //   const hCell = document.createElement('th');
+    //   row.append(hCell);
+
+    //   hCell.innerHTML = 'Feature List';
+    //   hCell.setAttribute('colspan', 3);
+
+    //   let hasOne = false;
+    //   div.querySelectorAll('li.feature').forEach(li => {
+    //     hasOne = true;
+    //     row = document.createElement('tr');
+    //     table.append(row);
+
+    //     const iconCell = document.createElement('td');
+    //     row.append(iconCell);
+
+    //     iconCell.textContent = li.className.replace('feature ', '');
+
+    //     const titleCell = document.createElement('td');
+    //     row.append(titleCell);
+
+    //     const h3 = li.querySelector('h3');
+    //     if (h3) {
+    //       titleCell.append(h3.textContent);
+    //     }
+
+    //     const textCell = document.createElement('td');
+    //     row.append(textCell);
+
+    //     textCell.append(li.querySelector('p'));
+    //   });
+
+    //   if (hasOne) {
+    //     div.after(table);
+    //   }
+
+    //   div.remove();
+    // });
+
     const lang = (entryParams.Language || 'en-US') === 'EN' ? 'en-US' : entryParams.Language;
 
     const h1 = document.querySelector('h1');
@@ -236,8 +281,34 @@ export default class SparkMakeImporter extends PageImporter {
       'style',
       '#seo-dropdown',
       '.product-deeper',
-      '.more-related-designs'
+      '.more-related-designs',
+      '.features'
     ]);
+
+    document.querySelectorAll('a').forEach(a => {
+      const target = entryParams.urlMapping[a.href];
+      if (target) {
+        if (a.textContent === a.href) {
+          // also update the link text
+          a.textContent = target;
+        }
+        a.href = target;
+      }
+    });
+
+    document.querySelectorAll('img').forEach(img => {
+      // img is in a link
+      const parent = img.parentNode;
+      if (parent.tagName === 'A') {
+        parent.before(img);
+        parent.before(JSDOM.fragment('<br>'));
+        parent.after(JSDOM.fragment('<br>'));
+        if (parent.textContent === '') {
+          // set text content to be the link
+          parent.textContent = parent.href;
+        }
+      }
+    });
 
     const parsed = path.parse(new URL(`https://${entryParams['Proposed URL']}`).pathname);
     const name = parsed.name;

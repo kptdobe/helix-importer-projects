@@ -21,7 +21,7 @@ import { config } from 'dotenv';
 config();
 
 async function main() {
-  const handler = new FSHandler('output/sparkmake', console);
+  const handler = new FSHandler('output/sparkmake/round5', console);
   // tslint:disable-next-line: no-empty
   const noop = () => {};
   const blob = new BlobHandler({
@@ -36,9 +36,18 @@ async function main() {
     }
   });
 
-  // let csv = await handler.get('Sprout-To-Learn.csv');
-  let csv = await handler.get('SEO-Pages-To-Migrate.csv');
-  // let csv = await handler.get('one.csv');
+  let csv = await handler.get('url-mapping.csv');
+  const allEntries = CSV.toArray(csv.toString());
+  const urlMapping = {};
+  allEntries.forEach(e => {
+    urlMapping[e.URL] = e.Target;
+  });
+
+  // csv = await handler.get('Sprout-To-Learn.csv');
+  // csv = await handler.get('SEO-Pages-To-Migrate.csv');
+  // csv = await handler.get('errors.csv');
+  csv = await handler.get('all.csv');
+  // csv = await handler.get('one.csv');
   const entries = CSV.toArray(csv.toString());
 
   csv = await handler.get('resources.csv');
@@ -61,6 +70,7 @@ async function main() {
       const params = {
         ...e,
         ...metadata[URL] ? metadata[URL] : null,
+        urlMapping
       };
       const resources = await importer.import(URL, params);
       resources.forEach((entry) => {

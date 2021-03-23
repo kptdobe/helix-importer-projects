@@ -37,9 +37,16 @@ async function main() {
     }
   });
 
-  // const csv = await handler.get('Blog-To-Learn.csv');
-  const csv = await handler.get('one.csv');
-  const entries = CSV.toArray(csv.toString());
+  let csv = await handler.get('url-mapping.csv');
+  const allEntries = CSV.toArray(csv.toString());
+  const urlMapping = {};
+  allEntries.forEach(e => {
+    urlMapping[e.URL] = e.Target;
+  });
+
+  // csv = await handler.get('one.csv');
+  csv = await handler.get('Blog-To-Learn.csv');
+  const toImportEntries = CSV.toArray(csv.toString());
 
   const importer = new SparkImporter({
     storageHandler: handler,
@@ -47,14 +54,22 @@ async function main() {
     cache: '.cache/sparkblog'
   });
 
+  const knownResources = [];
   let output = `source;file;author;date;tags;\n`;
-  await Utils.asyncForEach(entries, async (e) => {
+  await Utils.asyncForEach(toImportEntries, async (e) => {
     const { URL } = e;
     try {
-      const resources = await importer.import(URL, e);
+      const params = {
+        ...e,
+        urlMapping,
+        knownResources,
+      }
+      const resources = await importer.import(URL, params);
       resources.forEach((entry) => {
         console.log(`${entry.source} -> ${entry.file}`);
-        output += `${entry.source};${entry.file};${entry.extra.author};${entry.extra.date};${entry.extra.tags.join(', ')};\n`;
+        if (entry.extra) {
+          output += `${entry.source};${entry.file};${entry.extra.author};${entry.extra.date};${entry.extra.tags.join(', ')};\n`;
+        }
       });
       await handler.put('importer_output.csv', output)
     } catch(error) {
@@ -62,8 +77,6 @@ async function main() {
     }
   });
   console.log('Done');
-
-  // await importer.import(entries[11].url);
 }
 
 main();
