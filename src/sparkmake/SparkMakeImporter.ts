@@ -182,27 +182,52 @@ export default class SparkMakeImporter extends PageImporter {
         let hasOne = false;
         let index = 0;
         tipList.querySelectorAll('p').forEach(tip => {
-          if (index%2 === 0) {
-            // odd p is title
+          const hasBR = tip.querySelector('br');
+          if (hasBR) {
+            hasBR.remove();
             row = document.createElement('tr');
             table.append(row);
 
             const titleCell = document.createElement('td');
             row.append(titleCell);
 
-            if (tip.textContent.trim().match(/\d. /)) {
-              titleCell.append(tip.textContent.trim().substring(3));
-            } else {
-              titleCell.append(tip.textContent.trim());
+            const strong = tip.querySelector('strong');
+
+            if (strong) {
+              if (strong.textContent.trim().match(/\d. /)) {
+                titleCell.append(strong.textContent.trim().substring(3));
+              } else {
+                titleCell.append(strong.textContent.trim());
+              }
+              strong.remove();
             }
-          } else {
-            // even p is text
             const textCell = document.createElement('td');
             row.append(textCell);
 
             textCell.append(tip.textContent.trim());
+          } else {
+            if (index%2 === 0) {
+              // odd p is title
+              row = document.createElement('tr');
+              table.append(row);
+
+              const titleCell = document.createElement('td');
+              row.append(titleCell);
+
+              if (tip.textContent.trim().match(/\d. /)) {
+                titleCell.append(tip.textContent.trim().substring(3));
+              } else {
+                titleCell.append(tip.textContent.trim());
+              }
+            } else {
+              // even p is text
+              const textCell = document.createElement('td');
+              row.append(textCell);
+
+              textCell.append(tip.textContent.trim());
+            }
+            index++;
           }
-          index++;
           hasOne = true;
         });
 
