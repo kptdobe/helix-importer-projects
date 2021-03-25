@@ -21,7 +21,7 @@ import { config } from 'dotenv';
 config();
 
 async function main() {
-  const handler = new FSHandler('output/sparkmake/round5', console);
+  const handler = new FSHandler('output/sparkmake/round6', console);
   // tslint:disable-next-line: no-empty
   const noop = () => {};
   const blob = new BlobHandler({
@@ -33,7 +33,8 @@ async function main() {
       info: noop,
       warn: noop,
       error: () => console.error(...arguments)
-    }
+    },
+    blobAgent: 'helix-importer-sparkmake',
   });
 
   let csv = await handler.get('url-mapping.csv');
@@ -54,7 +55,19 @@ async function main() {
   const array = CSV.toArray(csv.toString());
   const metadata = {};
   array.forEach(r => {
-    metadata[`https://spark.adobe.com${r.route}`] = r;
+    [ '', 'de-DE', 'ko-KR', 'pt-BR', 'es-ES', 'it-IT', 'nl-NL', 'fr-FR', 'zh-Hant-TW', 'da-DK' ].forEach(l => {
+      const lang = l || 'en-US';
+      const title = r[`${lang}/Title`] || r['en-US/Title'];
+      const description = r[`${lang}/Description`] || r['en-US/Description'];
+      const shortTitle = r[`${lang}/Design Name`] || r['en-US/Design Name'];
+
+      metadata[`https://spark.adobe.com${l ? `/${l}` : ''}${r.route}`] = {
+        title,
+        description,
+        shortTitle,
+        language: lang,
+      };
+    });
   });
 
   const importer = new SparkMakeImporter({
@@ -69,7 +82,7 @@ async function main() {
     try {
       const params = {
         ...e,
-        ...metadata[URL] ? metadata[URL] : null,
+        metadata: metadata[URL] ? metadata[URL] : null,
         urlMapping
       };
       const resources = await importer.import(URL, params);

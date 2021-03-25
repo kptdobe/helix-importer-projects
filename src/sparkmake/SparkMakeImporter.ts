@@ -286,18 +286,23 @@ export default class SparkMakeImporter extends PageImporter {
     //   div.remove();
     // });
 
-    const lang = (entryParams.Language || 'en-US') === 'EN' ? 'en-US' : entryParams.Language;
-
-    const h1 = document.querySelector('h1');
-    const h1Title = h1 ? h1.textContent : null;
-    const metaTitle = entryParams[`${lang}/Title`] || h1Title || entryParams['en-US/Title'];
-    const description = entryParams[`${lang}/Description`] || entryParams['en-US/Description'];
-    const shortTitle = entryParams[`${lang}/Design Name`] || entryParams['en-US/Design Name'];
+    let { metadata } = entryParams;
+    if (!metadata) {
+      metadata = {};
+      const t = document.querySelector('title');
+      if (t) {
+        metadata.title = t.textContent;
+      }
+      const d = document.querySelector('meta[name="description"]');
+      if (d) {
+        metadata.description = d.content;
+      }
+    }
 
     document.body.append(Blocks.getMetadataBlock(document, {
-      'Title': metaTitle,
-      'Description': description,
-      'Short Title': shortTitle
+      'Title': metadata.title,
+      'Description': metadata.description,
+      'Short Title': metadata.shortTitle
     }));
 
     DOMUtils.remove(document, [
@@ -334,6 +339,16 @@ export default class SparkMakeImporter extends PageImporter {
         }
       }
     });
+
+    // promote h3 to h2 for /templates pages
+    if (url.includes('/templates/')) {
+      document.querySelectorAll('h3').forEach(h => {
+        // exclude the ones in table (=block)
+        if (!h.closest('table')) {
+          h.replaceWith(JSDOM.fragment(`<h2>${h.textContent}</h2>`));
+        }
+      });
+    }
 
     const parsed = path.parse(new URL(`https://${entryParams['Proposed URL']}`).pathname);
     const name = parsed.name;
