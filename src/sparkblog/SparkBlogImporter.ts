@@ -35,6 +35,8 @@ export default class SparkImporter extends PageImporter {
 
   async process(document: Document, url: string, entryParams?: any): Promise<PageImporterResource[]> {
 
+    const parsed = path.parse(new URL(`https://${entryParams.target}`).pathname);
+    const targetDir = parsed.dir;
     const main = document.querySelector('main article');
 
     WPUtils.handleCaptions(main);
@@ -95,7 +97,7 @@ export default class SparkImporter extends PageImporter {
         html += avatar.outerHTML;
       }
 
-      resources.push(new PageImporterResource(author, 'authors', this.getDocumentFromSnippet(html), null));
+      resources.push(new PageImporterResource(author, `${targetDir}/authors`, this.getDocumentFromSnippet(html), null));
     }
 
     const cat = main.querySelector('.cat-link');
@@ -115,7 +117,7 @@ export default class SparkImporter extends PageImporter {
         let html = `<h1>${tag}</h1>`;
         html += `<table><tr><th>Blog Posts</th></tr><tr><td>Tags</td><td>${tag}</td></tr></table>`;
 
-        resources.push(new PageImporterResource(tag, 'tags', this.getDocumentFromSnippet(html), null));
+        resources.push(new PageImporterResource(tag, `${targetDir}/tags`, this.getDocumentFromSnippet(html), null));
       }
     })
 
@@ -162,7 +164,7 @@ export default class SparkImporter extends PageImporter {
       let html = `<h1>${category}</h1>`;
       html += `<table><tr><th>Blog Posts</th></tr><tr><td>Tags</td><td>${category}</td></tr></table>`;
 
-      resources.push(new PageImporterResource(category, 'category', this.getDocumentFromSnippet(html), null));
+      resources.push(new PageImporterResource(category, `${targetDir}/category`, this.getDocumentFromSnippet(html), null));
     }
 
     // final cleanup
@@ -199,10 +201,10 @@ export default class SparkImporter extends PageImporter {
       }
     });
 
-    const parsed = path.parse(new URL(`https://${entryParams.target}`).pathname);
+    
     const name = parsed.name;
 
-    resources.push(new PageImporterResource(name, parsed.dir, main, null, {
+    resources.push(new PageImporterResource(name, targetDir, main, null, {
       tags,
       author,
       date: authoredDate,

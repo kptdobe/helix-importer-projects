@@ -54,6 +54,9 @@ export default class SparkMakeImporter extends PageImporter {
 
     // templates
   document.querySelectorAll('.template-examples').forEach(templateExample => {
+    // ignore empty template-list
+    if (!templateExample.textContent.trim() && !templateExample.querySelector('a')) return;
+
       const table = document.createElement('table');
       let row = document.createElement('tr');
       table.append(row);
@@ -159,6 +162,12 @@ export default class SparkMakeImporter extends PageImporter {
     const intro = document.querySelector('.intro > div');
     const container = document.querySelector('.container');
     if (intro && container) {
+      const title = document.querySelector('.intro div:first-child p:first-child strong:first-child');
+      // if first paragraph is strong, promote to h2
+      if (title) {
+        title.replaceWith(JSDOM.fragment(`<h2>${title.textContent}</h2>`));
+      }
+
       container.before(intro);
     }
 

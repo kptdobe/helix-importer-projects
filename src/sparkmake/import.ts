@@ -41,7 +41,11 @@ async function main() {
   const allEntries = CSV.toArray(csv.toString());
   const urlMapping = {};
   allEntries.forEach(e => {
-    urlMapping[e.URL] = e.Target;
+    let u = e.Target;
+    if (u.lastIndexOf('/') === u.length - 1) {
+      u = u.substring(0, u.length-1);
+    }
+    urlMapping[e.URL] = u;
   });
 
   // csv = await handler.get('Sprout-To-Learn.csv');
