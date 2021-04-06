@@ -338,14 +338,15 @@ export default class SparkMakeImporter extends PageImporter {
     document.querySelectorAll('img').forEach(img => {
       // img is in a link
       const parent = img.parentNode;
-      if (parent.tagName === 'A') {
+      if (parent && parent.tagName === 'A') {
         parent.before(img);
-        parent.before(JSDOM.fragment('<br>'));
-        parent.after(JSDOM.fragment('<br>'));
         if (parent.textContent === '') {
           // set text content to be the link
           parent.textContent = parent.href;
         }
+        const p = JSDOM.fragment(`<p>${parent.outerHTML}</p>`);
+        parent.before(p);
+        parent.remove();
       }
     });
 

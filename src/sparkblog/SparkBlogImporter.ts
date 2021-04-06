@@ -192,16 +192,16 @@ export default class SparkImporter extends PageImporter {
       const parent = img.parentNode;
       if (parent && parent.tagName === 'A') {
         parent.before(img);
-        parent.before(JSDOM.fragment('<br>'));
-        parent.after(JSDOM.fragment('<br>'));
         if (parent.textContent === '') {
           // set text content to be the link
           parent.textContent = parent.href;
         }
+        const p = JSDOM.fragment(`<p>${parent.outerHTML}</p>`);
+        parent.before(p);
+        parent.remove();
       }
     });
 
-    
     const name = parsed.name;
 
     resources.push(new PageImporterResource(name, targetDir, main, null, {

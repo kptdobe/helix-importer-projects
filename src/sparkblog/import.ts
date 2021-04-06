@@ -22,7 +22,7 @@ import { config } from 'dotenv';
 config();
 
 async function main() {
-  const handler = new FSHandler('output/sparkblog/round7', console);
+  const handler = new FSHandler('output/sparkblog/round8', console);
   // tslint:disable-next-line: no-empty
   const noop = () => {};
   const blob = new BlobHandler({

@@ -21,7 +21,7 @@ import { config } from 'dotenv';
 config();
 
 async function main() {
-  const handler = new FSHandler('output/sparkmake/round6', console);
+  const handler = new FSHandler('output/sparkmake/round7', console);
   // tslint:disable-next-line: no-empty
   const noop = () => {};
   const blob = new BlobHandler({
