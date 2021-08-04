@@ -24,20 +24,45 @@ export default class BlogToBlogImporter extends PageImporter {
     return fetch(url);
   }
 
+  computeBlockName(str: string) {
+    // TODO: handle dash to spaces
+    return str
+        .replace(/\s(.)/g, (s) => { return s.toUpperCase(); })
+        .replace(/\s/g, '')
+        .replace(/^(.)/, (s) => { return s.toLowerCase(); });
+}
+
+  convertBlocksToTables(element: Element, document: Document): void {
+    element.querySelectorAll('main > div:nth-child(4) > div[class]').forEach(div => {
+      const name = this.computeBlockName(div.className);
+      const table = document.createElement('table');
+      const row = document.createElement('tr');
+      table.append(row);
+
+      const cell = document.createElement('th');
+      cell.innerHTML = name;
+      row.append(cell);
+
+      div.replaceWith(table);
+    });
+  }
+
   async process(document: Document, url: string, entryParams?: any): Promise<PageImporterResource[]> {
 
-    const main = document.querySelector('main');
-
-    DOMUtils.remove(main, [
+    DOMUtils.remove(document, [
       'header',
       'footer',
     ]);
 
+    const main = document.querySelector('main');
 
     // TODO: convert all blocks back to tables
+    this.convertBlocksToTables(main, document);
+
     // TODO: rename "Promotion" block to "Banner"
     // TODO: check if more blocks need conversion
     // TODO: convert "featured articles" section to table
+    // TODO: create metadata table from... metadata
     // TODO: extact author / date and merge into metadata table (may not exist)
     // TODO: extact topics / products and merge into metadata table (may not exist)
 
