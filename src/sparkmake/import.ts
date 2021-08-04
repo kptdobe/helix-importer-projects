@@ -51,15 +51,15 @@ async function main() {
   // csv = await handler.get('Sprout-To-Learn.csv');
   // csv = await handler.get('SEO-Pages-To-Migrate.csv');
   // csv = await handler.get('errors.csv');
-  csv = await handler.get('all.csv');
-  // csv = await handler.get('one.csv');
+  // csv = await handler.get('all.csv');
+  csv = await handler.get('one.csv');
   const entries = CSV.toArray(csv.toString());
 
   csv = await handler.get('resources.csv');
   const array = CSV.toArray(csv.toString());
   const metadata = {};
   array.forEach(r => {
-    [ '', 'de-DE', 'ko-KR', 'pt-BR', 'es-ES', 'it-IT', 'nl-NL', 'fr-FR', 'zh-Hant-TW', 'da-DK' ].forEach(l => {
+    [ '', 'de-DE', 'ko-KR', 'pt-BR', 'es-ES', 'it-IT', 'nl-NL', 'fr-FR', 'zh-Hant-TW', 'da-DK', 'ja-JP'].forEach(l => {
       const lang = l || 'en-US';
       const title = r[`${lang}/Title`] || r['en-US/Title'];
       const description = r[`${lang}/Description`] || r['en-US/Description'];

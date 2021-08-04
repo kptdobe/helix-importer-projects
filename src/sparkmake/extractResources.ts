@@ -39,7 +39,8 @@ async function main() {
     'nl-NL',
     'fr-FR',
     'zh-Hant-TW',
-    'da-DK'
+    'da-DK',
+    'ja-JP'
   ];
 
   let output = `id;route;name;type;`;
