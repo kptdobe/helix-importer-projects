@@ -47,6 +47,91 @@ export default class BlogToBlogImporter extends PageImporter {
     });
   }
 
+  buildMetadataTable(element: Element, document: Document): void {
+    const table = document.createElement('table');
+    const headRow = document.createElement('tr');
+    table.append(headRow);
+    const th = document.createElement('th');
+    th.textContent = 'metadata';
+    headRow.append(th);
+
+    // TODO: fetch post description
+
+    const [ authorStr, dateStr ] = Array
+      .from(element.querySelectorAll('main > div:nth-child(3) > p'))
+      .map((p) => { return p.textContent });
+    element.querySelector('main > div:nth-child(3)').remove();
+
+    let author;
+    let date;
+    if (authorStr) { 
+      author = authorStr.replace('By ', '');
+      const authorRow = document.createElement('tr');
+      table.append(authorRow);
+      const authorTitle = document.createElement('td');
+      authorTitle.textContent = 'Author';
+      authorRow.append(authorTitle);
+      const authorData = document.createElement('td');
+      authorData.textContent = author;
+      authorRow.append(authorData);
+    }
+    if (dateStr) {
+      date = dateStr.replace('Posted on ', '');
+      const dateRow = document.createElement('tr');
+      table.append(dateRow);
+      const dateTitle = document.createElement('td');
+      dateTitle.textContent = 'Publication Date';
+      dateRow.append(dateTitle);
+      const dateData = document.createElement('td');
+      dateData.textContent = date;
+      dateRow.append(dateData);
+    }
+    
+    let topics;
+    const topicsArr = [];
+    const [ topicsStr, productsStr ] = Array
+      .from(element.querySelectorAll('main > div:last-child > p'))
+      .map((p) => { return p.textContent });
+    element.querySelector('main > div:last-child').remove();
+    if (topicsStr || productsStr) {
+      (topicsStr + productsStr)
+        .replace('Topics: ', '')
+        .replace('Products: ', '')
+        .split(',')
+        .forEach((topic) => {
+          if (topic.trim().length) {
+            topicsArr.push(topic.trim());
+          }          
+        });
+    }
+
+    let category;
+    if (topicsArr.length) {
+      category = topicsArr.shift();
+      topics = topicsArr.join(', ');
+      const categoryRow = document.createElement('tr');
+      table.append(categoryRow);
+      const categoryTitle = document.createElement('td');
+      categoryTitle.textContent = 'Category';
+      categoryRow.append(categoryTitle);
+      const categoryData = document.createElement('td');
+      categoryData.textContent = category;
+      categoryRow.append(categoryData);
+      if (topics.length) {
+        const topicsRow = document.createElement('tr');
+        table.append(topicsRow);
+        const topicsTitle = document.createElement('td');
+        topicsTitle.textContent = 'Topics';
+        topicsRow.append(topicsTitle);
+        const topicsData = document.createElement('td');
+        topicsData.textContent = topics;
+        topicsRow.append(topicsData);
+      }
+    }
+    
+    element.append(table);
+  }
+
   async process(document: Document, url: string, entryParams?: any): Promise<PageImporterResource[]> {
 
     DOMUtils.remove(document, [
@@ -63,6 +148,7 @@ export default class BlogToBlogImporter extends PageImporter {
     // TODO: check if more blocks need conversion
     // TODO: convert "featured articles" section to table
     // TODO: create metadata table from... metadata
+    this.buildMetadataTable(main, document);
     // TODO: extact author / date and merge into metadata table (may not exist)
     // TODO: extact topics / products and merge into metadata table (may not exist)
 
