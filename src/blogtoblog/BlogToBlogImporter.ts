@@ -30,7 +30,7 @@ export default class BlogToBlogImporter extends PageImporter {
         .replace(/\s(.)/g, (s) => { return s.toUpperCase(); })
         .replace(/\s/g, '')
         .replace(/^(.)/, (s) => { return s.toLowerCase(); });
-}
+  }
 
   convertBlocksToTables(element: Element, document: Document): void {
     element.querySelectorAll('main > div:nth-child(4) > div[class]').forEach(div => {
@@ -75,6 +75,7 @@ export default class BlogToBlogImporter extends PageImporter {
         }
       }
     })
+  }
 
   buildMetadataTable(element: Element, document: Document): void {
     const table = document.createElement('table');
