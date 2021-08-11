@@ -47,6 +47,35 @@ export default class BlogToBlogImporter extends PageImporter {
     });
   }
 
+  buildRecommendedArticlesTable(element: Element, document: Document): void {
+    element.querySelectorAll('main > div > h2').forEach(h2 => {
+      if (h2.textContent.toLowerCase().startsWith('featured posts')) {
+        const linksContainer = h2.nextElementSibling;
+        if (linksContainer) {
+          const links = Array.from(linksContainer.querySelectorAll('a'));
+
+          const table = document.createElement('table');
+          const headRow = document.createElement('tr');
+          table.append(headRow);
+          
+          const th = document.createElement('th');
+          th.textContent = 'recommended articles';
+          headRow.append(th);
+
+          const bodyRow = document.createElement('tr');
+          table.append(bodyRow);
+
+          const td = document.createElement('td');
+          links.forEach((a) => {
+            td.append(a, `\n`);
+          })
+          bodyRow.append(td);
+
+          h2.parentElement.replaceWith(table);
+        }
+      }
+    })
+
   buildMetadataTable(element: Element, document: Document): void {
     const table = document.createElement('table');
     const headRow = document.createElement('tr');
@@ -130,6 +159,7 @@ export default class BlogToBlogImporter extends PageImporter {
     }
     
     element.append(table);
+
   }
 
   async process(document: Document, url: string, entryParams?: any): Promise<PageImporterResource[]> {
@@ -140,13 +170,13 @@ export default class BlogToBlogImporter extends PageImporter {
     ]);
 
     const main = document.querySelector('main');
-
     // TODO: convert all blocks back to tables
     this.convertBlocksToTables(main, document);
 
     // TODO: rename "Promotion" block to "Banner"
     // TODO: check if more blocks need conversion
     // TODO: convert "featured articles" section to table
+    this.buildRecommendedArticlesTable(main, document);
     // TODO: create metadata table from... metadata
     this.buildMetadataTable(main, document);
     // TODO: extact author / date and merge into metadata table (may not exist)
