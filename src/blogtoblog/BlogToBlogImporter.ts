@@ -30,7 +30,7 @@ export default class BlogToBlogImporter extends PageImporter {
         .replace(/\s(.)/g, (s) => { return s.toUpperCase(); })
         .replace(/\s/g, '')
         .replace(/^(.)/, (s) => { return s.toLowerCase(); });
-}
+  }
 
   convertBlocksToTables(element: Element, document: Document): void {
     element.querySelectorAll('main > div:nth-child(4) > div[class]').forEach(div => {
@@ -57,7 +57,7 @@ export default class BlogToBlogImporter extends PageImporter {
           const table = document.createElement('table');
           const headRow = document.createElement('tr');
           table.append(headRow);
-          
+
           const th = document.createElement('th');
           th.textContent = 'recommended articles';
           headRow.append(th);
@@ -75,6 +75,7 @@ export default class BlogToBlogImporter extends PageImporter {
         }
       }
     })
+  }
 
   buildMetadataTable(element: Element, document: Document): void {
     const table = document.createElement('table');
@@ -93,7 +94,7 @@ export default class BlogToBlogImporter extends PageImporter {
 
     let author;
     let date;
-    if (authorStr) { 
+    if (authorStr) {
       author = authorStr.replace('By ', '');
       const authorRow = document.createElement('tr');
       table.append(authorRow);
@@ -115,7 +116,7 @@ export default class BlogToBlogImporter extends PageImporter {
       dateData.textContent = date;
       dateRow.append(dateData);
     }
-    
+
     let topics;
     const topicsArr = [];
     const [ topicsStr, productsStr ] = Array
@@ -130,7 +131,7 @@ export default class BlogToBlogImporter extends PageImporter {
         .forEach((topic) => {
           if (topic.trim().length) {
             topicsArr.push(topic.trim());
-          }          
+          }
         });
     }
 
@@ -157,9 +158,7 @@ export default class BlogToBlogImporter extends PageImporter {
         topicsRow.append(topicsData);
       }
     }
-    
     element.append(table);
-
   }
 
   async process(document: Document, url: string, entryParams?: any): Promise<PageImporterResource[]> {
