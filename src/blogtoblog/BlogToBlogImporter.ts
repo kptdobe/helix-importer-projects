@@ -24,6 +24,27 @@ export default class BlogToBlogImporter extends PageImporter {
     return fetch(url);
   }
 
+  createTable(data: (string|Element)[][], document: Document) {
+    const table = document.createElement('table');
+
+    data.forEach((rowData: (string|Element)[], index) => {
+      const row = document.createElement('tr');
+
+      rowData.forEach((cellData: string|Element) => {
+        const cell = document.createElement(index ===0 ? 'th' : 'td');
+        if (typeof cellData === 'string') {
+          cell.innerHTML = cellData;
+        } else {
+          cell.append(cellData);
+        }
+        row.appendChild(cell);
+      });
+      table.appendChild(row);
+    });
+
+    return table;
+  }
+
   computeBlockName(str: string) {
     // TODO: handle dash to spaces
     return str
@@ -35,13 +56,7 @@ export default class BlogToBlogImporter extends PageImporter {
   convertBlocksToTables(element: Element, document: Document): void {
     element.querySelectorAll('main > div:nth-child(4) > div[class]').forEach(div => {
       const name = this.computeBlockName(div.className);
-      const table = document.createElement('table');
-      const row = document.createElement('tr');
-      table.append(row);
-
-      const cell = document.createElement('th');
-      cell.innerHTML = name;
-      row.append(cell);
+      const table = this.createTable([[name]], document);
 
       div.replaceWith(table);
     });

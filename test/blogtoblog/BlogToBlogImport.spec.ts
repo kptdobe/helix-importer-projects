@@ -40,3 +40,49 @@ describe('BlogToBlogImporter#convertBlocksToTables tests', () => {
       `<main>${div}${div}${div}<div><table><tr><th>block-1</th></tr></table></div></main>`);
   });
 });
+
+describe.only('BlogToBlogImporter#createTable tests', () => {
+  const test = (data: string[][], expected: string) => {
+    const { document } = (new JSDOM()).window;
+    const table = getImporter().createTable(data, document);
+    strictEqual(table.outerHTML, expected);
+  };
+
+  const div = '<div></div>'; // ignored div for the tests
+
+  it('convertBlocksToTables - basic tables', () => {
+    test(
+      [[]],
+      `<table><tr></tr></table>`);
+    test(
+      [['header']],
+      `<table><tr><th>header</th></tr></table>`);
+    test(
+      [['header'], ['cell']],
+      `<table><tr><th>header</th></tr><tr><td>cell</td></tr></table>`);
+    test(
+      [['header1', 'header2'], ['cell11', 'cell12'], ['cell21', 'cell22']],
+      `<table><tr><th>header1</th><th>header2</th></tr><tr><td>cell11</td><td>cell12</td></tr><tr><td>cell21</td><td>cell22</td></tr></table>`);
+    // TODO deal with colspan ?
+    test(
+      [['header1'], ['cell11', 'cell12'], ['cell21', 'cell22']],
+      `<table><tr><th>header1</th></tr><tr><td>cell11</td><td>cell12</td></tr><tr><td>cell21</td><td>cell22</td></tr></table>`);
+  });
+
+  it('convertBlocksToTables - deals with Elements', () => {
+    const { document } = (new JSDOM()).window;
+
+    const img = document.createElement('img');
+    img.src = 'https://www.sample.com/image.jpeg';
+
+    const a = document.createElement('a');
+    a.href = 'https://www.sample.com/';
+
+    test(
+      [['header'], [ img ]],
+      `<table><tr><th>header</th></tr><tr><td><img src="https://www.sample.com/image.jpeg"></td></tr></table>`);
+    test(
+      [['header'], [ img, a, 'some text' ]],
+      `<table><tr><th>header</th></tr><tr><td><img src="https://www.sample.com/image.jpeg"></td><td><a href="https://www.sample.com/"></a></td><td>some text</td></tr></table>`);
+  });
+});
