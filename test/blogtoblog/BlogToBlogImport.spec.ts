@@ -41,56 +41,72 @@ describe('BlogToBlogImporter#convertBlocksToTables tests', () => {
       `<main>${div}${div}${div}<div><table><tr><th>block-1</th></tr></table></div></main>`);
   });
 });
+describe('BlogToBlogImporter#buildRecommendedArticlesTable tests', () => {
+  const test = (input: string, expected: string) => {
+    const { document } = (new JSDOM(input)).window;
+    getImporter().buildRecommendedArticlesTable(document, document);
+    strictEqual(document.body.innerHTML, expected);
+  };
+
+  const div = '<div></div>'; // ignored div for the tests
+
+  it('buildRecommendedArticlesTable expected input', () => {
+    test(
+      `<main>${div}${div}${div}${div}<div><h2>Featured posts:</h2><ul><li><a href="https://blog.adobe.com/en/publish/2019/05/30/the-future-of-adobe-air">https://blog.adobe.com/en/publish/2019/05/30/the-future-of-adobe-air</a></li><li><a href="https://blog.adobe.com/en/publish/2019/05/30/the-future-of-adobe-air">https://blog.adobe.com/en/publish/2019/05/30/the-future-of-adobe-air</a></li><li><a href="https://blog.adobe.com/en/publish/2019/05/30/the-future-of-adobe-air">https://blog.adobe.com/en/publish/2019/05/30/the-future-of-adobe-air</a></li></ul></div>${div}</main>`,
+      `<main>${div}${div}${div}${div}<table><tr><th>recommended articles</th></tr><tr><td><a href="https://blog.adobe.com/en/publish/2019/05/30/the-future-of-adobe-air">https://blog.adobe.com/en/publish/2019/05/30/the-future-of-adobe-air</a>
+<a href="https://blog.adobe.com/en/publish/2019/05/30/the-future-of-adobe-air">https://blog.adobe.com/en/publish/2019/05/30/the-future-of-adobe-air</a>
+<a href="https://blog.adobe.com/en/publish/2019/05/30/the-future-of-adobe-air">https://blog.adobe.com/en/publish/2019/05/30/the-future-of-adobe-air</a>
+</td></tr></table>${div}</main>`);
+  });
+  it('buildRecommendedArticlesTable unformatted title input', () => {
+    test(
+      `<main><div><h2>featured posts  </h2><ul><li><a href="https://blog.adobe.com/en/publish/2019/05/30/the-future-of-adobe-air">https://blog.adobe.com/en/publish/2019/05/30/the-future-of-adobe-air</a></li></ul></div></main>`,
+      `<main><table><tr><th>recommended articles</th></tr><tr><td><a href="https://blog.adobe.com/en/publish/2019/05/30/the-future-of-adobe-air">https://blog.adobe.com/en/publish/2019/05/30/the-future-of-adobe-air</a>
+</td></tr></table></main>`);
+  });
+  it('buildRecommendedArticlesTable no input', () => {
+    test(
+      `<main>${div}${div}${div}${div}${div}</main>`,
+      `<main>${div}${div}${div}${div}${div}</main>`);
+  });
+});
 describe('BlogToBlogImporter#buildMetadataTable tests', () => {
   const test = (input: string, expected: string) => {
     const { document } = (new JSDOM(input)).window;
     getImporter().buildMetadataTable(document, document);
-    strictEqual(document.body.innerHTML, expected);
+    strictEqual(document.body.innerHTML.trim(), expected.trim());
   };
 
   const div = `<div></div>`;
 
-  it('build metadata table', () => {
+  it('build metadata table with expected input', () => {
     test(
-      `<main>
-        ${div}
-        ${div}
-        <div>
-          <p>By Katie Sexton</p>
-          <p>Posted on 09-09-2019</p>
-        </div>
-        ${div}
-        <div>
-          <p>Topics: Alpha, Beta, Gamma</p>
-          <p>Products: Delta, Echo, Foxtrot</p>
-        </div>
-      </main>`,
-      `<main>
-        ${div}
-        ${div}
-        ${div}
-        <div>
-          <table>
-            <tr>
-              <th>metadata</th>
-            </tr>
-            <tr>
-              <td>Author</td>
-              <td>Katie Sexton</td>
-            </tr>
-            <tr>
-              <td>Publication Date</td>
-              <td>09-09-2019</td>
-            </tr>
-            <tr>
-              <td>Category</td>
-              <td>Alpha</td>
-            </tr>
-            <tr>
-              <td>Topics</td>
-              <td>Beta, Gamma, Delta, Echo, Foxtrot</td>
-            </tr>
-          </table>
-        </div>`);
+      `<main>${div}${div}<div><p>By Katie Sexton</p><p>Posted on 09-09-2019</p></div>${div}<div><p>Topics: Alpha, Beta, Gamma,</p><p>Products: Delta, Echo, Foxtrot,</p></div></main>`,
+      `<main>${div}${div}${div}<table><tr><th>metadata</th></tr><tr><td>Author</td><td>Katie Sexton</td></tr><tr><td>Publication Date</td><td>09-09-2019</td></tr><tr><td>Category</td><td>Alpha</td></tr><tr><td>Topics</td><td>Beta, Gamma, Delta, Echo, Foxtrot</td></tr></table></main>`);
   });
-});
+  it('build metadata table, missing date', () => {
+    test(
+      `<main>${div}${div}<div><p>By Katie Sexton</p></div>${div}<div><p>Topics: Alpha, Beta, Gamma,</p><p>Products: Delta, Echo, Foxtrot,</p></div></main>`,
+      `<main>${div}${div}${div}<table><tr><th>metadata</th></tr><tr><td>Author</td><td>Katie Sexton</td></tr><tr><td>Category</td><td>Alpha</td></tr><tr><td>Topics</td><td>Beta, Gamma, Delta, Echo, Foxtrot</td></tr></table></main>`);
+    });
+    it('build metadata table, 1 topic', () => {
+      test(
+        `<main>${div}${div}<div><p>By Katie Sexton</p><p>Posted on 09-09-2019</p></div>${div}<div><p>Topics: Alpha,</p></div></main>`,
+        `<main>${div}${div}${div}<table><tr><th>metadata</th></tr><tr><td>Author</td><td>Katie Sexton</td></tr><tr><td>Publication Date</td><td>09-09-2019</td></tr><tr><td>Category</td><td>Alpha</td></tr></table></main>`);
+    });
+    it('build metadata table, 1 product', () => {
+      test(
+        `<main>${div}${div}<div><p>By Katie Sexton</p><p>Posted on 09-09-2019</p></div>${div}<div><p>Products: Alfa,</p></div></main>`,
+        `<main>${div}${div}${div}<table><tr><th>metadata</th></tr><tr><td>Author</td><td>Katie Sexton</td></tr><tr><td>Publication Date</td><td>09-09-2019</td></tr><tr><td>Category</td><td>Alfa</td></tr></table></main>`);
+    });
+    it('build metadata table, 1 topic & 1 product', () => {
+      test(
+        `<main>${div}${div}<div><p>By Katie Sexton</p><p>Posted on 09-09-2019</p></div>${div}<div><p>Topics: Alpha,</p><p>Products: Bravo,</p></div></main>`,
+        `<main>${div}${div}${div}<table><tr><th>metadata</th></tr><tr><td>Author</td><td>Katie Sexton</td></tr><tr><td>Publication Date</td><td>09-09-2019</td></tr><tr><td>Category</td><td>Alpha</td></tr><tr><td>Topics</td><td>Bravo</td></tr></table></main>`);
+    });
+    it('build metadata table, missing topics/category', () => {
+      test(
+        `<main>${div}${div}<div><p>By Katie Sexton</p><p>Posted on 09-09-2019</p></div>${div}<div><h2>Featured posts:</h2><a href="https://blog.adobe.com/en/publish/2019/05/30/the-future-of-adobe-air">https://blog.adobe.com/en/publish/2019/05/30/the-future-of-adobe-air</a></div></main>`,
+        `<main>${div}${div}${div}<div><h2>Featured posts:</h2><a href="https://blog.adobe.com/en/publish/2019/05/30/the-future-of-adobe-air">https://blog.adobe.com/en/publish/2019/05/30/the-future-of-adobe-air</a></div><table><tr><th>metadata</th></tr><tr><td>Author</td><td>Katie Sexton</td></tr><tr><td>Publication Date</td><td>09-09-2019</td></tr></table></main>`);
+    });
+  });
