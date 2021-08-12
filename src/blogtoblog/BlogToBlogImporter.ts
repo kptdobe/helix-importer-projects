@@ -35,7 +35,19 @@ export default class BlogToBlogImporter extends PageImporter {
         if (typeof cell === 'string') {
           t.innerHTML = cell;
         } else {
-          t.append(cell);
+          // remove top level div
+          if (cell.nodeName === 'DIV') {
+            const children = Array.from(cell.children);
+            if (children.length > 0) {
+              children.forEach((child: Element) => {
+                t.append(child);
+              });
+            } else {
+              t.append(cell.innerHTML);
+            }
+          } else {
+            t.append(cell);
+          }
         }
         tr.appendChild(t);
       });
@@ -53,11 +65,27 @@ export default class BlogToBlogImporter extends PageImporter {
   }
 
   convertBlocksToTables(element: Element, document: Document): void {
-    element.querySelectorAll('main > div:nth-child(4) > div[class]').forEach(div => {
-      const name = this.computeBlockName(div.className);
-      const table = this.createTable([[name]], document);
+    element.querySelectorAll('main > div:nth-child(4) > div[class]').forEach(block => {
+      const name = this.computeBlockName(block.className);
+      const data = [[name]] as (string|Element)[][];
+      const divs = block.querySelectorAll(':scope > div');
+      if (divs) {
+        divs.forEach((div: Element) => {
+          const subDivs = div.querySelectorAll(':scope > div');
+          if (subDivs && subDivs.length > 0) {
+            const rowData = [];
+            subDivs.forEach((cell: Element) => {
+              rowData.push(cell);
+            });
+            data.push(rowData);
+          } else {
+            data.push([div.innerHTML]);
+          }
+        });
+      }
+      const table = this.createTable(data, document);
 
-      div.replaceWith(table);
+      block.replaceWith(table);
     });
   }
 

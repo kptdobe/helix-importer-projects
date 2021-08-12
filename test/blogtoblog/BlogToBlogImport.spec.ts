@@ -24,20 +24,69 @@ const getImporter = (): BlogToBlogImporter => {
   });
 }
 
+const trim = (html: string) => html
+  .replace(/^\s*/gm, '')
+  .replace(/\s*$/gm, '')
+  .replace(/\n/gm, '')
+  .replace(/\/>\s*</gm, '/><');
+
 describe('BlogToBlogImporter#convertBlocksToTables tests', () => {
   const test = (input: string, expected: string) => {
     const { document } = (new JSDOM(input)).window;
     getImporter().convertBlocksToTables(document, document);
-    strictEqual(document.body.innerHTML, expected);
+    strictEqual(trim(document.body.innerHTML), trim(expected));
   };
 
   const div = '<div></div>'; // ignored div for the tests
 
   it('convertBlocksToTables basic block', () => {
-    // TODO
     test(
-      `<main>${div}${div}${div}<div><div class="block-1"><div>header cell</div><div>first row one cell</div></div></main>`,
-      `<main>${div}${div}${div}<div><table><tr><th>Block 1</th></tr></table></div></main>`);
+      `<main>${div}${div}${div}
+        <div>
+          <div class="a-block">
+            <div>cell11</div>
+            <div>cell21</div>
+          </div>
+        </div>
+      </main>`,
+      `<main>${div}${div}${div}
+        <div>
+          <table>
+            <tr><th>A Block</th></tr>
+            <tr><td>cell11</td></tr>
+            <tr><td>cell21</td></tr>
+          </table>
+        </div>
+      </main>`);
+    test(
+      `<main>${div}${div}${div}
+        <div>
+          <div class="another-block">
+            <div>
+              <div>cell11</div>
+              <div>cell12</div>
+            </div>
+            <div>
+              <div>cell21</div>
+              <div>cell22</div>
+            </div>
+            <div>
+              <div><img src="https://www.sample.com/image.jpeg"></div>
+              <div><a href="https://www.sample.com/">A link</a></div>
+            </div>
+          </div>
+        </div>
+      </main>`,
+      `<main>${div}${div}${div}
+        <div>
+          <table>
+            <tr><th>Another Block</th></tr>
+            <tr><td>cell11</td><td>cell12</td></tr>
+            <tr><td>cell21</td><td>cell22</td></tr>
+            <tr><td><img src="https://www.sample.com/image.jpeg"></td><td><a href="https://www.sample.com/">A link</a></td></tr>
+          </table>
+        </div>
+      </main>`);
   });
 });
 
@@ -77,13 +126,14 @@ describe('BlogToBlogImporter#createTable tests', () => {
 
     const a = document.createElement('a');
     a.href = 'https://www.sample.com/';
+    a.innerHTML = 'A link';
 
     test(
       [['header'], [ img ]],
       `<table><tr><th>header</th></tr><tr><td><img src="https://www.sample.com/image.jpeg"></td></tr></table>`);
     test(
       [['header'], [ img, a, 'some text' ]],
-      `<table><tr><th>header</th></tr><tr><td><img src="https://www.sample.com/image.jpeg"></td><td><a href="https://www.sample.com/"></a></td><td>some text</td></tr></table>`);
+      `<table><tr><th>header</th></tr><tr><td><img src="https://www.sample.com/image.jpeg"></td><td><a href="https://www.sample.com/">A link</a></td><td>some text</td></tr></table>`);
   });
 
   describe('BlogToBlogImporter#computeBlockName tests', () => {
