@@ -102,7 +102,7 @@ export default class BlogToBlogImporter extends PageImporter {
       authorTitle.textContent = 'Author';
       authorRow.append(authorTitle);
       const authorData = document.createElement('td');
-      authorData.textContent = author;
+      authorData.textContent = author.trim();
       authorRow.append(authorData);
     }
     if (dateStr) {
@@ -113,7 +113,7 @@ export default class BlogToBlogImporter extends PageImporter {
       dateTitle.textContent = 'Publication Date';
       dateRow.append(dateTitle);
       const dateData = document.createElement('td');
-      dateData.textContent = date;
+      dateData.textContent = date.trim();
       dateRow.append(dateData);
     }
 
@@ -122,7 +122,6 @@ export default class BlogToBlogImporter extends PageImporter {
     const [ topicsStr, productsStr ] = Array
       .from(element.querySelectorAll('main > div:last-child > p'))
       .map((p) => { return p.textContent });
-    element.querySelector('main > div:last-child').remove();
     if (topicsStr || productsStr) {
       (topicsStr + productsStr)
         .replace('Topics: ', '')
@@ -138,27 +137,34 @@ export default class BlogToBlogImporter extends PageImporter {
     let category;
     if (topicsArr.length) {
       category = topicsArr.shift();
-      topics = topicsArr.join(', ');
       const categoryRow = document.createElement('tr');
       table.append(categoryRow);
       const categoryTitle = document.createElement('td');
       categoryTitle.textContent = 'Category';
       categoryRow.append(categoryTitle);
       const categoryData = document.createElement('td');
-      categoryData.textContent = category;
+      categoryData.textContent = category.trim();
       categoryRow.append(categoryData);
-      if (topics.length) {
+      topics = topicsArr.join(', ');
+      if (topicsArr[0] !== 'undefined') {
         const topicsRow = document.createElement('tr');
         table.append(topicsRow);
         const topicsTitle = document.createElement('td');
         topicsTitle.textContent = 'Topics';
         topicsRow.append(topicsTitle);
         const topicsData = document.createElement('td');
-        topicsData.textContent = topics;
+        topicsData.textContent = topics.trim();
         topicsRow.append(topicsData);
       }
     }
-    element.append(table);
+
+    const lastDiv = document.querySelector('main > div:last-child');
+    if (topicsStr || productsStr) {
+      lastDiv.replaceWith(table);
+    } else {
+      // don't replace non-topics div
+      lastDiv.parentNode.insertBefore(table, lastDiv.nextSibling);;
+    }
   }
 
   async process(document: Document, url: string, entryParams?: any): Promise<PageImporterResource[]> {
