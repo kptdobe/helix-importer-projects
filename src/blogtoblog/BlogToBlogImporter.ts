@@ -27,19 +27,19 @@ export default class BlogToBlogImporter extends PageImporter {
   createTable(data: (string|Element)[][], document: Document) {
     const table = document.createElement('table');
 
-    data.forEach((rowData: (string|Element)[], index) => {
-      const row = document.createElement('tr');
+    data.forEach((row: (string|Element)[], index) => {
+      const tr = document.createElement('tr');
 
-      rowData.forEach((cellData: string|Element) => {
-        const cell = document.createElement(index ===0 ? 'th' : 'td');
-        if (typeof cellData === 'string') {
-          cell.innerHTML = cellData;
+      row.forEach((cell: string|Element) => {
+        const t = document.createElement(index === 0 ? 'th' : 'td');
+        if (typeof cell === 'string') {
+          t.innerHTML = cell;
         } else {
-          cell.append(cellData);
+          t.append(cell);
         }
-        row.appendChild(cell);
+        tr.appendChild(t);
       });
-      table.appendChild(row);
+      table.appendChild(tr);
     });
 
     return table;
