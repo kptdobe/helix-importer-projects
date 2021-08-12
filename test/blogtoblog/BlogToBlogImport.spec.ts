@@ -41,7 +41,7 @@ describe('BlogToBlogImporter#convertBlocksToTables tests', () => {
   });
 });
 
-describe.only('BlogToBlogImporter#createTable tests', () => {
+describe('BlogToBlogImporter#createTable tests', () => {
   const test = (data: string[][], expected: string) => {
     const { document } = (new JSDOM()).window;
     const table = getImporter().createTable(data, document);
