@@ -87,6 +87,23 @@ describe('BlogToBlogImporter#convertBlocksToTables tests', () => {
           </table>
         </div>
       </main>`);
+    test(
+      `<main>${div}${div}${div}
+        <div>
+        <div class="promotion">
+          <div>
+            <div><a href="https://blog.adobe.com/en/promotions/doc-cloud-education.html">https://blog.adobe.com/en/promotions/doc-cloud-education.html</a></div>
+          </div>
+        </div>
+      </main>`,
+      `<main>${div}${div}${div}
+        <div>
+          <table>
+            <tr><th>Promotion</th></tr>
+            <tr><td><a href="https://blog.adobe.com/en/promotions/doc-cloud-education.html">https://blog.adobe.com/en/promotions/doc-cloud-education.html</a></td></tr>
+          </table>
+        </div>
+      </main>`);
   });
 });
 
