@@ -46,11 +46,10 @@ export default class BlogToBlogImporter extends PageImporter {
   }
 
   computeBlockName(str: string) {
-    // TODO: handle dash to spaces
     return str
-        .replace(/\s(.)/g, (s) => { return s.toUpperCase(); })
-        .replace(/\s/g, '')
-        .replace(/^(.)/, (s) => { return s.toLowerCase(); });
+      .replace(/-/g, ' ')
+      .replace(/\s(.)/g, (s) => { return s.toUpperCase(); })
+      .replace(/^(.)/g, (s) => { return s.toUpperCase(); });
   }
 
   convertBlocksToTables(element: Element, document: Document): void {
