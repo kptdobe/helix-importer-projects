@@ -37,6 +37,6 @@ describe('BlogToBlogImporter#convertBlocksToTables tests', () => {
     // TODO
     test(
       `<main>${div}${div}${div}<div><div class="block-1"><div>header cell</div><div>first row one cell</div></div></main>`,
-      `<main>${div}${div}${div}<div><table><tr><th>block-1</th></tr></table></div></main>`);
+      `<main>${div}${div}${div}<div><table><tr><th>Block 1</th></tr></table></div></main>`);
   });
 });

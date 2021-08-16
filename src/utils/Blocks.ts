@@ -49,4 +49,11 @@ export default class Blocks {
 
     return table;
   }
+
+  static computeBlockName(str: string) {
+    return str
+      .replace(/-/g, ' ')
+      .replace(/\s(.)/g, (s) => { return s.toUpperCase(); })
+      .replace(/^(.)/g, (s) => { return s.toUpperCase(); });
+  }
 }

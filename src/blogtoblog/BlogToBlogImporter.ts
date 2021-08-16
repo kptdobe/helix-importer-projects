@@ -19,23 +19,16 @@ import { Response } from 'node-fetch';
 import { Document } from 'jsdom';
 
 import DOM from '../utils/DOM';
+import Blocks from '../utils/Blocks';
 
 export default class BlogToBlogImporter extends PageImporter {
   async fetch(url): Promise<Response> {
     return fetch(url);
   }
 
-  computeBlockName(str: string) {
-    // TODO: handle dash to spaces
-    return str
-        .replace(/\s(.)/g, (s) => { return s.toUpperCase(); })
-        .replace(/\s/g, '')
-        .replace(/^(.)/, (s) => { return s.toLowerCase(); });
-  }
-
   convertBlocksToTables(element: Element, document: Document): void {
     element.querySelectorAll('main > div:nth-child(4) > div[class]').forEach(div => {
-      const name = this.computeBlockName(div.className);
+      const name = Blocks.computeBlockName(div.className);
       const table = DOM.createTable([[name]], document);
 
       div.replaceWith(table);
