@@ -15,38 +15,14 @@ import { PageImporter, PageImporterResource, DOMUtils, WPUtils } from '@adobe/he
 
 import fetch from 'node-fetch';
 import path from 'path';
-import moment from 'moment';
 import { Response } from 'node-fetch';
-import { JSDOM, Document } from 'jsdom';
+import { Document } from 'jsdom';
+
+import DOM from '../utils/DOM';
 
 export default class BlogToBlogImporter extends PageImporter {
   async fetch(url): Promise<Response> {
     return fetch(url);
-  }
-
-  createTable(data: (string|Element|(string|Element)[])[][], document: Document) {
-    const table = document.createElement('table');
-
-    data.forEach((row: (string|Element)[][], index) => {
-      const tr = document.createElement('tr');
-
-      row.forEach((cell: (string|Element)[]) => {
-        const t = document.createElement(index === 0 ? 'th' : 'td');
-        if (typeof cell === 'string') {
-          t.innerHTML = cell;
-        } else {
-          if (Array.isArray(cell)) {
-            cell.forEach((c) => { t.append(c) });
-          } else {
-            t.append(cell);
-          }
-        }
-        tr.appendChild(t);
-      });
-      table.appendChild(tr);
-    });
-
-    return table;
   }
 
   computeBlockName(str: string) {
@@ -60,7 +36,7 @@ export default class BlogToBlogImporter extends PageImporter {
   convertBlocksToTables(element: Element, document: Document): void {
     element.querySelectorAll('main > div:nth-child(4) > div[class]').forEach(div => {
       const name = this.computeBlockName(div.className);
-      const table = this.createTable([[name]], document);
+      const table = DOM.createTable([[name]], document);
 
       div.replaceWith(table);
     });
