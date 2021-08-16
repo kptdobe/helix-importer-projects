@@ -15,58 +15,20 @@ import { PageImporter, PageImporterResource, DOMUtils, WPUtils } from '@adobe/he
 
 import fetch from 'node-fetch';
 import path from 'path';
-import moment from 'moment';
 import { Response } from 'node-fetch';
-import { JSDOM, Document } from 'jsdom';
+import { Document } from 'jsdom';
+
+import DOM from '../utils/DOM';
+import Blocks from '../utils/Blocks';
 
 export default class BlogToBlogImporter extends PageImporter {
   async fetch(url): Promise<Response> {
     return fetch(url);
   }
 
-  createTable(data: (string|Element)[][], document: Document) {
-    const table = document.createElement('table');
-
-    data.forEach((row: (string|Element)[], index) => {
-      const tr = document.createElement('tr');
-
-      row.forEach((cell: string|Element) => {
-        const t = document.createElement(index === 0 ? 'th' : 'td');
-        if (typeof cell === 'string') {
-          t.innerHTML = cell;
-        } else {
-          // remove top level div
-          if (cell.nodeName === 'DIV') {
-            const children = Array.from(cell.children);
-            if (children.length > 0) {
-              children.forEach((child: Element) => {
-                t.append(child);
-              });
-            } else {
-              t.append(cell.innerHTML);
-            }
-          } else {
-            t.append(cell);
-          }
-        }
-        tr.appendChild(t);
-      });
-      table.appendChild(tr);
-    });
-
-    return table;
-  }
-
-  computeBlockName(str: string) {
-    return str
-      .replace(/-/g, ' ')
-      .replace(/\s(.)/g, (s) => { return s.toUpperCase(); })
-      .replace(/^(.)/g, (s) => { return s.toUpperCase(); });
-  }
-
   convertBlocksToTables(element: Element, document: Document): void {
     element.querySelectorAll('main > div:nth-child(4) > div[class]').forEach(block => {
-      const name = this.computeBlockName(block.className);
+      const name = Blocks.computeBlockName(block.className);
       const data = [[name]] as (string|Element)[][];
       const divs = block.querySelectorAll(':scope > div');
       if (divs) {
@@ -75,7 +37,12 @@ export default class BlogToBlogImporter extends PageImporter {
           if (subDivs && subDivs.length > 0) {
             const rowData = [];
             subDivs.forEach((cell: Element) => {
-              rowData.push(cell);
+              if (cell.nodeName === 'DIV') {
+                // remove transparent divs
+                Array.from(cell.childNodes).forEach((c) => rowData.push(c));
+              } else {
+                rowData.push(cell);
+              }
             });
             data.push(rowData);
           } else {
@@ -83,8 +50,7 @@ export default class BlogToBlogImporter extends PageImporter {
           }
         });
       }
-      const table = this.createTable(data, document);
-
+      const table = DOM.createTable(data, document);
       block.replaceWith(table);
     });
   }
