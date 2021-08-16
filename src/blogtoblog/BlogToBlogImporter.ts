@@ -15,36 +15,14 @@ import { PageImporter, PageImporterResource, DOMUtils, WPUtils } from '@adobe/he
 
 import fetch from 'node-fetch';
 import path from 'path';
-import moment from 'moment';
 import { Response } from 'node-fetch';
-import { JSDOM, Document } from 'jsdom';
+import { Document } from 'jsdom';
+
+import Blocks from '../utils/Blocks';
 
 export default class BlogToBlogImporter extends PageImporter {
   async fetch(url): Promise<Response> {
     return fetch(url);
-  }
-
-  computeBlockName(str: string) {
-    // TODO: handle dash to spaces
-    return str
-        .replace(/\s(.)/g, (s) => { return s.toUpperCase(); })
-        .replace(/\s/g, '')
-        .replace(/^(.)/, (s) => { return s.toLowerCase(); });
-  }
-
-  convertBlocksToTables(element: Element, document: Document): void {
-    element.querySelectorAll('main > div:nth-child(4) > div[class]').forEach(div => {
-      const name = this.computeBlockName(div.className);
-      const table = document.createElement('table');
-      const row = document.createElement('tr');
-      table.append(row);
-
-      const cell = document.createElement('th');
-      cell.innerHTML = name;
-      row.append(cell);
-
-      div.replaceWith(table);
-    });
   }
 
   buildRecommendedArticlesTable(element: Element, document: Document): void {
@@ -176,7 +154,7 @@ export default class BlogToBlogImporter extends PageImporter {
 
     const main = document.querySelector('main');
     // TODO: convert all blocks back to tables
-    this.convertBlocksToTables(main, document);
+    Blocks.convertBlocksToTables(main, document);
 
     // TODO: rename "Promotion" block to "Banner"
     // TODO: check if more blocks need conversion
