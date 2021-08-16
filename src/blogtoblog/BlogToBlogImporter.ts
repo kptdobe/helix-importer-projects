@@ -73,25 +73,25 @@ export default class BlogToBlogImporter extends PageImporter {
     let author;
     let date;
     if (authorStr) {
-      author = authorStr.replace('By ', '');
+      author = authorStr.replace('By ', '').trim();
       const authorRow = document.createElement('tr');
       table.append(authorRow);
       const authorTitle = document.createElement('td');
       authorTitle.textContent = 'Author';
       authorRow.append(authorTitle);
       const authorData = document.createElement('td');
-      authorData.textContent = author.trim();
+      authorData.textContent = author;
       authorRow.append(authorData);
     }
     if (dateStr) {
-      date = dateStr.replace('Posted on ', '');
+      date = dateStr.replace('Posted on ', '').trim();
       const dateRow = document.createElement('tr');
       table.append(dateRow);
       const dateTitle = document.createElement('td');
       dateTitle.textContent = 'Publication Date';
       dateRow.append(dateTitle);
       const dateData = document.createElement('td');
-      dateData.textContent = date.trim();
+      dateData.textContent = date;
       dateRow.append(dateData);
     }
 
@@ -104,6 +104,7 @@ export default class BlogToBlogImporter extends PageImporter {
       (topicsStr + productsStr)
         .replace('Topics: ', '')
         .replace('Products: ', '')
+        .trim()
         .split(',')
         .forEach((topic) => {
           if (topic.trim().length) {
@@ -121,7 +122,7 @@ export default class BlogToBlogImporter extends PageImporter {
       categoryTitle.textContent = 'Category';
       categoryRow.append(categoryTitle);
       const categoryData = document.createElement('td');
-      categoryData.textContent = category.trim();
+      categoryData.textContent = category;
       categoryRow.append(categoryData);
       topics = topicsArr.join(', ');
       if (topicsArr[0] !== 'undefined') {
