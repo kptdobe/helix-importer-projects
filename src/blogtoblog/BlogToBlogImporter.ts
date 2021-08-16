@@ -15,9 +15,10 @@ import { PageImporter, PageImporterResource, DOMUtils, WPUtils } from '@adobe/he
 
 import fetch from 'node-fetch';
 import path from 'path';
-import moment from 'moment';
 import { Response } from 'node-fetch';
-import { JSDOM, Document } from 'jsdom';
+import { Document } from 'jsdom';
+
+import DOM from '../utils/DOM';
 
 export default class BlogToBlogImporter extends PageImporter {
   async fetch(url): Promise<Response> {
@@ -35,13 +36,7 @@ export default class BlogToBlogImporter extends PageImporter {
   convertBlocksToTables(element: Element, document: Document): void {
     element.querySelectorAll('main > div:nth-child(4) > div[class]').forEach(div => {
       const name = this.computeBlockName(div.className);
-      const table = document.createElement('table');
-      const row = document.createElement('tr');
-      table.append(row);
-
-      const cell = document.createElement('th');
-      cell.innerHTML = name;
-      row.append(cell);
+      const table = DOM.createTable([[name]], document);
 
       div.replaceWith(table);
     });
