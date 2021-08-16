@@ -12,6 +12,8 @@
 
 import BlogToBlogImporter from '../../src/blogtoblog/BlogToBlogImporter';
 
+import Blocks from '../../src/utils/Blocks';
+
 import { strictEqual } from 'assert';
 import { describe, it } from "mocha";
 
@@ -28,7 +30,8 @@ const getImporter = (): BlogToBlogImporter => {
 describe('BlogToBlogImporter#convertBlocksToTables tests', () => {
   const test = (input: string, expected: string) => {
     const { document } = (new JSDOM(input)).window;
-    getImporter().convertBlocksToTables(document, document);
+    Blocks.convertBlocksToTables(document, document);
+    // getImporter().convertBlocksToTables(document, document);
     strictEqual(document.body.innerHTML, expected);
   };
 
@@ -38,7 +41,7 @@ describe('BlogToBlogImporter#convertBlocksToTables tests', () => {
     // TODO
     test(
       `<main>${div}${div}${div}<div><div class="block-1"><div>header cell</div><div>first row one cell</div></div></main>`,
-      `<main>${div}${div}${div}<div><table><tr><th>block-1</th></tr></table></div></main>`);
+      `<main>${div}${div}${div}<div><table><tr><th>Block 1</th></tr><tr><td>header cell</td></tr><tr><td>first row one cell</td></tr></table></div></main>`);
   });
 });
 
