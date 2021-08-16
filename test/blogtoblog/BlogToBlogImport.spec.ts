@@ -42,7 +42,7 @@ describe('BlogToBlogImporter#convertBlocksToTables tests', () => {
 });
 
 describe('BlogToBlogImporter#createTable tests', () => {
-  const test = (data: string[][], expected: string) => {
+  const test = (data: (string|Element|(string|Element)[])[][], expected: string) => {
     const { document } = (new JSDOM()).window;
     const table = getImporter().createTable(data, document);
     strictEqual(table.outerHTML, expected);
@@ -84,5 +84,8 @@ describe('BlogToBlogImporter#createTable tests', () => {
     test(
       [['header'], [ img, a, 'some text' ]],
       `<table><tr><th>header</th></tr><tr><td><img src="https://www.sample.com/image.jpeg"></td><td><a href="https://www.sample.com/"></a></td><td>some text</td></tr></table>`);
+    test(
+      [['header'], [ [ img, a, 'some text' ] ]],
+      `<table><tr><th>header</th></tr><tr><td><img src="https://www.sample.com/image.jpeg"><a href="https://www.sample.com/"></a>some text</td></tr></table>`);
   });
 });

@@ -24,18 +24,22 @@ export default class BlogToBlogImporter extends PageImporter {
     return fetch(url);
   }
 
-  createTable(data: (string|Element)[][], document: Document) {
+  createTable(data: (string|Element|(string|Element)[])[][], document: Document) {
     const table = document.createElement('table');
 
-    data.forEach((row: (string|Element)[], index) => {
+    data.forEach((row: (string|Element)[][], index) => {
       const tr = document.createElement('tr');
 
-      row.forEach((cell: string|Element) => {
+      row.forEach((cell: (string|Element)[]) => {
         const t = document.createElement(index === 0 ? 'th' : 'td');
         if (typeof cell === 'string') {
           t.innerHTML = cell;
         } else {
-          t.append(cell);
+          if (Array.isArray(cell)) {
+            cell.forEach((c) => { t.append(c) });
+          } else {
+            t.append(cell);
+          }
         }
         tr.appendChild(t);
       });
