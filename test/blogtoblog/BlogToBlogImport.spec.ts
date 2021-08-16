@@ -23,20 +23,3 @@ const getImporter = (): BlogToBlogImporter => {
     blobHandler: null,
   });
 }
-
-describe('BlogToBlogImporter#convertBlocksToTables tests', () => {
-  const test = (input: string, expected: string) => {
-    const { document } = (new JSDOM(input)).window;
-    getImporter().convertBlocksToTables(document, document);
-    strictEqual(document.body.innerHTML, expected);
-  };
-
-  const div = '<div></div>'; // ignored div for the tests
-
-  it('convertBlocksToTables basic block', () => {
-    // TODO
-    test(
-      `<main>${div}${div}${div}<div><div class="block-1"><div>header cell</div><div>first row one cell</div></div></main>`,
-      `<main>${div}${div}${div}<div><table><tr><th>Block 1</th></tr></table></div></main>`);
-  });
-});

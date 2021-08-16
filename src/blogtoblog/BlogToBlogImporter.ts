@@ -18,21 +18,11 @@ import path from 'path';
 import { Response } from 'node-fetch';
 import { Document } from 'jsdom';
 
-import DOM from '../utils/DOM';
 import Blocks from '../utils/Blocks';
 
 export default class BlogToBlogImporter extends PageImporter {
   async fetch(url): Promise<Response> {
     return fetch(url);
-  }
-
-  convertBlocksToTables(element: Element, document: Document): void {
-    element.querySelectorAll('main > div:nth-child(4) > div[class]').forEach(div => {
-      const name = Blocks.computeBlockName(div.className);
-      const table = DOM.createTable([[name]], document);
-
-      div.replaceWith(table);
-    });
   }
 
   buildRecommendedArticlesTable(element: Element, document: Document): void {
@@ -158,7 +148,7 @@ export default class BlogToBlogImporter extends PageImporter {
 
     const main = document.querySelector('main');
     // TODO: convert all blocks back to tables
-    this.convertBlocksToTables(main, document);
+    Blocks.convertBlocksToTables(main, document);
 
     // TODO: rename "Promotion" block to "Banner"
     // TODO: check if more blocks need conversion
