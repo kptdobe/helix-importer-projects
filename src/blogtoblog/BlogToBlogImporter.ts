@@ -18,41 +18,11 @@ import path from 'path';
 import { Response } from 'node-fetch';
 import { Document } from 'jsdom';
 
-import DOM from '../utils/DOM';
 import Blocks from '../utils/Blocks';
 
 export default class BlogToBlogImporter extends PageImporter {
   async fetch(url): Promise<Response> {
     return fetch(url);
-  }
-
-  convertBlocksToTables(element: Element, document: Document): void {
-    element.querySelectorAll('main > div:nth-child(4) > div[class]').forEach(block => {
-      const name = Blocks.computeBlockName(block.className);
-      const data = [[name]] as (string|Element)[][];
-      const divs = block.querySelectorAll(':scope > div');
-      if (divs) {
-        divs.forEach((div: Element) => {
-          const subDivs = div.querySelectorAll(':scope > div');
-          if (subDivs && subDivs.length > 0) {
-            const rowData = [];
-            subDivs.forEach((cell: Element) => {
-              if (cell.nodeName === 'DIV') {
-                // remove transparent divs
-                Array.from(cell.childNodes).forEach((c) => rowData.push(c));
-              } else {
-                rowData.push(cell);
-              }
-            });
-            data.push(rowData);
-          } else {
-            data.push([div.innerHTML]);
-          }
-        });
-      }
-      const table = DOM.createTable(data, document);
-      block.replaceWith(table);
-    });
   }
 
   buildRecommendedArticlesTable(element: Element, document: Document): void {
@@ -178,7 +148,7 @@ export default class BlogToBlogImporter extends PageImporter {
 
     const main = document.querySelector('main');
     // TODO: convert all blocks back to tables
-    this.convertBlocksToTables(main, document);
+    Blocks.convertBlocksToTables(main, document);
 
     // TODO: rename "Promotion" block to "Banner"
     // TODO: check if more blocks need conversion

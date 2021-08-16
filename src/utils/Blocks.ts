@@ -9,7 +9,9 @@
  * OF ANY KIND, either express or implied. See the License for the specific language
  * governing permissions and limitations under the License.
  */
-import { JSDOM, Document } from 'jsdom';
+import { Document } from 'jsdom';
+
+import DOM from './DOM';
 
 export default class Blocks {
   static getMetadataBlock(document: Document, metadata: any) {
@@ -55,5 +57,34 @@ export default class Blocks {
       .replace(/-/g, ' ')
       .replace(/\s(.)/g, (s) => { return s.toUpperCase(); })
       .replace(/^(.)/g, (s) => { return s.toUpperCase(); });
+  }
+
+  static convertBlocksToTables(element: Element, document: Document): void {
+    element.querySelectorAll('main > div:nth-child(4) > div[class]').forEach(block => {
+      const name = Blocks.computeBlockName(block.className);
+      const data = [[name]] as (string|Element)[][];
+      const divs = block.querySelectorAll(':scope > div');
+      if (divs) {
+        divs.forEach((div: Element) => {
+          const subDivs = div.querySelectorAll(':scope > div');
+          if (subDivs && subDivs.length > 0) {
+            const rowData = [];
+            subDivs.forEach((cell: Element) => {
+              if (cell.nodeName === 'DIV') {
+                // remove transparent divs
+                Array.from(cell.childNodes).forEach((c) => rowData.push(c));
+              } else {
+                rowData.push(cell);
+              }
+            });
+            data.push(rowData);
+          } else {
+            data.push([div.innerHTML]);
+          }
+        });
+      }
+      const table = DOM.createTable(data, document);
+      block.replaceWith(table);
+    });
   }
 }
