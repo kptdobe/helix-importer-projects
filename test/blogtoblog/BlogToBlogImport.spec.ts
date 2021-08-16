@@ -40,13 +40,3 @@ describe('BlogToBlogImporter#convertBlocksToTables tests', () => {
       `<main>${div}${div}${div}<div><table><tr><th>Block 1</th></tr></table></div></main>`);
   });
 });
-
-describe('BlogToBlogImporter#computeBlockName tests', () => {
-  it('computeBlockName - can convert', () => {
-    const importer = getImporter();
-
-    strictEqual(importer.computeBlockName('promotion'), 'Promotion');
-    strictEqual(importer.computeBlockName('hero-animation'), 'Hero Animation');
-    strictEqual(importer.computeBlockName('how-to-carousel'), 'How To Carousel');
-  });
-});
