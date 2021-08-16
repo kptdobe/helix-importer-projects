@@ -42,7 +42,13 @@ async function main() {
   const entries = [
     {
       url: 'https://blog.adobe.com/en/publish/2021/06/07/back-to-school-2021-how-digital-technologies-can-ease-the-return-to-in-person-education.html', // -> https://main--business-website--adobe.hlx.page/blog/trends/back-to-school-2021-how-digital-technologies-can-ease-the-return-to-in-person-education
-    }
+    },
+    {
+      url: 'https://blog.adobe.com/en/publish/2019/12/15/where-executives-are-placing-their-biggest-bets-in-2020.html#gs.8sie72',
+    },
+    {
+      url: 'https://blog.adobe.com/en/publish/2021/01/14/adobe-stock-motion-audio-creative-trends-2021.html#gs.8se2ro',
+    },
   ];
 
   const importer = new BlogToBlogImporter({
