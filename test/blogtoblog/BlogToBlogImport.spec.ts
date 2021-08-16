@@ -62,7 +62,7 @@ describe('BlogToBlogImporter#buildRecommendedArticlesTable tests', () => {
   it('buildRecommendedArticlesTable unformatted title input', () => {
     test(
       `<main><div><h2>featured posts  </h2><ul><li><a href="https://blog.adobe.com/en/publish/2019/05/30/the-future-of-adobe-air">https://blog.adobe.com/en/publish/2019/05/30/the-future-of-adobe-air</a></li></ul></div></main>`,
-      `<main><table><tr><th>recommended articles</th></tr><tr><td><a href="https://blog.adobe.com/en/publish/2019/05/30/the-future-of-adobe-air">https://blog.adobe.com/en/publish/2019/05/30/the-future-of-adobe-air</a>
+      `<main><table><tr><th>Recommended Articles</th></tr><tr><td><a href="https://blog.adobe.com/en/publish/2019/05/30/the-future-of-adobe-air">https://blog.adobe.com/en/publish/2019/05/30/the-future-of-adobe-air</a>
 </td></tr></table></main>`);
   });
   it('buildRecommendedArticlesTable no input', () => {
