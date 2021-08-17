@@ -104,7 +104,6 @@ export default class BlogToBlogImporter extends PageImporter {
       (topicsStr + productsStr)
         .replace('Topics: ', '')
         .replace('Products: ', '')
-        .trim()
         .split(',')
         .forEach((topic) => {
           if (topic.trim().length) {
@@ -132,7 +131,7 @@ export default class BlogToBlogImporter extends PageImporter {
         topicsTitle.textContent = 'Topics';
         topicsRow.append(topicsTitle);
         const topicsData = document.createElement('td');
-        topicsData.textContent = topics.trim();
+        topicsData.textContent = topics
         topicsRow.append(topicsData);
       }
     }

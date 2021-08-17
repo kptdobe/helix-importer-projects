@@ -18,7 +18,6 @@ import { strictEqual } from 'assert';
 import { describe, it } from "mocha";
 
 import { JSDOM } from 'jsdom';
-import { createStrictEquality } from 'typescript';
 
 const getImporter = (): BlogToBlogImporter => {
   return new BlogToBlogImporter({
@@ -31,7 +30,6 @@ describe('BlogToBlogImporter#convertBlocksToTables tests', () => {
   const test = (input: string, expected: string) => {
     const { document } = (new JSDOM(input)).window;
     Blocks.convertBlocksToTables(document, document);
-    // getImporter().convertBlocksToTables(document, document);
     strictEqual(document.body.innerHTML, expected);
   };
 
@@ -79,7 +77,7 @@ describe('BlogToBlogImporter#buildMetadataTable tests', () => {
   const test = (input: string, expected: string) => {
     const { document } = (new JSDOM(input)).window;
     getImporter().buildMetadataTable(document, document);
-    strictEqual(document.body.innerHTML.trim(), expected.trim());
+    strictEqual(document.body.innerHTML, expected);
   };
 
   const div = `<div></div>`;
