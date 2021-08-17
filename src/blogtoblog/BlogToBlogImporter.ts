@@ -60,7 +60,7 @@ export default class BlogToBlogImporter extends PageImporter {
     const headRow = document.createElement('tr');
     table.append(headRow);
     const th = document.createElement('th');
-    th.textContent = 'metadata';
+    th.textContent = 'Metadata';
     headRow.append(th);
 
     // TODO: fetch post description
