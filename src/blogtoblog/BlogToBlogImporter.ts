@@ -26,7 +26,7 @@ export default class BlogToBlogImporter extends PageImporter {
   }
 
   renameBlocks(element: Element, document: Document): void {
-    element.querySelectorAll('main > div > table > tr > th').forEach((th) => {
+    element.querySelectorAll('main > div > table th').forEach((th) => {
       const blockName = th.innerHTML.trim().toLowerCase();
       if (blockName === 'linked image' || blockName === 'image 50') {
         th.innerHTML = 'Images';
