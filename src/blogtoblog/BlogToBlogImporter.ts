@@ -124,14 +124,14 @@ export default class BlogToBlogImporter extends PageImporter {
       categoryData.textContent = category;
       categoryRow.append(categoryData);
       topics = topicsArr.join(', ');
-      if (topicsArr[0] !== 'undefined') {
+      if (topicsArr.length) {
         const topicsRow = document.createElement('tr');
         table.append(topicsRow);
         const topicsTitle = document.createElement('td');
         topicsTitle.textContent = 'Topics';
         topicsRow.append(topicsTitle);
         const topicsData = document.createElement('td');
-        topicsData.textContent = topics
+        topicsData.textContent = topics;
         topicsRow.append(topicsData);
       }
     }
