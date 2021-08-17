@@ -23,3 +23,37 @@ const getImporter = (): BlogToBlogImporter => {
     blobHandler: null,
   });
 }
+
+describe('BlogToBlogImporter#renameBlocks tests', () => {
+  const test = (input: string, expected: string) => {
+    const { document } = (new JSDOM(input)).window;
+    getImporter().renameBlocks(document, document);
+    strictEqual(document.body.innerHTML, expected);
+  };
+
+  it('renameBlocks no change', () => {
+    test(
+      `<main><div><table><tbody><tr><th>Animation</th></tr></tbody></table></div></main>`,
+      `<main><div><table><tbody><tr><th>Animation</th></tr></tbody></table></div></main>`);
+  });
+  it('renameBlocks promotion > banner', () => {
+    test(
+      `<main><div><table><tbody><tr><th>Promotion</th></tr></tbody></table></div></main>`,
+      `<main><div><table><tbody><tr><th>Banner</th></tr></tbody></table></div></main>`);
+  });
+  it('renameBlocks linked image > images', () => {
+    test(
+      `<main><div><table><tbody><tr><th>Linked Image</th></tr></tbody></table></div></main>`,
+      `<main><div><table><tbody><tr><th>Images</th></tr></tbody></table></div></main>`);
+  });
+  it('renameBlocks linked embed interal > video', () => {
+    test(
+      `<main><div><table><tbody><tr><th>Embed Embed Internal Embed Internal Adobestockcreativetrends Embed Internal Max</th></tr></tbody></table></div></main>`,
+      `<main><div><table><tbody><tr><th>Video</th></tr></tbody></table></div></main>`);
+  });
+  it('renameBlocks linked multiple blocks', () => {
+    test(
+      `<main><div><table><tbody><tr><th>Embed Embed Internal</th></tr></tbody></table></div><div><table><tbody><tr><th>Animation</th></tr></tbody></table></div><div><table><tbody><tr><th>Promotion</th></tr></tbody></table></div></main>`,
+      `<main><div><table><tbody><tr><th>Video</th></tr></tbody></table></div><div><table><tbody><tr><th>Animation</th></tr></tbody></table></div><div><table><tbody><tr><th>Banner</th></tr></tbody></table></div></main>`);
+  });
+});
