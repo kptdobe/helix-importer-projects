@@ -100,8 +100,9 @@ export default class BlogToBlogImporter extends PageImporter {
     const [ topicsStr, productsStr ] = Array
       .from(element.querySelectorAll('main > div:last-child > p'))
       .map((p) => { return p.textContent });
-    if (topicsStr || productsStr) {
-      (topicsStr + productsStr)
+    if (topicsStr) {
+      const allTopics = productsStr ? topicsStr + productsStr : topicsStr;
+      allTopics
         .replace('Topics: ', '')
         .replace('Products: ', '')
         .split(',')
@@ -114,7 +115,7 @@ export default class BlogToBlogImporter extends PageImporter {
 
     let category;
     if (topicsArr.length) {
-      category = topicsArr.shift();
+      category = topicsArr[0];
       const categoryRow = document.createElement('tr');
       table.append(categoryRow);
       const categoryTitle = document.createElement('td');
@@ -123,8 +124,10 @@ export default class BlogToBlogImporter extends PageImporter {
       const categoryData = document.createElement('td');
       categoryData.textContent = category;
       categoryRow.append(categoryData);
-      topics = topicsArr.join(', ');
-      if (topicsArr.length) {
+
+      if (topicsArr.length >= 2) {
+        topicsArr.shift();
+        topics = topicsArr.join(', ');
         const topicsRow = document.createElement('tr');
         table.append(topicsRow);
         const topicsTitle = document.createElement('td');
