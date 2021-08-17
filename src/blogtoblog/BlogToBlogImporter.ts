@@ -37,7 +37,7 @@ export default class BlogToBlogImporter extends PageImporter {
           table.append(headRow);
 
           const th = document.createElement('th');
-          th.textContent = 'recommended articles';
+          th.textContent = 'Recommended Articles';
           headRow.append(th);
 
           const bodyRow = document.createElement('tr');

@@ -57,7 +57,7 @@ describe('BlogToBlogImporter#buildRecommendedArticlesTable tests', () => {
   it('buildRecommendedArticlesTable expected input', () => {
     test(
       `<main>${div}${div}${div}${div}<div><h2>Featured posts:</h2><ul><li><a href="https://blog.adobe.com/en/publish/2019/05/30/the-future-of-adobe-air">https://blog.adobe.com/en/publish/2019/05/30/the-future-of-adobe-air</a></li><li><a href="https://blog.adobe.com/en/publish/2019/05/30/the-future-of-adobe-air">https://blog.adobe.com/en/publish/2019/05/30/the-future-of-adobe-air</a></li><li><a href="https://blog.adobe.com/en/publish/2019/05/30/the-future-of-adobe-air">https://blog.adobe.com/en/publish/2019/05/30/the-future-of-adobe-air</a></li></ul></div>${div}</main>`,
-      `<main>${div}${div}${div}${div}<table><tr><th>recommended articles</th></tr><tr><td><a href="https://blog.adobe.com/en/publish/2019/05/30/the-future-of-adobe-air">https://blog.adobe.com/en/publish/2019/05/30/the-future-of-adobe-air</a>
+      `<main>${div}${div}${div}${div}<table><tr><th>Recommended Articles</th></tr><tr><td><a href="https://blog.adobe.com/en/publish/2019/05/30/the-future-of-adobe-air">https://blog.adobe.com/en/publish/2019/05/30/the-future-of-adobe-air</a>
 <a href="https://blog.adobe.com/en/publish/2019/05/30/the-future-of-adobe-air">https://blog.adobe.com/en/publish/2019/05/30/the-future-of-adobe-air</a>
 <a href="https://blog.adobe.com/en/publish/2019/05/30/the-future-of-adobe-air">https://blog.adobe.com/en/publish/2019/05/30/the-future-of-adobe-air</a>
 </td></tr></table>${div}</main>`);
