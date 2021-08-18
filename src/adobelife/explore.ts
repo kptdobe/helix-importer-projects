@@ -18,7 +18,7 @@ async function main() {
   const handler = new FSHandler('output/adobelife', console);
   const pager = new WPAdminAjaxPager({
     nbMaxPages: 3,
-    url: 'https://blogs.adobe.com/adobelife/'
+    url: 'https://blogs.adobe.com/adobelife/',
   });
   const entries = await pager.explore();
   console.log(`Received ${entries.length} entries!`);

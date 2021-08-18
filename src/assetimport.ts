@@ -20,16 +20,15 @@ config();
 async function main() {
   const blobHandler = new BlobHandler({
     azureBlobSAS: process.env.AZURE_BLOB_SAS,
-    azureBlobURI: process.env.AZURE_BLOB_URI
+    azureBlobURI: process.env.AZURE_BLOB_URI,
   });
 
   const print = async (url) => {
     // tslint:disable-next-line: no-console
     console.log(`RESULT IS: [](${(await blobHandler.getBlob(url)).uri})`);
-  }
+  };
 
   await print('https://blogsimages.adobe.com/creative/files/2020/10/01_Glyph_Snapping_v01.gif');
-
 }
 
 main();

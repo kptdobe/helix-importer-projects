@@ -18,7 +18,7 @@ async function main() {
   const handler = new FSHandler('output/creativedialogue', console);
   const pager = new WPContentPager({
     nbMaxPages: 1000,
-    url: 'https://blogs.adobe.com/creativedialogue/'
+    url: 'https://blogs.adobe.com/creativedialogue/',
   });
   const entries = await pager.explore();
   console.log(`Received ${entries.length} entries!`);

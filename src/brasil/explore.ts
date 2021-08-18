@@ -18,7 +18,7 @@ async function main() {
   const handler = new FSHandler('output/brasil', console);
   const pager = new WPContentPager({
     nbMaxPages: 1000,
-    url: 'https://blogs.adobe.com/brasil/'
+    url: 'https://blogs.adobe.com/brasil/',
   });
 
   let csv = '';

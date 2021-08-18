@@ -18,7 +18,7 @@ async function main() {
   const handler = new FSHandler('output/creative', console);
   const pager = new WPContentPager({
     nbMaxPages: 1000,
-    url: 'https://blogs.adobe.com/creative/'
+    url: 'https://blogs.adobe.com/creative/',
   });
 
   let csv = '';

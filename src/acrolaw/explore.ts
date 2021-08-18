@@ -35,7 +35,7 @@ class WPPostPager extends PagingExplorer {
       const entryDate = el.querySelector('.entry-date');
       const date = entryDate.textContent.trim();
 
-      if (all.findIndex((entry) => entry.url === url) === -1) {
+      if (all.findIndex(entry => entry.url === url) === -1) {
         entries.push({
           date,
           url,
@@ -51,7 +51,7 @@ async function main() {
 
   const pager = new WPPostPager({
     nbMaxPages: 1000,
-    url: `https://blogs.adobe.com/acrolaw/`
+    url: `https://blogs.adobe.com/acrolaw/`,
   });
   const entries = await pager.explore();
   console.log(`Received ${entries.length} entries!`);

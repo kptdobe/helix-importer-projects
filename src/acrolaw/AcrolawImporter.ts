@@ -28,7 +28,6 @@ export default class AcrolawImporter extends PageImporter {
   }
 
   async process(document: Document, url: string, entryParams: any): Promise<PageImporterResource[]> {
-
     const resources = [];
     const main = document.querySelector('#main');
 

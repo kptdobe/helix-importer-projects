@@ -15,12 +15,11 @@ const getProperty = (obj, path) => {
   for (const p of paths) {
     if (current[p] === undefined) {
       return '';
-    } else {
-      current = current[p];
     }
+    current = current[p];
   }
   return current.trim().replace(/\;/gm, ',').replace(/\n/gm, ' ');
-}
+};
 
 async function main() {
   const handler = new FSHandler('output/sparkmake', console);
@@ -40,11 +39,11 @@ async function main() {
     'fr-FR',
     'zh-Hant-TW',
     'da-DK',
-    'ja-JP'
+    'ja-JP',
   ];
 
   let output = `id;route;name;type;`;
-  LANGUAGES.forEach(l => {
+  LANGUAGES.forEach((l) => {
     output += `${l}/Title;${l}/Description;${l}/Design Name;`;
   });
   output += '\n';
@@ -54,7 +53,7 @@ async function main() {
     more = false;
     let url = API;
     if (key) {
-      url = `${API}?lastKey=${key}`
+      url = `${API}?lastKey=${key}`;
     }
     res = await fetch(url);
     if (res.ok) {
@@ -64,15 +63,14 @@ async function main() {
           key = json.lastKey;
           importKeys[key] = true;
           more = true;
-          json.resources.forEach(d => {
+          json.resources.forEach((d) => {
             const { id, route, name, type } = d;
             output += `${id};${route};${name};${type};`;
 
-            LANGUAGES.forEach(l => {
+            LANGUAGES.forEach((l) => {
               output += `${getProperty(d.directives, `${l}/meta/title`)};${getProperty(d.directives, `${l}/meta/description`)};${getProperty(d.directives, `${l}/meta/designName`)};`;
             });
             output += '\n';
-
           });
           await handler.put('resources.csv', output);
         }

@@ -28,14 +28,13 @@ export default class DigitalEuropeImporter extends PageImporter {
   }
 
   async process(document: Document, url: string, entryParams?: any): Promise<PageImporterResource[]> {
-
     const main = document.querySelector('main');
 
     DOMUtils.remove(main, [
       '.post_navigation',
       '#discussion',
       '#comments',
-      '.content > .post_categories'
+      '.content > .post_categories',
     ]);
 
     WPUtils.handleCaptions(main);
@@ -110,31 +109,31 @@ export default class DigitalEuropeImporter extends PageImporter {
     const tags = main.querySelector('.post_tags');
     if (tags) {
       list = list.concat(
-        tags.textContent.split(', ').map(t => t.replace(/ \(.*\)/gm, ''))
+        tags.textContent.split(', ').map(t => t.replace(/ \(.*\)/gm, '')),
       );
     }
 
     let topics = [];
     const products = [];
     let oneTopicMatch = false;
-    list.forEach(t => {
+    list.forEach((t) => {
       const noAdobeName = t.replace('Adobe ', '');
       if (entryParams.products.includes(t)) {
         // if product
         if (!products.includes(t)) products.push(t);
       } else if (t.indexOf('Adobe ') !== -1 && entryParams.products.includes(noAdobeName)) {
            // if product without Adobe
-           if (!products.includes(noAdobeName)) products.push(noAdobeName);
-          } else if (entryParams.topics.includes(t)) {
+        if (!products.includes(noAdobeName)) products.push(noAdobeName);
+      } else if (entryParams.topics.includes(t)) {
             // if detected topic, push first
-            if (!topics.includes(t)) {
-              topics = [t].concat(topics);
-              oneTopicMatch = true;
-            }
-          } else {
+        if (!topics.includes(t)) {
+          topics = [t].concat(topics);
+          oneTopicMatch = true;
+        }
+      } else {
             // worst case, unknown, push at the end of topics
-            if (!topics.includes(t)) topics.push(t);
-          }
+        if (!topics.includes(t)) topics.push(t);
+      }
     });
 
     if (!oneTopicMatch) {
@@ -159,7 +158,7 @@ export default class DigitalEuropeImporter extends PageImporter {
     DOMUtils.remove(main, [
       '.author',
       '.post_categories',
-      '.post_tags'
+      '.post_tags',
     ]);
 
     WPUtils.genericDOMCleanup(main);
@@ -181,7 +180,7 @@ export default class DigitalEuropeImporter extends PageImporter {
       products,
       author,
       date: authoredDate,
-      lang
+      lang,
     });
 
     return [pir];

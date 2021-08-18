@@ -26,20 +26,20 @@ async function main() {
   // tslint:disable-next-line: no-empty
   const noop = () => {};
   const blob = new BlobHandler({
-	  skipSchedule: true,
+    skipSchedule: true,
     azureBlobSAS: process.env.AZURE_BLOB_SAS,
     azureBlobURI: process.env.AZURE_BLOB_URI,
     log: {
       debug: noop,
       info: noop,
       warn: noop,
-      error: () => console.error(...arguments)
-    }
+      error: () => console.error(...arguments),
+    },
   });
 
   const importer = new XDImporter({
     storageHandler: handler,
-    blobHandler: blob
+    blobHandler: blob,
   });
 
   await importer.import('https://xd.adobe.com/ideas/principles/emerging-technology/ar-vr-difference/');
