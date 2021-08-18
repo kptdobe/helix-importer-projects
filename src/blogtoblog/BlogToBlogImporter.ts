@@ -37,7 +37,7 @@ export default class BlogToBlogImporter extends PageImporter {
           table.append(headRow);
 
           const th = document.createElement('th');
-          th.textContent = 'recommended articles';
+          th.textContent = 'Recommended Articles';
           headRow.append(th);
 
           const bodyRow = document.createElement('tr');
@@ -60,7 +60,7 @@ export default class BlogToBlogImporter extends PageImporter {
     const headRow = document.createElement('tr');
     table.append(headRow);
     const th = document.createElement('th');
-    th.textContent = 'metadata';
+    th.textContent = 'Metadata';
     headRow.append(th);
 
     // TODO: fetch post description
@@ -73,7 +73,7 @@ export default class BlogToBlogImporter extends PageImporter {
     let author;
     let date;
     if (authorStr) {
-      author = authorStr.replace('By ', '');
+      author = authorStr.replace('By ', '').trim();
       const authorRow = document.createElement('tr');
       table.append(authorRow);
       const authorTitle = document.createElement('td');
@@ -84,7 +84,7 @@ export default class BlogToBlogImporter extends PageImporter {
       authorRow.append(authorData);
     }
     if (dateStr) {
-      date = dateStr.replace('Posted on ', '');
+      date = dateStr.replace('Posted on ', '').trim();
       const dateRow = document.createElement('tr');
       table.append(dateRow);
       const dateTitle = document.createElement('td');
@@ -100,9 +100,9 @@ export default class BlogToBlogImporter extends PageImporter {
     const [topicsStr, productsStr] = Array
       .from(element.querySelectorAll('main > div:last-child > p'))
       .map(p => p.textContent);
-    element.querySelector('main > div:last-child').remove();
-    if (topicsStr || productsStr) {
-      (topicsStr + productsStr)
+    if (topicsStr) {
+      const allTopics = productsStr ? topicsStr + productsStr : topicsStr;
+      allTopics
         .replace('Topics: ', '')
         .replace('Products: ', '')
         .split(',')
@@ -115,8 +115,7 @@ export default class BlogToBlogImporter extends PageImporter {
 
     let category;
     if (topicsArr.length) {
-      category = topicsArr.shift();
-      topics = topicsArr.join(', ');
+      category = topicsArr[0];
       const categoryRow = document.createElement('tr');
       table.append(categoryRow);
       const categoryTitle = document.createElement('td');
@@ -125,7 +124,10 @@ export default class BlogToBlogImporter extends PageImporter {
       const categoryData = document.createElement('td');
       categoryData.textContent = category;
       categoryRow.append(categoryData);
-      if (topics.length) {
+
+      if (topicsArr.length >= 2) {
+        topicsArr.shift();
+        topics = topicsArr.join(', ');
         const topicsRow = document.createElement('tr');
         table.append(topicsRow);
         const topicsTitle = document.createElement('td');
@@ -136,7 +138,14 @@ export default class BlogToBlogImporter extends PageImporter {
         topicsRow.append(topicsData);
       }
     }
-    element.append(table);
+
+    const lastDiv = document.querySelector('main > div:last-child');
+    if (topicsStr || productsStr) {
+      lastDiv.replaceWith(table);
+    } else {
+      // don't replace non-topics div
+      lastDiv.parentNode.insertBefore(table, lastDiv.nextSibling);
+    }
   }
 
   async process(document: Document, url: string, entryParams?: any): Promise<PageImporterResource[]> {
