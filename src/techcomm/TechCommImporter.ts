@@ -33,7 +33,7 @@ export default class TechCommImporter extends PageImporter {
     if (document) {
       const content = document.querySelector('.author');
 
-      content.querySelectorAll('h1').forEach(h => {
+      content.querySelectorAll('h1').forEach((h) => {
         // downgrade to h2 to match template
         h.replaceWith(JSDOM.fragment(`<h2>${h.textContent}</h2>`));
       });
@@ -44,7 +44,6 @@ export default class TechCommImporter extends PageImporter {
   }
 
   async process(document: Document, url: string, entryParams: any): Promise<PageImporterResource[]> {
-
     const resources = [];
     const main = document.querySelector('main');
 
@@ -121,7 +120,7 @@ export default class TechCommImporter extends PageImporter {
     topics.push(IMPORT_TOPIC);
 
     topics = topics.filter((t, i) => topics.indexOf(t) === i);
-    products = products.filter((t, i) => products.indexOf(t) === i)
+    products = products.filter((t, i) => products.indexOf(t) === i);
 
     main.appendChild(JSDOM.fragment(`
       <hr>

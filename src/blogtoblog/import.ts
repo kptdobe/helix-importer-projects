@@ -26,35 +26,51 @@ async function main() {
   // tslint:disable-next-line: no-empty
   const noop = () => {};
   const blob = new BlobHandler({
-	  skipSchedule: true,
+    skipSchedule: true,
     azureBlobSAS: process.env.AZURE_BLOB_SAS,
     azureBlobURI: process.env.AZURE_BLOB_URI,
     log: {
       debug: noop,
       info: noop,
       warn: noop,
-      error: () => console.error(...arguments)
-    }
+      error: () => console.error(...arguments),
+    },
   });
 
   // const csv = await handler.get('posts.csv');
   // const entries = CSV.toArray(csv.toString());
   const entries = [
     {
-      url: 'https://blog.adobe.com/en/publish/2021/06/07/back-to-school-2021-how-digital-technologies-can-ease-the-return-to-in-person-education.html', // -> https://main--business-website--adobe.hlx.page/blog/trends/back-to-school-2021-how-digital-technologies-can-ease-the-return-to-in-person-education
-    },
-    {
-      url: 'https://blog.adobe.com/en/publish/2019/12/15/where-executives-are-placing-their-biggest-bets-in-2020.html#gs.8sie72',
-    },
-    {
-      url: 'https://blog.adobe.com/en/publish/2021/01/14/adobe-stock-motion-audio-creative-trends-2021.html#gs.8se2ro',
+      url: 'https://blog.adobe.com/en/publish/2021/08/17/photoshop-releases-major-update-sky-replacement-healing-brush-magic-wand-on-ipad-much-more.html',
+    },{
+      url: 'https://blog.adobe.com/en/publish/2021/06/07/back-to-school-2021-how-digital-technologies-can-ease-the-return-to-in-person-education.html',
+    },{
+      url: 'https://blog.adobe.com/en/publish/2021/01/14/adobe-stock-motion-audio-creative-trends-2021.html',
+    },{
+      url: 'https://blog.adobe.com/en/publish/2020/12/17/evolving-role-cio-2021.html',
+    },{
+      url: 'https://blog.adobe.com/en/publish/2020/02/20/access-the-power-of-adobe-acrobat-inside-google-drive.html',
+    },{
+      url: 'https://blog.adobe.com/en/publish/2019/12/15/where-executives-are-placing-their-biggest-bets-in-2020.html',
+    },{
+      url: 'https://blog.adobe.com/en/publish/2019/01/08/3-opportunities-for-life-insurers-to-win-amid-digital-disruption.html',
+    },{
+      url: 'https://blog.adobe.com/en/publish/2018/05/03/customers-report-3x-return-investment-adobe-experience-manager.html',
+    },{
+      url: 'https://blog.adobe.com/en/publish/2017/08/08/15-mind-blowing-stats-about-design-led-businesses.html',
+    },{
+      url: 'https://blog.adobe.com/en/publish/2017/07/18/a-brief-history-of-ui-and-whats-coming.html',
+    },{
+      url: 'https://blog.adobe.com/en/publish/2016/03/20/the-real-value-in-voice-of-the-customer-the-customer-experience.html',
+    },{
+      url: 'https://blog.adobe.com/en/publish/2016/03/20/data-decisions-dsp-vs-dmp.html',
     },
   ];
 
   const importer = new BlogToBlogImporter({
     storageHandler: handler,
     blobHandler: blob,
-    cache: '.cache/blogtoblog'
+    cache: '.cache/blogtoblog',
   });
 
   let output = `source;file;lang;author;date;topics;products;\n`;
@@ -66,7 +82,7 @@ async function main() {
         console.log(`${entry.source} -> ${entry.file}`);
         output += `${entry.source};${entry.file};${entry.extra.lang};${entry.extra.author};${entry.extra.date};${entry.extra.topics.join(', ')};${entry.extra.products.join(', ')};\n`;
       });
-      await handler.put('importer_output.csv', output)
+      await handler.put('importer_output.csv', output);
     } catch(error) {
       console.error(`Could not import ${url}`, error);
     }

@@ -26,15 +26,15 @@ async function main() {
   // tslint:disable-next-line: no-empty
   const noop = () => {};
   const blob = new BlobHandler({
-	  skipSchedule: true,
+    skipSchedule: true,
     azureBlobSAS: process.env.AZURE_BLOB_SAS,
     azureBlobURI: process.env.AZURE_BLOB_URI,
     log: {
       debug: noop,
       info: noop,
       warn: noop,
-      error: () => console.error(...arguments)
-    }
+      error: () => console.error(...arguments),
+    },
   });
 
   const csv = await handler.get('explorer_result_full.csv');
@@ -45,7 +45,7 @@ async function main() {
   const importer = new JapanImporter({
     storageHandler: handler,
     blobHandler: blob,
-    cache: '.cache/japan'
+    cache: '.cache/japan',
   });
 
   let output = `source;url;author;date;topics;products;\n`;
@@ -54,7 +54,7 @@ async function main() {
     const url = e.url;
     try {
       const files = await importer.import(url, {
-        knownAuthors
+        knownAuthors,
       });
       files.forEach((entry) => {
         console.log(`${url} -> ${entry.file}`);
@@ -63,7 +63,7 @@ async function main() {
           output += `${entry.source};${entry.file};${entry.extra.author};${entry.extra.date};${entry.extra.topics.join(', ')};${entry.extra.products.join(', ')};\n`;
         }
       });
-      await handler.put('importer_output.csv', output)
+      await handler.put('importer_output.csv', output);
     } catch(error) {
       console.error(`Could not import ${url}`, error);
     }
