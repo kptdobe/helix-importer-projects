@@ -25,6 +25,24 @@ export default class BlogToBlogImporter extends PageImporter {
     return fetch(url);
   }
 
+  renameBlocks(element: Element, document: Document): void {
+    element.querySelectorAll('main > div > table th').forEach((th) => {
+      const blockName = th.innerHTML.trim().toLowerCase();
+      if (blockName === 'linked image' || blockName === 'image 50') {
+        th.innerHTML = 'Images';
+      }
+      if (blockName === 'promotion') {
+        th.innerHTML = 'Banner';
+      }
+      if (blockName.startsWith('block embed')) {
+        th.innerHTML = 'Embed';
+      }
+      if (blockName.includes('embed internal')) {
+        th.innerHTML = 'Video';
+      }
+    });
+  }
+
   buildRecommendedArticlesTable(element: Element, document: Document): void {
     element.querySelectorAll('main > div > h2').forEach((h2) => {
       if (h2.textContent.toLowerCase().startsWith('featured posts')) {
@@ -160,6 +178,7 @@ export default class BlogToBlogImporter extends PageImporter {
 
     // TODO: rename "Promotion" block to "Banner"
     // TODO: check if more blocks need conversion
+    this.renameBlocks(main, document);
     // TODO: convert "featured articles" section to table
     this.buildRecommendedArticlesTable(main, document);
     // TODO: create metadata table from... metadata
