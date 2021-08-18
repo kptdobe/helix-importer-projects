@@ -27,14 +27,13 @@ export default class CreativeDialogueImporter extends PageImporter {
   }
 
   async process(document: Document, url: string, entryParams?: any): Promise<PageImporterResource[]> {
-
     const main = document.querySelector('main');
 
     DOMUtils.remove(main, [
       '.post_navigation',
       '#discussion',
       '#comments',
-      '.content > .post_categories'
+      '.content > .post_categories',
     ]);
 
     WPUtils.handleCaptions(main);
@@ -96,7 +95,7 @@ export default class CreativeDialogueImporter extends PageImporter {
     DOMUtils.remove(main, [
       '.author',
       '.post_categories',
-      '.post_tags'
+      '.post_tags',
     ]);
 
     WPUtils.genericDOMCleanup(main);

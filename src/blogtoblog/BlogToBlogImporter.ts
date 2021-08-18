@@ -26,7 +26,7 @@ export default class BlogToBlogImporter extends PageImporter {
   }
 
   buildRecommendedArticlesTable(element: Element, document: Document): void {
-    element.querySelectorAll('main > div > h2').forEach(h2 => {
+    element.querySelectorAll('main > div > h2').forEach((h2) => {
       if (h2.textContent.toLowerCase().startsWith('featured posts')) {
         const linksContainer = h2.nextElementSibling;
         if (linksContainer) {
@@ -46,13 +46,13 @@ export default class BlogToBlogImporter extends PageImporter {
           const td = document.createElement('td');
           links.forEach((a) => {
             td.append(a, `\n`);
-          })
+          });
           bodyRow.append(td);
 
           h2.parentElement.replaceWith(table);
         }
       }
-    })
+    });
   }
 
   buildMetadataTable(element: Element, document: Document): void {
@@ -65,9 +65,9 @@ export default class BlogToBlogImporter extends PageImporter {
 
     // TODO: fetch post description
 
-    const [ authorStr, dateStr ] = Array
+    const [authorStr, dateStr] = Array
       .from(element.querySelectorAll('main > div:nth-child(3) > p'))
-      .map((p) => { return p.textContent });
+      .map(p => p.textContent);
     element.querySelector('main > div:nth-child(3)').remove();
 
     let author;
@@ -97,9 +97,9 @@ export default class BlogToBlogImporter extends PageImporter {
 
     let topics;
     const topicsArr = [];
-    const [ topicsStr, productsStr ] = Array
+    const [topicsStr, productsStr] = Array
       .from(element.querySelectorAll('main > div:last-child > p'))
-      .map((p) => { return p.textContent });
+      .map(p => p.textContent);
     if (topicsStr) {
       const allTopics = productsStr ? topicsStr + productsStr : topicsStr;
       allTopics
@@ -144,12 +144,11 @@ export default class BlogToBlogImporter extends PageImporter {
       lastDiv.replaceWith(table);
     } else {
       // don't replace non-topics div
-      lastDiv.parentNode.insertBefore(table, lastDiv.nextSibling);;
+      lastDiv.parentNode.insertBefore(table, lastDiv.nextSibling);
     }
   }
 
   async process(document: Document, url: string, entryParams?: any): Promise<PageImporterResource[]> {
-
     DOMUtils.remove(document, [
       'header',
       'footer',
@@ -181,7 +180,7 @@ export default class BlogToBlogImporter extends PageImporter {
       products: [],
       author: '',
       date,
-      lang
+      lang,
     });
 
     return [pir];

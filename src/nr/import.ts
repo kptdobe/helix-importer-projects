@@ -26,15 +26,15 @@ async function main() {
   // tslint:disable-next-line: no-empty
   const noop = () => {};
   const blob = new BlobHandler({
-	  skipSchedule: true,
+    skipSchedule: true,
     azureBlobSAS: process.env.AZURE_BLOB_SAS,
     azureBlobURI: process.env.AZURE_BLOB_URI,
     log: {
       debug: noop,
       info: noop,
       warn: noop,
-      error: () => console.error(...arguments)
-    }
+      error: () => console.error(...arguments),
+    },
   });
 
   const csv = await handler.get('urls.csv');
@@ -43,7 +43,7 @@ async function main() {
   const importer = new NRImporter({
     storageHandler: handler,
     blobHandler: blob,
-    cache: '.cache/nr'
+    cache: '.cache/nr',
   });
 
   let output = `source;file;\n`;
@@ -55,7 +55,7 @@ async function main() {
         console.log(`${entry.source} -> ${entry.file}`);
         output += `${entry.source};${entry.file};\n`;
       });
-      await handler.put('importer_output.csv', output)
+      await handler.put('importer_output.csv', output);
     } catch(error) {
       console.error(`Could not import ${url}`, error);
     }

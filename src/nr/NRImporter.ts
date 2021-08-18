@@ -24,16 +24,15 @@ export default class NRImporter extends PageImporter {
     const res = await fetch(url);
     if (res.status === 404) {
       throw new Error(`404 - Page does not exist - ${url}`);
-    } else {
-      if (res.redirected && url !== res.url) {
-        throw new Error(`301 - Redirected - ${url} -> ${res.url}`);
-      }
     }
+    if (res.redirected && url !== res.url) {
+      throw new Error(`301 - Redirected - ${url} -> ${res.url}`);
+    }
+
     return res;
   }
 
   async process(document: Document, url: string, entryParams?: any): Promise<PageImporterResource[]> {
-
     const main = document.querySelector('main');
 
     WPUtils.handleCaptions(main);

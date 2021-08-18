@@ -15,16 +15,13 @@ import BlogToBlogImporter from '../../src/blogtoblog/BlogToBlogImporter';
 import Blocks from '../../src/utils/Blocks';
 
 import { strictEqual } from 'assert';
-import { describe, it } from "mocha";
+import { describe, it } from 'mocha';
 
 import { JSDOM } from 'jsdom';
 
-const getImporter = (): BlogToBlogImporter => {
-  return new BlogToBlogImporter({
-    storageHandler: null,
-    blobHandler: null,
-  });
-}
+const getImporter = (): BlogToBlogImporter => new BlogToBlogImporter({
+  storageHandler: null,
+  blobHandler: null});
 
 describe('BlogToBlogImporter#convertBlocksToTables tests', () => {
   const test = (input: string, expected: string) => {
@@ -70,46 +67,5 @@ describe('BlogToBlogImporter#buildRecommendedArticlesTable tests', () => {
     test(
       `<main>${div}${div}${div}${div}${div}</main>`,
       `<main>${div}${div}${div}${div}${div}</main>`);
-  });
-});
-
-describe('BlogToBlogImporter#buildMetadataTable tests', () => {
-  const test = (input: string, expected: string) => {
-    const { document } = (new JSDOM(input)).window;
-    getImporter().buildMetadataTable(document, document);
-    strictEqual(document.body.innerHTML, expected);
-  };
-
-  const div = `<div></div>`;
-
-  it('build metadata table with expected input', () => {
-    test(
-      `<main>${div}${div}<div><p>By Katie Sexton</p><p>Posted on 09-09-2019</p></div>${div}<div><p>Topics: Alpha, Beta, Gamma,</p><p>Products: Delta, Echo, Foxtrot,</p></div></main>`,
-      `<main>${div}${div}${div}<table><tr><th>Metadata</th></tr><tr><td>Author</td><td>Katie Sexton</td></tr><tr><td>Publication Date</td><td>09-09-2019</td></tr><tr><td>Category</td><td>Alpha</td></tr><tr><td>Topics</td><td>Beta, Gamma, Delta, Echo, Foxtrot</td></tr></table></main>`);
-  });
-  it('build metadata table, missing date', () => {
-    test(
-      `<main>${div}${div}<div><p>By Katie Sexton</p></div>${div}<div><p>Topics: Alpha, Beta, Gamma,</p><p>Products: Delta, Echo, Foxtrot,</p></div></main>`,
-      `<main>${div}${div}${div}<table><tr><th>Metadata</th></tr><tr><td>Author</td><td>Katie Sexton</td></tr><tr><td>Category</td><td>Alpha</td></tr><tr><td>Topics</td><td>Beta, Gamma, Delta, Echo, Foxtrot</td></tr></table></main>`);
-    });
-  it('build metadata table, 1 topic', () => {
-    test(
-      `<main>${div}${div}<div><p>By Katie Sexton</p><p>Posted on 09-09-2019</p></div>${div}<div><p>Topics: Alpha,</p></div></main>`,
-      `<main>${div}${div}${div}<table><tr><th>Metadata</th></tr><tr><td>Author</td><td>Katie Sexton</td></tr><tr><td>Publication Date</td><td>09-09-2019</td></tr><tr><td>Category</td><td>Alpha</td></tr></table></main>`);
-  });
-  it('build metadata table, 1 product', () => {
-    test(
-      `<main>${div}${div}<div><p>By Katie Sexton</p><p>Posted on 09-09-2019</p></div>${div}<div><p>Products: Alfa,</p></div></main>`,
-      `<main>${div}${div}${div}<table><tr><th>Metadata</th></tr><tr><td>Author</td><td>Katie Sexton</td></tr><tr><td>Publication Date</td><td>09-09-2019</td></tr><tr><td>Category</td><td>Alfa</td></tr></table></main>`);
-  });
-  it('build metadata table, 1 topic & 1 product', () => {
-    test(
-      `<main>${div}${div}<div><p>By Katie Sexton</p><p>Posted on 09-09-2019</p></div>${div}<div><p>Topics: Alpha,</p><p>Products: Bravo,</p></div></main>`,
-      `<main>${div}${div}${div}<table><tr><th>Metadata</th></tr><tr><td>Author</td><td>Katie Sexton</td></tr><tr><td>Publication Date</td><td>09-09-2019</td></tr><tr><td>Category</td><td>Alpha</td></tr><tr><td>Topics</td><td>Bravo</td></tr></table></main>`);
-  });
-  it('build metadata table, missing topics/category', () => {
-    test(
-      `<main>${div}${div}<div><p>By Katie Sexton</p><p>Posted on 09-09-2019</p></div>${div}<div><h2>Featured posts:</h2><a href="https://blog.adobe.com/en/publish/2019/05/30/the-future-of-adobe-air">https://blog.adobe.com/en/publish/2019/05/30/the-future-of-adobe-air</a></div></main>`,
-      `<main>${div}${div}${div}<div><h2>Featured posts:</h2><a href="https://blog.adobe.com/en/publish/2019/05/30/the-future-of-adobe-air">https://blog.adobe.com/en/publish/2019/05/30/the-future-of-adobe-air</a></div><table><tr><th>Metadata</th></tr><tr><td>Author</td><td>Katie Sexton</td></tr><tr><td>Publication Date</td><td>09-09-2019</td></tr></table></main>`);
   });
 });

@@ -26,15 +26,15 @@ async function main() {
   // tslint:disable-next-line: no-empty
   const noop = () => {};
   const blob = new BlobHandler({
-	  skipSchedule: true,
+    skipSchedule: true,
     azureBlobSAS: process.env.AZURE_BLOB_SAS,
     azureBlobURI: process.env.AZURE_BLOB_URI,
     log: {
       debug: noop,
       info: noop,
       warn: noop,
-      error: () => console.error(...arguments)
-    }
+      error: () => console.error(...arguments),
+    },
   });
 
   const csv = await handler.get('explorer_result_full.csv');
@@ -44,7 +44,7 @@ async function main() {
   const topics = [];
   const products = [];
 
-  taxonomy.data.forEach(t => {
+  taxonomy.data.forEach((t) => {
     const name = t['Level 3'] || t['Level 2'] || t['Level 1'];
     if (t.Type === 'Products') {
       products.push(name);
@@ -56,7 +56,7 @@ async function main() {
   const importer = new DigitalEuropeImporter({
     storageHandler: handler,
     blobHandler: blob,
-    cache: '.cache/digitaleurope'
+    cache: '.cache/digitaleurope',
   });
 
   let output = `source;file;lang;author;date;topics;products;\n`;
@@ -65,13 +65,13 @@ async function main() {
     try {
       const resources = await importer.import(url, {
         topics,
-        products
+        products,
       });
       resources.forEach((entry) => {
         console.log(`${entry.source} -> ${entry.file}`);
         output += `${entry.source};${entry.file};${entry.extra.lang};${entry.extra.author};${entry.extra.date};${entry.extra.topics.join(', ')};${entry.extra.products.join(', ')};\n`;
       });
-      await handler.put('importer_output.csv', output)
+      await handler.put('importer_output.csv', output);
     } catch(error) {
       console.error(`Could not import ${url}`, error);
     }
