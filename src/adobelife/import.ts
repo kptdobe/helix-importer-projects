@@ -24,7 +24,7 @@ async function main() {
   const blob = new BlobHandler({
     skipSchedule: true,
     azureBlobSAS: process.env.AZURE_BLOB_SAS,
-    azureBlobURI: process.env.AZURE_BLOB_URI
+    azureBlobURI: process.env.AZURE_BLOB_URI,
   });
 
   const csv = await handler.get('light.csv');
@@ -33,18 +33,18 @@ async function main() {
 
   const importer = new AdobeLifeImporter({
     storageHandler: handler,
-    blobHandler: blob
+    blobHandler: blob,
   });
 
   let output = '';
   Utils.asyncForEach(entries, async (e) => {
     const files = await importer.import(e.url, {
-      topics: e.topics.split(',').map((t) => t.trim())
+      topics: e.topics.split(',').map(t => t.trim()),
     });
     files.forEach((f) => {
       output += `${e.url};${f};\n`;
     });
-    await handler.put('importer_output.csv', output)
+    await handler.put('importer_output.csv', output);
   });
 }
 

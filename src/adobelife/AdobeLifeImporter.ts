@@ -34,7 +34,7 @@ export default class AdobeLifeImporter extends PageImporter {
         if (src.indexOf('//') === 0) {
           src = `https:${src}`;
         }
-        iframe.after(JSDOM.fragment(`<hlxembed>${src}</hlxembed>`))
+        iframe.after(JSDOM.fragment(`<hlxembed>${src}</hlxembed>`));
       }
       iframe.remove();
     });
@@ -46,24 +46,23 @@ export default class AdobeLifeImporter extends PageImporter {
         const captionText = elem.textContent.trim();
         elem.parentNode.insertBefore(JSDOM.fragment(`<p><em>${captionText}</em><p>`), elem);
         elem.remove();
-      })
+      });
     });
   }
 
   async process(document: Document, url: string, entryParams?: any): Promise<PageImporterResource[]> {
-
     const main = document.querySelector('.content-area');
 
     DOMUtils.remove(main, [
       '.sticky-footer',
       '.articles-section',
       '.content-description',
-      '.heading-line'
+      '.heading-line',
     ]);
 
     // clean up do
     main.innerHTML = main.innerHTML
-      .replace('<b></b>', '')
+      .replace('<b></b>', '');
 
     // embeds
     this.replaceEmbeds(main);
@@ -112,7 +111,7 @@ export default class AdobeLifeImporter extends PageImporter {
     const mainTopic = tag ? tag.textContent.trim() : '';
     tag.parentNode.remove();
 
-    const topics = entryParams.topics.filter((t) => t !== DEFAULT_TOPIC);
+    const topics = entryParams.topics.filter(t => t !== DEFAULT_TOPIC);
     topics.unshift(DEFAULT_TOPIC); // push as first
     main.appendChild(JSDOM.fragment(`
       <hr>

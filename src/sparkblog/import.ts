@@ -26,21 +26,21 @@ async function main() {
   // tslint:disable-next-line: no-empty
   const noop = () => {};
   const blob = new BlobHandler({
-	  skipSchedule: true,
+    skipSchedule: true,
     azureBlobSAS: process.env.AZURE_BLOB_SAS,
     azureBlobURI: process.env.AZURE_BLOB_URI,
     log: {
       debug: noop,
       info: noop,
       warn: noop,
-      error: () => console.error(...arguments)
-    }
+      error: () => console.error(...arguments),
+    },
   });
 
   let csv = await handler.get('url-mapping.csv');
   const allEntries = CSV.toArray(csv.toString());
   const urlMapping = {};
-  allEntries.forEach(e => {
+  allEntries.forEach((e) => {
     let u = e.Target;
     if (u.lastIndexOf('/') === u.length - 1) {
       u = u.substring(0, u.length-1);
@@ -55,7 +55,7 @@ async function main() {
   const importer = new SparkImporter({
     storageHandler: handler,
     blobHandler: blob,
-    cache: '.cache/sparkblog'
+    cache: '.cache/sparkblog',
   });
 
   const knownResources = [];
@@ -67,7 +67,7 @@ async function main() {
         ...e,
         urlMapping,
         knownResources,
-      }
+      };
       const resources = await importer.import(URL, params);
       resources.forEach((entry) => {
         console.log(`${entry.source} -> ${entry.file}`);
@@ -75,7 +75,7 @@ async function main() {
           output += `${entry.source};${entry.file};${entry.extra.author};${entry.extra.date};${entry.extra.tags.join(', ')};\n`;
         }
       });
-      await handler.put('importer_output.csv', output)
+      await handler.put('importer_output.csv', output);
     } catch(error) {
       console.error(`Could not import ${URL}`, error);
     }

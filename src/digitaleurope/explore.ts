@@ -18,7 +18,7 @@ async function main() {
   const handler = new FSHandler('output/digitaleurope', console);
   const pager = new WPContentPager({
     nbMaxPages: 1000,
-    url: 'https://blogs.adobe.com/digitaleurope/'
+    url: 'https://blogs.adobe.com/digitaleurope/',
   });
 
   let csv = '';

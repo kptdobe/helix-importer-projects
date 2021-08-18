@@ -24,7 +24,7 @@ export default class DOM {
           t.innerHTML = cell;
         } else {
           if (Array.isArray(cell)) {
-            cell.forEach((c) => { t.append(c) });
+            cell.forEach((c) => { t.append(c); });
           } else {
             t.append(cell);
           }

@@ -13,7 +13,7 @@
 import Blocks from '../../src/utils/Blocks';
 
 import { strictEqual } from 'assert';
-import { describe, it } from "mocha";
+import { describe, it } from 'mocha';
 
 import { JSDOM } from 'jsdom';
 

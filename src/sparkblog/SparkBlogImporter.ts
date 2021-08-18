@@ -34,7 +34,6 @@ export default class SparkImporter extends PageImporter {
   }
 
   async process(document: Document, url: string, entryParams?: any): Promise<PageImporterResource[]> {
-
     const parsed = path.parse(new URL(`https://${entryParams.target}`).pathname);
     const targetDir = parsed.dir;
     const main = document.querySelector('main article');
@@ -43,10 +42,10 @@ export default class SparkImporter extends PageImporter {
     DOMUtils.replaceEmbeds(main);
 
     // insta embeds
-    main.querySelectorAll('.instagram-media').forEach(insta => {
+    main.querySelectorAll('.instagram-media').forEach((insta) => {
       let link = insta.getAttribute('data-instgrm-permalink');
       if (!link) {
-        const a = insta.querySelector('a:last-child')
+        const a = insta.querySelector('a:last-child');
         if (a) {
           link = a.href;
         }
@@ -58,7 +57,7 @@ export default class SparkImporter extends PageImporter {
       insta.remove();
     });
 
-    main.querySelectorAll('.twitter-tweet p:last-child a').forEach(tweet => {
+    main.querySelectorAll('.twitter-tweet p:last-child a').forEach((tweet) => {
       const link = tweet.getAttribute('href');
       if (link) {
         tweet.parentNode.parentNode.after(DOMUtils.generateEmbed(link));
@@ -69,7 +68,7 @@ export default class SparkImporter extends PageImporter {
     const heading = main.querySelector('h1.entry-title');
     // heading.after(JSDOM.fragment('<hr>'));
 
-    const heroMeta = document.querySelector('meta[property="og:image"]')
+    const heroMeta = document.querySelector('meta[property="og:image"]');
     if (heroMeta) {
       const heroImage = heroMeta.getAttribute('content');
       if (heroImage && heading) {
@@ -108,7 +107,7 @@ export default class SparkImporter extends PageImporter {
 
     const tagList = main.querySelectorAll('[rel=tag]');
     const tags = [];
-    tagList.forEach(t => {
+    tagList.forEach((t) => {
       const tag = t.textContent.trim();
       tags.push(tag);
 
@@ -119,18 +118,18 @@ export default class SparkImporter extends PageImporter {
 
         resources.push(new PageImporterResource(tag, `${targetDir}/tags`, this.getDocumentFromSnippet(html), null));
       }
-    })
+    });
 
     const findTOCNode = (doc) => {
       let parent = null;
-      doc.querySelectorAll('b,strong').forEach(b => {
+      doc.querySelectorAll('b,strong').forEach((b) => {
         const txt = b.textContent ? b.textContent.trim().toLowerCase().replace(/[\.\:]/gm, '') : null;
         if ('table of contents' === txt) {
           parent = b.parentNode;
         }
       });
       return parent;
-    }
+    };
 
     const toc = findTOCNode(main);
     if (toc) {
@@ -145,18 +144,18 @@ export default class SparkImporter extends PageImporter {
     const relatedArticles = main.querySelectorAll('.related-posts-list li > a:first-child');
     if (relatedArticles && entryParams.entries) {
       let rows = '';
-      relatedArticles.forEach(a => {
+      relatedArticles.forEach((a) => {
         rows += `<tr><td><a href="${a.href}">${a.href}</a></td></tr>`;
       });
-      const table = JSDOM.fragment(`<table><tr><th>Blog Posts</th></tr>${rows}</table>`)
+      const table = JSDOM.fragment(`<table><tr><th>Blog Posts</th></tr>${rows}</table>`);
       main.append(table);
     }
 
     main.append(Blocks.getMetadataBlock(document, {
-      'Author': author,
+      Author: author,
       'Publication Date': authoredDate,
-      'Category': category,
-      'Tags': tags
+      Category: category,
+      Tags: tags,
     }));
 
     if (entryParams.knownResources.indexOf(`category/${category}`) === -1) {
@@ -176,7 +175,7 @@ export default class SparkImporter extends PageImporter {
 
     WPUtils.genericDOMCleanup(main);
 
-    main.querySelectorAll('a').forEach(a => {
+    main.querySelectorAll('a').forEach((a) => {
       const target = entryParams.urlMapping[a.href];
       if (target) {
         if (a.textContent === a.href) {
@@ -187,7 +186,7 @@ export default class SparkImporter extends PageImporter {
       }
     });
 
-    main.querySelectorAll('img').forEach(img => {
+    main.querySelectorAll('img').forEach((img) => {
       // img is in a link
       const parent = img.parentNode;
       if (parent && parent.tagName === 'A') {

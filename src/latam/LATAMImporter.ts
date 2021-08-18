@@ -28,7 +28,6 @@ export default class LATAMImporter extends PageImporter {
   }
 
   async process(document: Document, url: string): Promise<PageImporterResource[]> {
-
     const main = document.querySelector('main');
 
     DOMUtils.remove(main, [
@@ -99,7 +98,7 @@ export default class LATAMImporter extends PageImporter {
     DOMUtils.remove(main, [
       '.author',
       '.post_categories',
-      '.post_tags'
+      '.post_tags',
     ]);
 
     WPUtils.genericDOMCleanup(main);
