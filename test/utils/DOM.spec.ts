@@ -13,7 +13,7 @@
 import DOM from '../../src/utils/DOM';
 
 import { strictEqual } from 'assert';
-import { describe, it } from "mocha";
+import { describe, it } from 'mocha';
 
 import { JSDOM } from 'jsdom';
 
@@ -55,13 +55,13 @@ describe('DOM#createTable tests', () => {
     a.href = 'https://www.sample.com/';
 
     test(
-      [['header'], [ img ]],
+      [['header'], [img]],
       `<table><tr><th>header</th></tr><tr><td><img src="https://www.sample.com/image.jpeg"></td></tr></table>`);
     test(
-      [['header'], [ img, a, 'some text' ]],
+      [['header'], [img, a, 'some text']],
       `<table><tr><th>header</th></tr><tr><td><img src="https://www.sample.com/image.jpeg"></td><td><a href="https://www.sample.com/"></a></td><td>some text</td></tr></table>`);
     test(
-      [['header'], [ [ img, a, 'some text' ] ]],
+      [['header'], [[img, a, 'some text']]],
       `<table><tr><th>header</th></tr><tr><td><img src="https://www.sample.com/image.jpeg"><a href="https://www.sample.com/"></a>some text</td></tr></table>`);
   });
 });

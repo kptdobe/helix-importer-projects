@@ -31,7 +31,7 @@ export default class JapanImporter extends PageImporter {
     if (document) {
       const content = document.querySelector('.content');
 
-      content.querySelectorAll('h1').forEach(h => {
+      content.querySelectorAll('h1').forEach((h) => {
         // downgrade to h2 to match template
         h.replaceWith(JSDOM.fragment(`<h2>${h.textContent}</h2>`));
       });
@@ -42,7 +42,6 @@ export default class JapanImporter extends PageImporter {
   }
 
   async process(document: Document, url: string, entryParams: any): Promise<PageImporterResource[]> {
-
     const resources = [];
     const main = document.querySelector('main');
 

@@ -13,13 +13,10 @@
 import BlogToBlogImporter from '../../src/blogtoblog/BlogToBlogImporter';
 
 import { strictEqual } from 'assert';
-import { describe, it } from "mocha";
+import { describe, it } from 'mocha';
 
 import { JSDOM } from 'jsdom';
 
-const getImporter = (): BlogToBlogImporter => {
-  return new BlogToBlogImporter({
-    storageHandler: null,
-    blobHandler: null,
-  });
-}
+const getImporter = (): BlogToBlogImporter => new BlogToBlogImporter({
+  storageHandler: null,
+  blobHandler: null});

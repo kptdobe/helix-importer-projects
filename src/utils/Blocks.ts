@@ -13,6 +13,7 @@ import { Document } from 'jsdom';
 
 import DOM from './DOM';
 
+const DEFAULT_COLSPAN = 2;
 export default class Blocks {
   static getMetadataBlock(document: Document, metadata: any) {
     const table = document.createElement('table');
@@ -24,7 +25,7 @@ export default class Blocks {
     row.append(hCell);
 
     hCell.innerHTML = 'Metadata';
-    hCell.setAttribute('colspan', 2);
+    hCell.setAttribute('colspan', DEFAULT_COLSPAN);
 
     // tslint:disable-next-line: forin
     for(const key in metadata) {
@@ -39,7 +40,7 @@ export default class Blocks {
       if (value) {
         if (Array.isArray(value)) {
           let list = '';
-          value.forEach(v => {
+          value.forEach((v) => {
             list += `hlx_replaceTag(p)${v}hlx_replaceTag(/p)`;
           });
           valueCell.textContent = list;
@@ -55,12 +56,12 @@ export default class Blocks {
   static computeBlockName(str: string) {
     return str
       .replace(/-/g, ' ')
-      .replace(/\s(.)/g, (s) => { return s.toUpperCase(); })
-      .replace(/^(.)/g, (s) => { return s.toUpperCase(); });
+      .replace(/\s(.)/g, s => s.toUpperCase())
+      .replace(/^(.)/g, s => s.toUpperCase());
   }
 
   static convertBlocksToTables(element: Element, document: Document): void {
-    element.querySelectorAll('main > div:nth-child(4) > div[class]').forEach(block => {
+    element.querySelectorAll('main > div:nth-child(4) > div[class]').forEach((block) => {
       const name = Blocks.computeBlockName(block.className);
       const data = [[name]] as (string|Element)[][];
       const divs = block.querySelectorAll(':scope > div');
@@ -72,7 +73,7 @@ export default class Blocks {
             subDivs.forEach((cell: Element) => {
               if (cell.nodeName === 'DIV') {
                 // remove transparent divs
-                Array.from(cell.childNodes).forEach((c) => rowData.push(c));
+                Array.from(cell.childNodes).forEach(c => rowData.push(c));
               } else {
                 rowData.push(cell);
               }

@@ -46,12 +46,11 @@ export default class XDImporter extends PageImporter {
         const captionText = elem.textContent.trim();
         elem.parentNode.insertBefore(JSDOM.fragment(`<p><em>${captionText}</em><p>`), elem);
         elem.remove();
-      })
+      });
     });
   }
 
   async process(document: Document, url: string, params: object[], raw: string): Promise<PageImporterResource[]> {
-
     const main = document.querySelector('main');
 
     DOMUtils.remove(main, [
@@ -59,7 +58,7 @@ export default class XDImporter extends PageImporter {
       '.related-article-border',
       '.post-author-bottom',
       '.share-icon-container',
-      '.related-content-header-wrapper'
+      '.related-content-header-wrapper',
     ]);
 
     // embeds
@@ -128,7 +127,7 @@ export default class XDImporter extends PageImporter {
       '.article-top-section',
       '.category-eyebrow',
       '.article-tag',
-      '.article-breadcrumbs'
+      '.article-breadcrumbs',
     ]);
 
     const hostname = new URL(url).origin;

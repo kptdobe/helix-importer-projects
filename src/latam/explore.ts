@@ -18,7 +18,7 @@ async function main() {
   const handler = new FSHandler('output/latam', console);
   const pager = new WPContentPager({
     nbMaxPages: 1000,
-    url: 'https://blogs.adobe.com/latinoamerica/'
+    url: 'https://blogs.adobe.com/latinoamerica/',
   });
   const entries = await pager.explore();
   console.log(`Received ${entries.length} entries!`);

@@ -33,7 +33,7 @@ export default class AdobeConnectImporter extends PageImporter {
     if (document) {
       const content = document.querySelector('.post_author');
 
-      content.querySelectorAll('h4').forEach(h => {
+      content.querySelectorAll('h4').forEach((h) => {
         // upgrade to h4 to match template
         h.replaceWith(JSDOM.fragment(`<h2>${h.textContent}</h2>`));
       });
@@ -44,7 +44,6 @@ export default class AdobeConnectImporter extends PageImporter {
   }
 
   async process(document: Document, url: string, entryParams: any): Promise<PageImporterResource[]> {
-
     const resources = [];
     const main = document.querySelector('#page section');
 
@@ -110,7 +109,7 @@ export default class AdobeConnectImporter extends PageImporter {
     topics.push(IMPORT_TOPIC);
 
     topics = topics.filter((t, i) => topics.indexOf(t) === i);
-    products = products.filter((t, i) => products.indexOf(t) === i)
+    products = products.filter((t, i) => products.indexOf(t) === i);
 
     main.appendChild(JSDOM.fragment(`
       <hr>

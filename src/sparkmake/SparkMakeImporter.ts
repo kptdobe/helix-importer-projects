@@ -28,13 +28,12 @@ export default class SparkMakeImporter extends PageImporter {
   }
 
   async process(document: Document, url: string, entryParams?: any): Promise<PageImporterResource[]> {
-
     WPUtils.handleCaptions(document);
     DOMUtils.replaceEmbeds(document);
 
     WPUtils.genericDOMCleanup(document);
 
-    const fbPixel = document.querySelector('img')
+    const fbPixel = document.querySelector('img');
     if (fbPixel) {
       const src = fbPixel.getAttribute('src');
       if (src && src.indexOf('facebook') !== -1) {
@@ -53,9 +52,9 @@ export default class SparkMakeImporter extends PageImporter {
     }
 
     // templates
-  document.querySelectorAll('.template-examples').forEach(templateExample => {
+    document.querySelectorAll('.template-examples').forEach((templateExample) => {
     // ignore empty template-list
-    if (!templateExample.textContent.trim() && !templateExample.querySelector('a')) return;
+      if (!templateExample.textContent.trim() && !templateExample.querySelector('a')) return;
 
       const table = document.createElement('table');
       let row = document.createElement('tr');
@@ -72,7 +71,7 @@ export default class SparkMakeImporter extends PageImporter {
       if ('Refer to English page' === entryParams['Template reference tag']) {
         hasOne = true;
       } else {
-        templateExample.querySelectorAll('.example').forEach(t => {
+        templateExample.querySelectorAll('.example').forEach((t) => {
           row = document.createElement('tr');
           table.append(row);
 
@@ -109,7 +108,7 @@ export default class SparkMakeImporter extends PageImporter {
     });
 
     // tips
-    document.querySelectorAll('.tip-list').forEach(tipList => {
+    document.querySelectorAll('.tip-list').forEach((tipList) => {
       const table = document.createElement('table');
 
       let row = document.createElement('tr');
@@ -122,7 +121,7 @@ export default class SparkMakeImporter extends PageImporter {
       hCell.setAttribute('colspan', 2);
 
       let hasOne = false;
-      tipList.querySelectorAll('.tip').forEach(tip => {
+      tipList.querySelectorAll('.tip').forEach((tip) => {
         row = document.createElement('tr');
         table.append(row);
 
@@ -152,7 +151,7 @@ export default class SparkMakeImporter extends PageImporter {
     });
 
     // remove empty divs
-    document.querySelectorAll('.intro > div').forEach(div => {
+    document.querySelectorAll('.intro > div').forEach((div) => {
       if (div.textContent.trim() === '') {
         div.remove();
       }
@@ -172,7 +171,7 @@ export default class SparkMakeImporter extends PageImporter {
     }
 
     // try to find how-to-steps
-    document.querySelectorAll('.intro > div').forEach(div => {
+    document.querySelectorAll('.intro > div').forEach((div) => {
       const tipList = div.querySelector('.text');
       if (tipList && div.textContent.trim().toLowerCase().indexOf('how to') === 0) {
         // found an How To / Tips section
@@ -190,7 +189,7 @@ export default class SparkMakeImporter extends PageImporter {
 
         let hasOne = false;
         let index = 0;
-        tipList.querySelectorAll('p').forEach(tip => {
+        tipList.querySelectorAll('p').forEach((tip) => {
           const hasBR = tip.querySelector('br');
           if (hasBR) {
             hasBR.remove();
@@ -309,9 +308,9 @@ export default class SparkMakeImporter extends PageImporter {
     }
 
     document.body.append(Blocks.getMetadataBlock(document, {
-      'Title': metadata.title,
-      'Description': metadata.description,
-      'Short Title': metadata.shortTitle
+      Title: metadata.title,
+      Description: metadata.description,
+      'Short Title': metadata.shortTitle,
     }));
 
     DOMUtils.remove(document, [
@@ -321,10 +320,10 @@ export default class SparkMakeImporter extends PageImporter {
       '#seo-dropdown',
       '.product-deeper',
       '.more-related-designs',
-      '.features'
+      '.features',
     ]);
 
-    document.querySelectorAll('a').forEach(a => {
+    document.querySelectorAll('a').forEach((a) => {
       const target = entryParams.urlMapping[a.href];
       if (target) {
         if (a.textContent === a.href) {
@@ -335,7 +334,7 @@ export default class SparkMakeImporter extends PageImporter {
       }
     });
 
-    document.querySelectorAll('img').forEach(img => {
+    document.querySelectorAll('img').forEach((img) => {
       // img is in a link
       const parent = img.parentNode;
       if (parent && parent.tagName === 'A') {
@@ -352,7 +351,7 @@ export default class SparkMakeImporter extends PageImporter {
 
     // promote h3 to h2 for /templates pages
     if (url.includes('/templates/')) {
-      document.querySelectorAll('h3').forEach(h => {
+      document.querySelectorAll('h3').forEach((h) => {
         // exclude the ones in table (=block)
         if (!h.closest('table')) {
           h.replaceWith(JSDOM.fragment(`<h2>${h.textContent}</h2>`));
