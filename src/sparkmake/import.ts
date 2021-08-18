@@ -25,14 +25,14 @@ async function main() {
   // tslint:disable-next-line: no-empty
   const noop = () => {};
   const blob = new BlobHandler({
-	  skipSchedule: true,
+    skipSchedule: true,
     azureBlobSAS: process.env.AZURE_BLOB_SAS,
     azureBlobURI: process.env.AZURE_BLOB_URI,
     log: {
       debug: noop,
       info: noop,
       warn: noop,
-      error: () => console.error(...arguments)
+      error: () => console.error(...arguments),
     },
     blobAgent: 'helix-importer-sparkmake',
   });
@@ -40,7 +40,7 @@ async function main() {
   let csv = await handler.get('url-mapping.csv');
   const allEntries = CSV.toArray(csv.toString());
   const urlMapping = {};
-  allEntries.forEach(e => {
+  allEntries.forEach((e) => {
     let u = e.Target;
     if (u.lastIndexOf('/') === u.length - 1) {
       u = u.substring(0, u.length-1);
@@ -58,8 +58,8 @@ async function main() {
   csv = await handler.get('resources.csv');
   const array = CSV.toArray(csv.toString());
   const metadata = {};
-  array.forEach(r => {
-    [ '', 'de-DE', 'ko-KR', 'pt-BR', 'es-ES', 'it-IT', 'nl-NL', 'fr-FR', 'zh-Hant-TW', 'da-DK', 'ja-JP'].forEach(l => {
+  array.forEach((r) => {
+    ['', 'de-DE', 'ko-KR', 'pt-BR', 'es-ES', 'it-IT', 'nl-NL', 'fr-FR', 'zh-Hant-TW', 'da-DK', 'ja-JP'].forEach((l) => {
       const lang = l || 'en-US';
       const title = r[`${lang}/Title`] || r['en-US/Title'];
       const description = r[`${lang}/Description`] || r['en-US/Description'];
@@ -77,7 +77,7 @@ async function main() {
   const importer = new SparkMakeImporter({
     storageHandler: handler,
     blobHandler: blob,
-    cache: '.cache/sparkmake'
+    cache: '.cache/sparkmake',
   });
 
   let output = `source;file;\n`;
@@ -87,14 +87,14 @@ async function main() {
       const params = {
         ...e,
         metadata: metadata[URL] ? metadata[URL] : null,
-        urlMapping
+        urlMapping,
       };
       const resources = await importer.import(URL, params);
       resources.forEach((entry) => {
         console.log(`${entry.source} -> ${entry.file}`);
         output += `${entry.source};${entry.file};\n`;
       });
-      await handler.put('importer_output.csv', output)
+      await handler.put('importer_output.csv', output);
     } catch(error) {
       console.error(`Could not import ${URL}`, error);
     }

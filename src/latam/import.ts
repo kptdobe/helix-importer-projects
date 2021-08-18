@@ -26,15 +26,15 @@ async function main() {
   // tslint:disable-next-line: no-empty
   const noop = () => {};
   const blob = new BlobHandler({
-	  skipSchedule: true,
+    skipSchedule: true,
     azureBlobSAS: process.env.AZURE_BLOB_SAS,
     azureBlobURI: process.env.AZURE_BLOB_URI,
     log: {
       debug: noop,
       info: noop,
       warn: noop,
-      error: () => console.error(...arguments)
-    }
+      error: () => console.error(...arguments),
+    },
   });
 
   const csv = await handler.get('explorer_result_full.csv');
@@ -43,7 +43,7 @@ async function main() {
   const importer = new LATAMImporter({
     storageHandler: handler,
     blobHandler: blob,
-    cache: '.cache/latam'
+    cache: '.cache/latam',
   });
 
 
@@ -56,7 +56,7 @@ async function main() {
         console.log(`${url} -> ${f.file}`);
         output += `${url};${f.file};${f.extra.date};${f.extra.author};${f.extra.topics.join(', ')};${f.extra.products.join(', ')};\n`;
       });
-      await handler.put('importer_output.csv', output)
+      await handler.put('importer_output.csv', output);
     } catch(error) {
       console.error(`Could not import ${url}`, error);
     }

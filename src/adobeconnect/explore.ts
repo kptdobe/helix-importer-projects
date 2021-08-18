@@ -19,7 +19,7 @@ async function main() {
 
   const pager = new WPContentPager({
     nbMaxPages: 1000,
-    url: `https://blogs.adobe.com/adobeconnect/`
+    url: `https://blogs.adobe.com/adobeconnect/`,
   });
   const entries = await pager.explore();
   console.log(`Received ${entries.length} entries!`);

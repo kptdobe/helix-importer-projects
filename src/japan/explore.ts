@@ -22,7 +22,7 @@ async function main() {
   const segment = 'corporate';
   const pager = new WPContentPager({
     nbMaxPages: 1000,
-    url: `https://blogs.adobe.com/japan/${segment}/`
+    url: `https://blogs.adobe.com/japan/${segment}/`,
   });
   const entries = await pager.explore();
   console.log(`Received ${entries.length} entries!`);

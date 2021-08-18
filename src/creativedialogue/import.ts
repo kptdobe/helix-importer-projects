@@ -26,15 +26,15 @@ async function main() {
   // tslint:disable-next-line: no-empty
   const noop = () => {};
   const blob = new BlobHandler({
-	  skipSchedule: true,
+    skipSchedule: true,
     azureBlobSAS: process.env.AZURE_BLOB_SAS,
     azureBlobURI: process.env.AZURE_BLOB_URI,
     log: {
       debug: noop,
       info: noop,
       warn: noop,
-      error: () => console.error(...arguments)
-    }
+      error: () => console.error(...arguments),
+    },
   });
 
   // const csv = await handler.get('provided_full.csv');
@@ -44,18 +44,18 @@ async function main() {
   const importer = new CreativeDialogueImporter({
     storageHandler: handler,
     blobHandler: blob,
-    cache: '.cache/creativedialogue'
+    cache: '.cache/creativedialogue',
   });
 
   const getTranslations = async () => {
     const trans = {};
     const json = JSON.parse(await handler.get('translations.json'));
     if (json && json.data) {
-      json.data.forEach(item => {
+      json.data.forEach((item) => {
         if (!trans[item.Original]) {
           trans[item.Original] = {
             name: item['Level 3'] || item['Level 2'] || item['Level 1'],
-            isProduct: item.Type === 'Products'
+            isProduct: item.Type === 'Products',
           };
         } else {
           trans[item.Original].isProduct = trans[item.Original].isProduct || item.Type === 'Products';
@@ -63,7 +63,7 @@ async function main() {
       });
     }
     return trans;
-  }
+  };
 
   const translate = (item, trans) => {
     const r = {
@@ -72,7 +72,7 @@ async function main() {
     };
 
     if (item.Tags) {
-      item.Tags.split('|').forEach(t => {
+      item.Tags.split('|').forEach((t) => {
         const a = t.trim();
         if (!trans[a]) {
           console.error(`Unknown translation for ${a}`);
@@ -87,7 +87,7 @@ async function main() {
       });
     }
     return r;
-  }
+  };
 
   const translations = await getTranslations();
   const results = [];
@@ -100,13 +100,13 @@ async function main() {
 
       const files = await importer.import(e.Page, {
         topics,
-        products
+        products,
       });
       files.forEach((f) => {
         console.log(`${url} -> ${f.file}`);
         output += `${url};${f.file};${topics.join(', ')};${products.join(', ')};\n`;
       });
-      await handler.put('importer_output.csv', output)
+      await handler.put('importer_output.csv', output);
     } catch(error) {
       console.error(`Could not import ${url}`, error);
     }
