@@ -72,35 +72,46 @@ describe('BlogToBlogImporter#buildMetadataTable tests', () => {
       `<main>${div}${div}<div><p>By Katie Sexton</p><p>Posted on 09-09-2019</p></div>${pdiv}<div><p>Topics: Alpha, Beta, Gamma,</p><p>Products: Delta, Echo, Foxtrot,</p></div></main>`,
       `<main>${div}${div}${pdiv}<table><tr><th>Metadata</th></tr><tr><td>Description</td><td>lorem ipsum et cetera</td></tr><tr><td>Author</td><td>Katie Sexton</td></tr><tr><td>Publication Date</td><td>09-09-2019</td></tr><tr><td>Category</td><td>Alpha</td></tr><tr><td>Topics</td><td>Beta, Gamma, Delta, Echo, Foxtrot</td></tr></table></main>`);
   });
-
-  // it('build metadata table, constructed description omitted', () => {
-  //   test(
-  //     `<head><meta name="description" content="${shortp}"></head><main>${div}${div}<div><p>By Katie Sexton</p><p>Posted on 09-09-2019</p></div>${pdiv}<div><p>Topics: Alpha, Beta, Gamma,</p><p>Products: Delta, Echo, Foxtrot,</p></div></main>`,
-  //     `<meta name="description" content="${shortp}"><main>${div}${div}${pdiv}<table><tr><th>Metadata</th></tr><tr><td>Author</td><td>Katie Sexton</td></tr><tr><td>Publication Date</td><td>09-09-2019</td></tr><tr><td>Category</td><td>Alpha</td></tr><tr><td>Topics</td><td>Beta, Gamma, Delta, Echo, Foxtrot</td></tr></table></main>`);
-  // });
-  // it('build metadata table, missing date', () => {
-  //   test(
-  //     `<head><meta name="description" content="${shortp}"></head><main>${div}${div}<div><p>By Katie Sexton</p></div>${pdiv}<div><p>Topics: Alpha, Beta, Gamma,</p><p>Products: Delta, Echo, Foxtrot,</p></div></main>`,
-  //     `<meta name="description" content="${shortp}"><main>${div}${div}${pdiv}<table><tr><th>Metadata</th></tr><tr><td>Author</td><td>Katie Sexton</td></tr><tr><td>Category</td><td>Alpha</td></tr><tr><td>Topics</td><td>Beta, Gamma, Delta, Echo, Foxtrot</td></tr></table></main>`);
-  // });
-  // it('build metadata table, 1 topic', () => {
-  //   test(
-  //     `<head><meta name="description" content="${shortp}"></head><main>${div}${div}<div><p>By Katie Sexton</p><p>Posted on 09-09-2019</p></div>${pdiv}<div><p>Topics: Alpha,</p></div></main>`,
-  //     `<meta name="description" content="${shortp}"><main>${div}${div}${pdiv}<table><tr><th>Metadata</th></tr><tr><td>Author</td><td>Katie Sexton</td></tr><tr><td>Publication Date</td><td>09-09-2019</td></tr><tr><td>Category</td><td>Alpha</td></tr></table></main>`);
-  // });
-  // it('build metadata table, 1 product', () => {
-  //   test(
-  //     `<head><meta name="description" content="${shortp}"></head><main>${div}${div}<div><p>By Katie Sexton</p><p>Posted on 09-09-2019</p></div>${pdiv}<div><p>Products: Alfa,</p></div></main>`,
-  //     `<meta name="description" content="${shortp}"><main>${div}${div}${pdiv}<table><tr><th>Metadata</th></tr><tr><td>Author</td><td>Katie Sexton</td></tr><tr><td>Publication Date</td><td>09-09-2019</td></tr><tr><td>Category</td><td>Alfa</td></tr></table></main>`);
-  // });
-  // it('build metadata table, 1 topic & 1 product', () => {
-  //   test(
-  //     `<head><meta name="description" content="${shortp}"></head><main>${div}${div}<div><p>By Katie Sexton</p><p>Posted on 09-09-2019</p></div>${pdiv}<div><p>Topics: Alpha,</p><p>Products: Bravo,</p></div></main>`,
-  //     `<meta name="description" content="${shortp}"><main>${div}${div}${pdiv}<table><tr><th>Metadata</th></tr><tr><td>Author</td><td>Katie Sexton</td></tr><tr><td>Publication Date</td><td>09-09-2019</td></tr><tr><td>Category</td><td>Alpha</td></tr><tr><td>Topics</td><td>Bravo</td></tr></table></main>`);
-  // });
-  // it('build metadata table, missing topics/category', () => {
-  //   test(
-  //     `<head><meta name="description" content="${shortp}"></head><main>${div}${div}<div><p>By Katie Sexton</p><p>Posted on 09-09-2019</p></div>${pdiv}<div><h2>Featured posts:</h2><a href="https://blog.adobe.com/en/publish/2019/05/30/the-future-of-adobe-air">https://blog.adobe.com/en/publish/2019/05/30/the-future-of-adobe-air</a></div></main>`,
-  //     `<meta name="description" content="${shortp}"><main>${div}${div}${pdiv}<div><h2>Featured posts:</h2><a href="https://blog.adobe.com/en/publish/2019/05/30/the-future-of-adobe-air">https://blog.adobe.com/en/publish/2019/05/30/the-future-of-adobe-air</a></div><table><tr><th>Metadata</th></tr><tr><td>Author</td><td>Katie Sexton</td></tr><tr><td>Publication Date</td><td>09-09-2019</td></tr></table></main>`);
-  // });
+  it('build metadata table, constructed description omitted', () => {
+    test(
+      `<meta name="description" content="${shortp}"></head>`,
+      `<meta name="description" content="${shortp}">`,
+      `<main>${div}${div}<div><p>By Katie Sexton</p><p>Posted on 09-09-2019</p></div>${pdiv}<div><p>Topics: Alpha, Beta, Gamma,</p><p>Products: Delta, Echo, Foxtrot,</p></div></main>`,
+      `<main>${div}${div}${pdiv}<table><tr><th>Metadata</th></tr><tr><td>Author</td><td>Katie Sexton</td></tr><tr><td>Publication Date</td><td>09-09-2019</td></tr><tr><td>Category</td><td>Alpha</td></tr><tr><td>Topics</td><td>Beta, Gamma, Delta, Echo, Foxtrot</td></tr></table></main>`);
+  });
+  it('build metadata table, missing date', () => {
+    test(
+      `<meta name="description" content="${shortp}"></head>`,
+      `<meta name="description" content="${shortp}">`,
+      `<main>${div}${div}<div><p>By Katie Sexton</p></div>${pdiv}<div><p>Topics: Alpha, Beta, Gamma,</p><p>Products: Delta, Echo, Foxtrot,</p></div></main>`,
+      `<main>${div}${div}${pdiv}<table><tr><th>Metadata</th></tr><tr><td>Author</td><td>Katie Sexton</td></tr><tr><td>Category</td><td>Alpha</td></tr><tr><td>Topics</td><td>Beta, Gamma, Delta, Echo, Foxtrot</td></tr></table></main>`);
+  });
+  it('build metadata table, 1 topic', () => {
+    test(
+      `<meta name="description" content="${shortp}">`,
+      `<meta name="description" content="${shortp}">`,
+      `<main>${div}${div}<div><p>By Katie Sexton</p><p>Posted on 09-09-2019</p></div>${pdiv}<div><p>Topics: Alpha,</p></div></main>`,
+      `<main>${div}${div}${pdiv}<table><tr><th>Metadata</th></tr><tr><td>Author</td><td>Katie Sexton</td></tr><tr><td>Publication Date</td><td>09-09-2019</td></tr><tr><td>Category</td><td>Alpha</td></tr></table></main>`);
+  });
+  it('build metadata table, 1 product', () => {
+    test(
+      `<meta name="description" content="${shortp}">`,
+      `<meta name="description" content="${shortp}">`,
+      `<main>${div}${div}<div><p>By Katie Sexton</p><p>Posted on 09-09-2019</p></div>${pdiv}<div><p>Products: Alfa,</p></div></main>`,
+      `<main>${div}${div}${pdiv}<table><tr><th>Metadata</th></tr><tr><td>Author</td><td>Katie Sexton</td></tr><tr><td>Publication Date</td><td>09-09-2019</td></tr><tr><td>Category</td><td>Alfa</td></tr></table></main>`);
+  });
+  it('build metadata table, 1 topic & 1 product', () => {
+    test(
+      `<meta name="description" content="${shortp}">`,
+      `<meta name="description" content="${shortp}">`,
+      `<main>${div}${div}<div><p>By Katie Sexton</p><p>Posted on 09-09-2019</p></div>${pdiv}<div><p>Topics: Alpha,</p><p>Products: Bravo,</p></div></main>`,
+      `<main>${div}${div}${pdiv}<table><tr><th>Metadata</th></tr><tr><td>Author</td><td>Katie Sexton</td></tr><tr><td>Publication Date</td><td>09-09-2019</td></tr><tr><td>Category</td><td>Alpha</td></tr><tr><td>Topics</td><td>Bravo</td></tr></table></main>`);
+  });
+  it('build metadata table, missing topics/category', () => {
+    test(
+      `<meta name="description" content="${shortp}">`,
+      `<meta name="description" content="${shortp}">`,
+      `<main>${div}${div}<div><p>By Katie Sexton</p><p>Posted on 09-09-2019</p></div>${pdiv}<div><h2>Featured posts:</h2><a href="https://blog.adobe.com/en/publish/2019/05/30/the-future-of-adobe-air">https://blog.adobe.com/en/publish/2019/05/30/the-future-of-adobe-air</a></div></main>`,
+      `<main>${div}${div}${pdiv}<div><h2>Featured posts:</h2><a href="https://blog.adobe.com/en/publish/2019/05/30/the-future-of-adobe-air">https://blog.adobe.com/en/publish/2019/05/30/the-future-of-adobe-air</a></div><table><tr><th>Metadata</th></tr><tr><td>Author</td><td>Katie Sexton</td></tr><tr><td>Publication Date</td><td>09-09-2019</td></tr></table></main>`);
+  });
 });
