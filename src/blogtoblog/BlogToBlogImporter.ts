@@ -73,7 +73,7 @@ export default class BlogToBlogImporter extends PageImporter {
     });
   }
 
-  buildMetadataTable(element: Element, document: Document): void {
+  buildMetadataTable(head: Element, main: Element, document: Document): void {
     const table = document.createElement('table');
     const headRow = document.createElement('tr');
     table.append(headRow);
@@ -81,12 +81,36 @@ export default class BlogToBlogImporter extends PageImporter {
     th.textContent = 'Metadata';
     headRow.append(th);
 
-    // TODO: fetch post description
+    const metaDesc = head
+      .querySelector('meta[name~="description"]')
+      .getAttribute('content');
+    if (metaDesc) {
+      let descArr = [];
+      main.querySelectorAll('div > p').forEach((p) => {
+        if (descArr.length === 0) {
+          const words = p.textContent.trim().split(/\s+/);
+          if (words.length >= 10 || words.some(w => w.length > 25 && !w.startsWith('http'))) {
+            descArr = descArr.concat(words);
+          }
+        }
+      });
+      const computedDesc = `${descArr.slice(0, 25).join(' ')}${descArr.length > 25 ? ' ...' : ''}`;
+      if (metaDesc !== computedDesc) {
+        const descRow = document.createElement('tr');
+        table.append(descRow);
+        const descTitle = document.createElement('td');
+        descTitle.textContent = 'Description';
+        descRow.append(descTitle);
+        const descData = document.createElement('td');
+        descData.textContent = metaDesc;
+        descRow.append(descData);
+      }
+    }
 
     const [authorStr, dateStr] = Array
-      .from(element.querySelectorAll('main > div:nth-child(3) > p'))
+      .from(main.querySelectorAll('main > div:nth-child(3) > p'))
       .map(p => p.textContent);
-    element.querySelector('main > div:nth-child(3)').remove();
+    main.querySelector('main > div:nth-child(3)').remove();
 
     let author;
     let date;
@@ -116,7 +140,7 @@ export default class BlogToBlogImporter extends PageImporter {
     let topics;
     const topicsArr = [];
     const [topicsStr, productsStr] = Array
-      .from(element.querySelectorAll('main > div:last-child > p'))
+      .from(main.querySelectorAll('main > div:last-child > p'))
       .map(p => p.textContent);
     if (topicsStr) {
       const allTopics = productsStr ? topicsStr + productsStr : topicsStr;
@@ -172,6 +196,7 @@ export default class BlogToBlogImporter extends PageImporter {
       'footer',
     ]);
 
+    const head = document.querySelector('head');
     const main = document.querySelector('main');
     // TODO: convert all blocks back to tables
     Blocks.convertBlocksToTables(main, document);
@@ -182,7 +207,7 @@ export default class BlogToBlogImporter extends PageImporter {
     // TODO: convert "featured articles" section to table
     this.buildRecommendedArticlesTable(main, document);
     // TODO: create metadata table from... metadata
-    this.buildMetadataTable(main, document);
+    this.buildMetadataTable(head, main, document);
     // TODO: extact author / date and merge into metadata table (may not exist)
     // TODO: extact topics / products and merge into metadata table (may not exist)
 

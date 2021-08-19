@@ -12,8 +12,6 @@
 
 import BlogToBlogImporter from '../../src/blogtoblog/BlogToBlogImporter';
 
-import Blocks from '../../src/utils/Blocks';
-
 import { strictEqual } from 'assert';
 import { describe, it } from 'mocha';
 
@@ -22,23 +20,6 @@ import { JSDOM } from 'jsdom';
 const getImporter = (): BlogToBlogImporter => new BlogToBlogImporter({
   storageHandler: null,
   blobHandler: null});
-
-describe('BlogToBlogImporter#convertBlocksToTables tests', () => {
-  const test = (input: string, expected: string) => {
-    const { document } = (new JSDOM(input)).window;
-    Blocks.convertBlocksToTables(document, document);
-    strictEqual(document.body.innerHTML, expected);
-  };
-
-  const div = '<div></div>'; // ignored div for the tests
-
-  it('convertBlocksToTables basic block', () => {
-    // TODO
-    test(
-      `<main>${div}${div}${div}<div><div class="block-1"><div>header cell</div><div>first row one cell</div></div></main>`,
-      `<main>${div}${div}${div}<div><table><tr><th>Block 1</th></tr><tr><td>header cell</td></tr><tr><td>first row one cell</td></tr></table></div></main>`);
-  });
-});
 
 describe('BlogToBlogImporter#buildRecommendedArticlesTable tests', () => {
   const test = (input: string, expected: string) => {
@@ -67,6 +48,71 @@ describe('BlogToBlogImporter#buildRecommendedArticlesTable tests', () => {
     test(
       `<main>${div}${div}${div}${div}${div}</main>`,
       `<main>${div}${div}${div}${div}${div}</main>`);
+  });
+});
+
+describe('BlogToBlogImporter#buildMetadataTable tests', () => {
+  const test = (inputHead: string, expectedHead: string, inputBody: string, expectedBody: string) => {
+    const { document } = (new JSDOM(inputHead + inputBody)).window;
+    getImporter().buildMetadataTable(document, document, document);
+
+    strictEqual(document.head.innerHTML, expectedHead);
+    strictEqual(document.body.innerHTML, expectedBody);
+  };
+
+  const div = `<div></div>`;
+  const longp = 'They looked but with divining eyes, they had not skill enough your worth to sing. For we which now behold these present days, have eyes to wonder, but lack tongues to praise.';
+  const shortp = 'They looked but with divining eyes, they had not skill enough your worth to sing. For we which now behold these present days, have eyes ...';
+  const pdiv = `<div><p>${longp}</p></div>`;
+
+  it('build metadata table with expected input', () => {
+    test(
+      `<meta name="description" content="lorem ipsum et cetera">`,
+      `<meta name="description" content="lorem ipsum et cetera">`,
+      `<main>${div}${div}<div><p>By Katie Sexton</p><p>Posted on 09-09-2019</p></div>${pdiv}<div><p>Topics: Alpha, Beta, Gamma,</p><p>Products: Delta, Echo, Foxtrot,</p></div></main>`,
+      `<main>${div}${div}${pdiv}<table><tr><th>Metadata</th></tr><tr><td>Description</td><td>lorem ipsum et cetera</td></tr><tr><td>Author</td><td>Katie Sexton</td></tr><tr><td>Publication Date</td><td>09-09-2019</td></tr><tr><td>Category</td><td>Alpha</td></tr><tr><td>Topics</td><td>Beta, Gamma, Delta, Echo, Foxtrot</td></tr></table></main>`);
+  });
+  it('build metadata table, constructed description omitted', () => {
+    test(
+      `<meta name="description" content="${shortp}"></head>`,
+      `<meta name="description" content="${shortp}">`,
+      `<main>${div}${div}<div><p>By Katie Sexton</p><p>Posted on 09-09-2019</p></div>${pdiv}<div><p>Topics: Alpha, Beta, Gamma,</p><p>Products: Delta, Echo, Foxtrot,</p></div></main>`,
+      `<main>${div}${div}${pdiv}<table><tr><th>Metadata</th></tr><tr><td>Author</td><td>Katie Sexton</td></tr><tr><td>Publication Date</td><td>09-09-2019</td></tr><tr><td>Category</td><td>Alpha</td></tr><tr><td>Topics</td><td>Beta, Gamma, Delta, Echo, Foxtrot</td></tr></table></main>`);
+  });
+  it('build metadata table, missing date', () => {
+    test(
+      `<meta name="description" content="${shortp}"></head>`,
+      `<meta name="description" content="${shortp}">`,
+      `<main>${div}${div}<div><p>By Katie Sexton</p></div>${pdiv}<div><p>Topics: Alpha, Beta, Gamma,</p><p>Products: Delta, Echo, Foxtrot,</p></div></main>`,
+      `<main>${div}${div}${pdiv}<table><tr><th>Metadata</th></tr><tr><td>Author</td><td>Katie Sexton</td></tr><tr><td>Category</td><td>Alpha</td></tr><tr><td>Topics</td><td>Beta, Gamma, Delta, Echo, Foxtrot</td></tr></table></main>`);
+  });
+  it('build metadata table, 1 topic', () => {
+    test(
+      `<meta name="description" content="${shortp}">`,
+      `<meta name="description" content="${shortp}">`,
+      `<main>${div}${div}<div><p>By Katie Sexton</p><p>Posted on 09-09-2019</p></div>${pdiv}<div><p>Topics: Alpha,</p></div></main>`,
+      `<main>${div}${div}${pdiv}<table><tr><th>Metadata</th></tr><tr><td>Author</td><td>Katie Sexton</td></tr><tr><td>Publication Date</td><td>09-09-2019</td></tr><tr><td>Category</td><td>Alpha</td></tr></table></main>`);
+  });
+  it('build metadata table, 1 product', () => {
+    test(
+      `<meta name="description" content="${shortp}">`,
+      `<meta name="description" content="${shortp}">`,
+      `<main>${div}${div}<div><p>By Katie Sexton</p><p>Posted on 09-09-2019</p></div>${pdiv}<div><p>Products: Alfa,</p></div></main>`,
+      `<main>${div}${div}${pdiv}<table><tr><th>Metadata</th></tr><tr><td>Author</td><td>Katie Sexton</td></tr><tr><td>Publication Date</td><td>09-09-2019</td></tr><tr><td>Category</td><td>Alfa</td></tr></table></main>`);
+  });
+  it('build metadata table, 1 topic & 1 product', () => {
+    test(
+      `<meta name="description" content="${shortp}">`,
+      `<meta name="description" content="${shortp}">`,
+      `<main>${div}${div}<div><p>By Katie Sexton</p><p>Posted on 09-09-2019</p></div>${pdiv}<div><p>Topics: Alpha,</p><p>Products: Bravo,</p></div></main>`,
+      `<main>${div}${div}${pdiv}<table><tr><th>Metadata</th></tr><tr><td>Author</td><td>Katie Sexton</td></tr><tr><td>Publication Date</td><td>09-09-2019</td></tr><tr><td>Category</td><td>Alpha</td></tr><tr><td>Topics</td><td>Bravo</td></tr></table></main>`);
+  });
+  it('build metadata table, missing topics/category', () => {
+    test(
+      `<meta name="description" content="${shortp}">`,
+      `<meta name="description" content="${shortp}">`,
+      `<main>${div}${div}<div><p>By Katie Sexton</p><p>Posted on 09-09-2019</p></div>${pdiv}<div><h2>Featured posts:</h2><a href="https://blog.adobe.com/en/publish/2019/05/30/the-future-of-adobe-air">https://blog.adobe.com/en/publish/2019/05/30/the-future-of-adobe-air</a></div></main>`,
+      `<main>${div}${div}${pdiv}<div><h2>Featured posts:</h2><a href="https://blog.adobe.com/en/publish/2019/05/30/the-future-of-adobe-air">https://blog.adobe.com/en/publish/2019/05/30/the-future-of-adobe-air</a></div><table><tr><th>Metadata</th></tr><tr><td>Author</td><td>Katie Sexton</td></tr><tr><td>Publication Date</td><td>09-09-2019</td></tr></table></main>`);
   });
 });
 
