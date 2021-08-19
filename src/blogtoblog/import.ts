@@ -44,6 +44,8 @@ async function main() {
       url: 'https://blog.adobe.com/en/publish/2021/08/17/photoshop-releases-major-update-sky-replacement-healing-brush-magic-wand-on-ipad-much-more.html',
     },{
       url: 'https://blog.adobe.com/en/publish/2021/06/07/back-to-school-2021-how-digital-technologies-can-ease-the-return-to-in-person-education.html',
+    }, {
+      url: 'https://blog.adobe.com/en/publish/2021/03/31/premiere-gal-shares-her-adobe-premiere-pro-knowledge.html',
     },{
       url: 'https://blog.adobe.com/en/publish/2021/01/14/adobe-stock-motion-audio-creative-trends-2021.html',
     },{
@@ -64,6 +66,8 @@ async function main() {
       url: 'https://blog.adobe.com/en/publish/2016/03/20/the-real-value-in-voice-of-the-customer-the-customer-experience.html',
     },{
       url: 'https://blog.adobe.com/en/publish/2016/03/20/data-decisions-dsp-vs-dmp.html',
+    },{
+      url: 'https://blog.adobe.com/en/publish/2015/04/09/top-5-internet-things-devices.html',
     },
   ];
 
