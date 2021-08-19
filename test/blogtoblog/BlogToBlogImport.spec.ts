@@ -12,8 +12,6 @@
 
 import BlogToBlogImporter from '../../src/blogtoblog/BlogToBlogImporter';
 
-import Blocks from '../../src/utils/Blocks';
-
 import { strictEqual } from 'assert';
 import { describe, it } from 'mocha';
 
@@ -22,23 +20,6 @@ import { JSDOM } from 'jsdom';
 const getImporter = (): BlogToBlogImporter => new BlogToBlogImporter({
   storageHandler: null,
   blobHandler: null});
-
-describe('BlogToBlogImporter#convertBlocksToTables tests', () => {
-  const test = (input: string, expected: string) => {
-    const { document } = (new JSDOM(input)).window;
-    Blocks.convertBlocksToTables(document, document);
-    strictEqual(document.body.innerHTML, expected);
-  };
-
-  const div = '<div></div>'; // ignored div for the tests
-
-  it('convertBlocksToTables basic block', () => {
-    // TODO
-    test(
-      `<main>${div}${div}${div}<div><div class="block-1"><div>header cell</div><div>first row one cell</div></div></main>`,
-      `<main>${div}${div}${div}<div><table><tr><th>Block 1</th></tr><tr><td>header cell</td></tr><tr><td>first row one cell</td></tr></table></div></main>`);
-  });
-});
 
 describe('BlogToBlogImporter#buildRecommendedArticlesTable tests', () => {
   const test = (input: string, expected: string) => {
@@ -84,7 +65,7 @@ describe('BlogToBlogImporter#buildMetadataTable tests', () => {
   const shortp = 'They looked but with divining eyes, they had not skill enough your worth to sing. For we which now behold these present days, have eyes ...';
   const pdiv = `<div><p>${longp}</p></div>`;
 
-  it.only('build metadata table with expected input', () => {
+  it('build metadata table with expected input', () => {
     test(
       `<meta name="description" content="lorem ipsum et cetera">`,
       `<meta name="description" content="lorem ipsum et cetera">`,
