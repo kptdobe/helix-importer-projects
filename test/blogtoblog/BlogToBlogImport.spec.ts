@@ -115,3 +115,37 @@ describe('BlogToBlogImporter#buildMetadataTable tests', () => {
       `<main>${div}${div}${pdiv}<div><h2>Featured posts:</h2><a href="https://blog.adobe.com/en/publish/2019/05/30/the-future-of-adobe-air">https://blog.adobe.com/en/publish/2019/05/30/the-future-of-adobe-air</a></div><table><tr><th>Metadata</th></tr><tr><td>Author</td><td>Katie Sexton</td></tr><tr><td>Publication Date</td><td>09-09-2019</td></tr></table></main>`);
   });
 });
+
+describe('BlogToBlogImporter#renameBlocks tests', () => {
+  const test = (input: string, expected: string) => {
+    const { document } = (new JSDOM(input)).window;
+    getImporter().renameBlocks(document, document);
+    strictEqual(document.body.innerHTML, expected);
+  };
+
+  it('renameBlocks no change', () => {
+    test(
+      `<main><div><table><tbody><tr><th>Animation</th></tr></tbody></table></div></main>`,
+      `<main><div><table><tbody><tr><th>Animation</th></tr></tbody></table></div></main>`);
+  });
+  it('renameBlocks promotion > banner', () => {
+    test(
+      `<main><div><table><tbody><tr><th>Promotion</th></tr></tbody></table></div></main>`,
+      `<main><div><table><tbody><tr><th>Banner</th></tr></tbody></table></div></main>`);
+  });
+  it('renameBlocks linked image > images', () => {
+    test(
+      `<main><div><table><tbody><tr><th>Linked Image</th></tr></tbody></table></div></main>`,
+      `<main><div><table><tbody><tr><th>Images</th></tr></tbody></table></div></main>`);
+  });
+  it('renameBlocks linked embed interal > video', () => {
+    test(
+      `<main><div><table><tbody><tr><th>Embed Embed Internal Embed Internal Adobestockcreativetrends Embed Internal Max</th></tr></tbody></table></div></main>`,
+      `<main><div><table><tbody><tr><th>Video</th></tr></tbody></table></div></main>`);
+  });
+  it('renameBlocks linked multiple blocks', () => {
+    test(
+      `<main><div><table><tbody><tr><th>Embed Embed Internal</th></tr></tbody></table></div><div><table><tbody><tr><th>Animation</th></tr></tbody></table></div><div><table><tbody><tr><th>Promotion</th></tr></tbody></table></div></main>`,
+      `<main><div><table><tbody><tr><th>Video</th></tr></tbody></table></div><div><table><tbody><tr><th>Animation</th></tr></tbody></table></div><div><table><tbody><tr><th>Banner</th></tr></tbody></table></div></main>`);
+  });
+});
