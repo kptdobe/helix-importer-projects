@@ -198,18 +198,15 @@ export default class BlogToBlogImporter extends PageImporter {
 
     const head = document.querySelector('head');
     const main = document.querySelector('main');
-    // TODO: convert all blocks back to tables
+
     Blocks.convertBlocksToTables(main, document);
 
     // TODO: rename "Promotion" block to "Banner"
-    // TODO: check if more blocks need conversion
+    // TODO: check ESI include embed currently broken
+
     this.renameBlocks(main, document);
-    // TODO: convert "featured articles" section to table
     this.buildRecommendedArticlesTable(main, document);
-    // TODO: create metadata table from... metadata
     this.buildMetadataTable(head, main, document);
-    // TODO: extact author / date and merge into metadata table (may not exist)
-    // TODO: extact topics / products and merge into metadata table (may not exist)
 
     const u = new URL(url);
     const p = path.parse(u.pathname);

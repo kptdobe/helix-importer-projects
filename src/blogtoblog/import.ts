@@ -62,10 +62,14 @@ async function main() {
       url: 'https://blog.adobe.com/en/publish/2017/08/08/15-mind-blowing-stats-about-design-led-businesses.html',
     },{
       url: 'https://blog.adobe.com/en/publish/2017/07/18/a-brief-history-of-ui-and-whats-coming.html',
+    }, {
+      url: 'https://blog.adobe.com/en/publish/2016/12/06/meet-the-designer-isaac-powell.html',
     },{
       url: 'https://blog.adobe.com/en/publish/2016/03/20/the-real-value-in-voice-of-the-customer-the-customer-experience.html',
     },{
       url: 'https://blog.adobe.com/en/publish/2016/03/20/data-decisions-dsp-vs-dmp.html',
+    }, {
+      url: 'https://blog.adobe.com/en/publish/2015/11/16/adobe-nordic-creative-talent-award-winners-2015.html',
     },{
       url: 'https://blog.adobe.com/en/publish/2015/04/09/top-5-internet-things-devices.html',
     },
