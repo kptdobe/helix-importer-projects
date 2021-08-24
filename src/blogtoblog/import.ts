@@ -21,6 +21,24 @@ import { config } from 'dotenv';
 
 config();
 
+function convertPromoList(entries) {
+  const res = {};
+  entries.forEach((e) => {
+    const file = e.file.toLowerCase();
+    const url = `https://blog.adobe.com${file.replace(/\.docx$/, '').replace(/\.md$/, '')}.html`;
+
+    const className = `embed-internal-${e.file
+        .toLowerCase()
+        .substring(e.file.lastIndexOf('/')+1, e.file.lastIndexOf('.'))
+        .replace(/-/gm, '')}`;
+
+    if (res[className]) throw new Error(`Duplicate entry for ${e.file}`);
+    res[className] = url;
+  });
+
+  return res;
+}
+
 async function main() {
   const handler = new FSHandler('output/blogtoblog', console);
   // tslint:disable-next-line: no-empty
@@ -36,6 +54,10 @@ async function main() {
       error: () => console.error(...arguments),
     },
   });
+
+  let csv = await handler.get('promoList.csv');
+  const promoListEntries = CSV.toArray(csv.toString());
+  const promoListJSON = convertPromoList(promoListEntries);
 
   // const csv = await handler.get('posts.csv');
   // const entries = CSV.toArray(csv.toString());
@@ -85,7 +107,7 @@ async function main() {
   await Utils.asyncForEach(entries, async (e) => {
     const { url } = e;
     try {
-      const resources = await importer.import(url, {});
+      const resources = await importer.import(url, { promoList: promoListJSON });
       resources.forEach((entry) => {
         console.log(`${entry.source} -> ${entry.file}`);
         output += `${entry.source};${entry.file};${entry.extra.lang};${entry.extra.author};${entry.extra.date};${entry.extra.topics.join(', ')};${entry.extra.products.join(', ')};\n`;
