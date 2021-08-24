@@ -115,7 +115,7 @@ export default class BlogToBlogImporter extends PageImporter {
     let author;
     let date;
     if (authorStr) {
-      author = authorStr.replace('By ', '').trim();
+      author = authorStr.replace('By ', '').replace('by ', '').trim();
       const authorRow = document.createElement('tr');
       table.append(authorRow);
       const authorTitle = document.createElement('td');
