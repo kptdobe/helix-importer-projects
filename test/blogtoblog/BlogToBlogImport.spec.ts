@@ -102,6 +102,23 @@ describe('BlogToBlogImporter#buildMetadataTable tests', () => {
       `<main>${div}${div}<div><p>By Katie Sexton</p><p>Posted on 09-09-2019</p></div>${pdiv}<div><p>Topics: Alpha,</p></div></main>`,
       `<main>${div}${div}${pdiv}<table><tr><th>Metadata</th></tr><tr><td>Author</td><td>Katie Sexton</td></tr><tr><td>Publication Date</td><td>09-09-2019</td></tr><tr><td>Category</td><td>Alpha</td></tr></table></main>`);
   });
+
+  it('build metadata table, 1 topic, no comma', () => {
+    test(
+      `<meta name="description" content="${shortp}">`,
+      `<meta name="description" content="${shortp}">`,
+      `<main>${div}${div}<div><p>By Katie Sexton</p><p>Posted on 09-09-2019</p></div>${pdiv}<div><p>Topics: Alpha</p></div></main>`,
+      `<main>${div}${div}${pdiv}<table><tr><th>Metadata</th></tr><tr><td>Author</td><td>Katie Sexton</td></tr><tr><td>Publication Date</td><td>09-09-2019</td></tr><tr><td>Category</td><td>Alpha</td></tr></table></main>`);
+  });
+
+  it('build metadata table, 1 topic, empty product', () => {
+    test(
+      `<meta name="description" content="${shortp}">`,
+      `<meta name="description" content="${shortp}">`,
+      `<main>${div}${div}<div><p>By Katie Sexton</p><p>Posted on 09-09-2019</p></div>${pdiv}<div><p>Topics: Alpha</p><p>Products:</p></div></main>`,
+      `<main>${div}${div}${pdiv}<table><tr><th>Metadata</th></tr><tr><td>Author</td><td>Katie Sexton</td></tr><tr><td>Publication Date</td><td>09-09-2019</td></tr><tr><td>Category</td><td>Alpha</td></tr></table></main>`);
+  });
+
   it('build metadata table, 1 product', () => {
     test(
       `<meta name="description" content="${shortp}">`,
@@ -109,6 +126,15 @@ describe('BlogToBlogImporter#buildMetadataTable tests', () => {
       `<main>${div}${div}<div><p>By Katie Sexton</p><p>Posted on 09-09-2019</p></div>${pdiv}<div><p>Products: Alfa,</p></div></main>`,
       `<main>${div}${div}${pdiv}<table><tr><th>Metadata</th></tr><tr><td>Author</td><td>Katie Sexton</td></tr><tr><td>Publication Date</td><td>09-09-2019</td></tr><tr><td>Category</td><td>Alfa</td></tr></table></main>`);
   });
+
+  it('build metadata table, 1 product, empty topic', () => {
+    test(
+      `<meta name="description" content="${shortp}">`,
+      `<meta name="description" content="${shortp}">`,
+      `<main>${div}${div}<div><p>By Katie Sexton</p><p>Posted on 09-09-2019</p></div>${pdiv}<div><p>Topics:</p><p>Products: Alfa,</p></div></main>`,
+      `<main>${div}${div}${pdiv}<table><tr><th>Metadata</th></tr><tr><td>Author</td><td>Katie Sexton</td></tr><tr><td>Publication Date</td><td>09-09-2019</td></tr><tr><td>Category</td><td>Alfa</td></tr></table></main>`);
+  });
+
   it('build metadata table, 1 topic & 1 product', () => {
     test(
       `<meta name="description" content="${shortp}">`,

@@ -145,8 +145,8 @@ export default class BlogToBlogImporter extends PageImporter {
     if (topicsStr) {
       const allTopics = productsStr ? topicsStr + productsStr : topicsStr;
       allTopics
-        .replace('Topics: ', '')
-        .replace('Products: ', '')
+        .replace('Topics:', '')
+        .replace('Products:', '')
         .split(',')
         .forEach((topic) => {
           if (topic.trim().length) {
