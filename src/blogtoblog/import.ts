@@ -55,9 +55,15 @@ async function main() {
     },
   });
 
-  let csv = await handler.get('promoList.csv');
-  const promoListEntries = CSV.toArray(csv.toString());
-  const promoListJSON = convertPromoList(promoListEntries);
+  let promoListJSON = {};
+
+  try {
+    const csv = await handler.get('promoList.csv');
+    const promoListEntries = CSV.toArray(csv.toString());
+    promoListJSON = convertPromoList(promoListEntries);
+  } catch (error) {
+    console.warn(`Could not load the promoList`, error);
+  }
 
   // const csv = await handler.get('posts.csv');
   // const entries = CSV.toArray(csv.toString());
