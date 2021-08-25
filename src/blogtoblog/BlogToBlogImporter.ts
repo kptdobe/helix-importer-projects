@@ -73,7 +73,7 @@ export default class BlogToBlogImporter extends PageImporter {
     });
   }
 
-  buildMetadataTable(head: Element, main: Element, document: Document): void {
+  buildMetadataTable(head: Element, main: Element, document: Document, params: any): void {
     const table = document.createElement('table');
     const headRow = document.createElement('tr');
     table.append(headRow);
@@ -137,7 +137,28 @@ export default class BlogToBlogImporter extends PageImporter {
       dateRow.append(dateData);
     }
 
-    let topics;
+    if (params.category) {
+      const categoryRow = document.createElement('tr');
+      table.append(categoryRow);
+      const categoryTitle = document.createElement('td');
+      categoryTitle.textContent = 'Category';
+      categoryRow.append(categoryTitle);
+      const categoryData = document.createElement('td');
+      categoryData.textContent = params.category;
+      categoryRow.append(categoryData);
+    }
+
+    if (params.tags) {
+      const tagsRow = document.createElement('tr');
+      table.append(tagsRow);
+      const tagsTitle = document.createElement('td');
+      tagsTitle.textContent = 'Tags';
+      tagsRow.append(tagsTitle);
+      const tagsData = document.createElement('td');
+      tagsData.textContent = params.tags;
+      tagsRow.append(tagsData);
+    }
+
     const topicsArr = [];
     const [topicsStr, productsStr] = Array
       .from(main.querySelectorAll('main > div:last-child > p'))
@@ -145,40 +166,22 @@ export default class BlogToBlogImporter extends PageImporter {
     if (topicsStr) {
       const allTopics = productsStr ? topicsStr + productsStr : topicsStr;
       allTopics
-        .replace('Topics: ', '')
-        .replace('Products: ', '')
+        .replace('Topics:', '')
+        .replace('Products:', '')
         .split(',')
         .forEach((topic) => {
           if (topic.trim().length) {
             topicsArr.push(topic.trim());
           }
         });
-    }
-
-    let category;
-    if (topicsArr.length) {
-      category = topicsArr[0];
-      const categoryRow = document.createElement('tr');
-      table.append(categoryRow);
-      const categoryTitle = document.createElement('td');
-      categoryTitle.textContent = 'Category';
-      categoryRow.append(categoryTitle);
-      const categoryData = document.createElement('td');
-      categoryData.textContent = category;
-      categoryRow.append(categoryData);
-
-      if (topicsArr.length >= 2) {
-        topicsArr.shift();
-        topics = topicsArr.join(', ');
-        const topicsRow = document.createElement('tr');
-        table.append(topicsRow);
-        const topicsTitle = document.createElement('td');
-        topicsTitle.textContent = 'Topics';
-        topicsRow.append(topicsTitle);
-        const topicsData = document.createElement('td');
-        topicsData.textContent = topics;
-        topicsRow.append(topicsData);
-      }
+      const topicsRow = document.createElement('tr');
+      table.append(topicsRow);
+      const topicsTitle = document.createElement('td');
+      topicsTitle.textContent = 'Topics';
+      topicsRow.append(topicsTitle);
+      const topicsData = document.createElement('td');
+      topicsData.textContent = topicsArr.join(', ');
+      topicsRow.append(topicsData);
     }
 
     const lastDiv = document.querySelector('main > div:last-child');
@@ -206,7 +209,7 @@ export default class BlogToBlogImporter extends PageImporter {
 
     this.renameBlocks(main, document);
     this.buildRecommendedArticlesTable(main, document);
-    this.buildMetadataTable(head, main, document);
+    this.buildMetadataTable(head, main, document, entryParams);
 
     const u = new URL(url);
     const p = path.parse(u.pathname);
