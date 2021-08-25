@@ -134,26 +134,28 @@ export default class BlogToBlogImporter extends PageImporter {
       dateRow.append(dateData);
     }
 
-    if (params.category) {
-      const categoryRow = document.createElement('tr');
-      table.append(categoryRow);
-      const categoryTitle = document.createElement('td');
-      categoryTitle.textContent = 'Category';
-      categoryRow.append(categoryTitle);
-      const categoryData = document.createElement('td');
-      categoryData.textContent = params.category;
-      categoryRow.append(categoryData);
-    }
+    if (params) {
+      if (params.category) {
+        const categoryRow = document.createElement('tr');
+        table.append(categoryRow);
+        const categoryTitle = document.createElement('td');
+        categoryTitle.textContent = 'Category';
+        categoryRow.append(categoryTitle);
+        const categoryData = document.createElement('td');
+        categoryData.textContent = params.category;
+        categoryRow.append(categoryData);
+      }
 
-    if (params.tags) {
-      const tagsRow = document.createElement('tr');
-      table.append(tagsRow);
-      const tagsTitle = document.createElement('td');
-      tagsTitle.textContent = 'Tags';
-      tagsRow.append(tagsTitle);
-      const tagsData = document.createElement('td');
-      tagsData.textContent = params.tags;
-      tagsRow.append(tagsData);
+      if (params.tags) {
+        const tagsRow = document.createElement('tr');
+        table.append(tagsRow);
+        const tagsTitle = document.createElement('td');
+        tagsTitle.textContent = 'Tags';
+        tagsRow.append(tagsTitle);
+        const tagsData = document.createElement('td');
+        tagsData.textContent = params.tags.replace(/\n/g, ' ');
+        tagsRow.append(tagsData);
+      }
     }
 
     const topicsArr = [];
