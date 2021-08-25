@@ -216,7 +216,7 @@ export default class BlogToBlogImporter extends PageImporter {
     const folder = `${s[3]}/${s[4]}/${s[5]}`;
     const date = `${s[4]}-${s[5]}-${s[3]}`;
 
-    const pir = new PageImporterResource(name, `${lang}/${folder}`, main, null, {
+    const pir = new PageImporterResource(name, `${entryParams.category}/${name}`, main, null, {
       topics: [],
       products: [],
       author: '',
