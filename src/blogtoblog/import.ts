@@ -95,13 +95,7 @@ async function main() {
       Category: 'insights',
       'Article Tags': 'Tech For Good,\nAdobe Creative Cloud,\nAdobe Experience Cloud,\nAdobe Sign',
       '': 0,
-    }
-    // {
-    //   URL: 'https://blog.adobe.com/en/publish/2021/06/07/back-to-school-2021-how-digital-technologies-can-ease-the-return-to-in-person-education.html',
-    //   'Destination URL': 'https://business.adobe.com/blog/insights/back-to-school-2021-how-digital-technologies-can-ease-the-return-to-in-person-education.html',
-    //   Category: 'insights',
-    //   'Article Tags': 'Education,\nDocument Management,\nAdobe Sign',
-    // },
+    },
   ];
 
   const importer = new BlogToBlogImporter({
@@ -112,8 +106,6 @@ async function main() {
 
   let output = `source;file;lang;author;date;topics;products;\n`;
   await Utils.asyncForEach(entries, async (e) => {
-    // console.log(e);
-    // const { url, category } = e;
     try {
       const resources = await importer.import(e.URL, { category: e.Category, tags: e['Article Tags'] });
       resources.forEach((entry) => {
