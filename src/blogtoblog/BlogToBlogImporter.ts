@@ -31,14 +31,11 @@ export default class BlogToBlogImporter extends PageImporter {
       if (blockName === 'linked image' || blockName === 'image 50') {
         th.innerHTML = 'Images';
       }
-      if (blockName === 'promotion') {
+      if (blockName === 'promotion' || blockName.includes('embed internal')) {
         th.innerHTML = 'Banner';
       }
       if (blockName.startsWith('block embed')) {
         th.innerHTML = 'Embed';
-      }
-      if (blockName.includes('embed internal')) {
-        th.innerHTML = 'Video';
       }
     });
   }
