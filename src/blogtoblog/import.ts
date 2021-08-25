@@ -109,7 +109,7 @@ async function main() {
     try {
       const resources = await importer.import(e.URL, { category: e.Category, tags: e['Article Tags'] });
       resources.forEach((entry) => {
-        // console.log(`${entry.source} -> ${entry.file}`);
+        console.log(`${entry.source} -> ${entry.file}`);
         output += `${entry.source};${entry.file};${entry.extra.lang};${entry.extra.author};${entry.extra.date};${entry.extra.topics.join(', ')};${entry.extra.products.join(', ')};\n`;
       });
       await handler.put('importer_output.csv', output);
