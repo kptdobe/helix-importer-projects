@@ -16,26 +16,27 @@ import { FSHandler, CSV, Utils } from '@adobe/helix-importer';
 import { BlobHandler } from '@adobe/helix-documents-support';
 
 import { config } from 'dotenv';
+import fetch from 'node-fetch';
 
 // tslint:disable: no-console
 
 config();
 
-function convertPromoList(entries) {
+async function getPromoList() {
+  const req = await fetch('https://main--business-website--adobe.hlx.page/drafts/alex/import/promotions.json');
   const res = {};
-  entries.forEach((e) => {
-    const file = e.file.toLowerCase();
-    const url = `https://blog.adobe.com${file.replace(/\.docx$/, '').replace(/\.md$/, '')}.html`;
+  if (req.ok) {
+    const json = await req.json();
+    json.data.forEach((e) => {
+      const className = `embed-internal-${e.file
+          .toLowerCase()
+          .substring(e.file.lastIndexOf('/')+1)
+          .replace(/-/gm, '')}`;
 
-    const className = `embed-internal-${e.file
-        .toLowerCase()
-        .substring(e.file.lastIndexOf('/')+1, e.file.lastIndexOf('.'))
-        .replace(/-/gm, '')}`;
-
-    if (res[className]) throw new Error(`Duplicate entry for ${e.file}`);
-    res[className] = url;
-  });
-
+      if (res[className]) throw new Error(`Duplicate entry for ${e.file}`);
+      res[className] = e.url;
+    });
+  }
   return res;
 }
 
@@ -55,15 +56,7 @@ async function main() {
     },
   });
 
-  let promoListJSON = {};
-
-  try {
-    const csv = await handler.get('promoList.csv');
-    const promoListEntries = CSV.toArray(csv.toString());
-    promoListJSON = convertPromoList(promoListEntries);
-  } catch (error) {
-    console.warn(`Could not load the promoList`, error);
-  }
+  const promoListJSON = await getPromoList();
 
   // const csv = await handler.get('posts.csv');
   // const entries = CSV.toArray(csv.toString());
