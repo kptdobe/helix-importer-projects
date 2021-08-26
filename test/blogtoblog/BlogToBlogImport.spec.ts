@@ -82,7 +82,7 @@ describe('BlogToBlogImporter#buildMetadataTable tests', () => {
       `<meta name="description" content="lorem ipsum et cetera">`,
       `<meta name="description" content="lorem ipsum et cetera">`,
       `<main>${div}${div}<div><p>by Katie Sexton</p><p>Posted on 09-09-2019</p></div>${pdiv}<div><p>Topics: Alpha, Beta, Gamma,</p><p>Products: Delta, Echo, Foxtrot,</p></div></main>`,
-      `<main>${div}${div}${pdiv}<table><tr><th>Metadata</th></tr><tr><td>Description</td><td>lorem ipsum et cetera</td></tr><tr><td>Author</td><td>Katie Sexton</td></tr><tr><td>Publication Date</td><td>09-09-2019</td></tr><tr><td>Category</td><td>Alpha</td></tr><tr><td>Topics</td><td>Beta, Gamma, Delta, Echo, Foxtrot</td></tr></table></main>`);
+      `<main>${div}${div}${pdiv}<table><tr><th>Metadata</th></tr><tr><td>Description</td><td>lorem ipsum et cetera</td></tr><tr><td>Author</td><td>Katie Sexton</td></tr><tr><td>Publication Date</td><td>09-09-2019</td></tr><tr><td>Category</td><td>news</td></tr><tr><td>Tags</td><td>Creative Cloud, News</td></tr><tr><td>Topics</td><td>Alpha, Beta, Gamma, Delta, Echo, Foxtrot</td></tr></table></main>`);
   });
 
   it('build metadata table, constructed description omitted', () => {
@@ -119,7 +119,7 @@ describe('BlogToBlogImporter#buildMetadataTable tests', () => {
       `<meta name="description" content="${shortp}">`,
       `<meta name="description" content="${shortp}">`,
       `<main>${div}${div}<div><p>By Katie Sexton</p><p>Posted on 09-09-2019</p></div>${pdiv}<div><p>Topics: Alpha</p></div></main>`,
-      `<main>${div}${div}${pdiv}<table><tr><th>Metadata</th></tr><tr><td>Author</td><td>Katie Sexton</td></tr><tr><td>Publication Date</td><td>09-09-2019</td></tr><tr><td>Category</td><td>Alpha</td></tr></table></main>`);
+      `<main>${div}${div}${pdiv}<table><tr><th>Metadata</th></tr><tr><td>Author</td><td>Katie Sexton</td></tr><tr><td>Publication Date</td><td>09-09-2019</td></tr><tr><td>Category</td><td>news</td></tr><tr><td>Tags</td><td>Creative Cloud, News</td></tr><tr><td>Topics</td><td>Alpha</td></tr></table></main>`);
   });
 
   it('build metadata table, 1 topic, empty product', () => {
@@ -127,7 +127,7 @@ describe('BlogToBlogImporter#buildMetadataTable tests', () => {
       `<meta name="description" content="${shortp}">`,
       `<meta name="description" content="${shortp}">`,
       `<main>${div}${div}<div><p>By Katie Sexton</p><p>Posted on 09-09-2019</p></div>${pdiv}<div><p>Topics: Alpha</p><p>Products:</p></div></main>`,
-      `<main>${div}${div}${pdiv}<table><tr><th>Metadata</th></tr><tr><td>Author</td><td>Katie Sexton</td></tr><tr><td>Publication Date</td><td>09-09-2019</td></tr><tr><td>Category</td><td>Alpha</td></tr></table></main>`);
+      `<main>${div}${div}${pdiv}<table><tr><th>Metadata</th></tr><tr><td>Author</td><td>Katie Sexton</td></tr><tr><td>Publication Date</td><td>09-09-2019</td></tr><tr><td>Category</td><td>news</td></tr><tr><td>Tags</td><td>Creative Cloud, News</td></tr><tr><td>Topics</td><td>Alpha</td></tr></table></main>`);
   });
 
   it('build metadata table, 1 product', () => {
@@ -143,7 +143,7 @@ describe('BlogToBlogImporter#buildMetadataTable tests', () => {
       `<meta name="description" content="${shortp}">`,
       `<meta name="description" content="${shortp}">`,
       `<main>${div}${div}<div><p>By Katie Sexton</p><p>Posted on 09-09-2019</p></div>${pdiv}<div><p>Topics:</p><p>Products: Alfa,</p></div></main>`,
-      `<main>${div}${div}${pdiv}<table><tr><th>Metadata</th></tr><tr><td>Author</td><td>Katie Sexton</td></tr><tr><td>Publication Date</td><td>09-09-2019</td></tr><tr><td>Category</td><td>Alfa</td></tr></table></main>`);
+      `<main>${div}${div}${pdiv}<table><tr><th>Metadata</th></tr><tr><td>Author</td><td>Katie Sexton</td></tr><tr><td>Publication Date</td><td>09-09-2019</td></tr><tr><td>Category</td><td>news</td></tr><tr><td>Tags</td><td>Creative Cloud, News</td></tr><tr><td>Topics</td><td>Alfa</td></tr></table></main>`);
   });
 
   it('build metadata table, 1 topic & 1 product', () => {
