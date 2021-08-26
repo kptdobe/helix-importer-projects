@@ -19,6 +19,7 @@ import { Response } from 'node-fetch';
 import { Document } from 'jsdom';
 
 import Blocks from '../utils/Blocks';
+import DOM from '../utils/DOM';
 
 export default class BlogToBlogImporter extends PageImporter {
   async fetch(url): Promise<Response> {
@@ -190,6 +191,25 @@ export default class BlogToBlogImporter extends PageImporter {
     }
   }
 
+  convertOldStylePromotions(main: Element, promoList: any, document: Document): void {
+    const embeds = Array.from(main.querySelectorAll('.embed-internal'));
+    for (let i = 0; i < embeds.length; i++) {
+      const embed = embeds[i];
+      const clazz = Array.from(embed.classList.values()).reverse();
+      for (let j = 0; j < clazz.length; j++) {
+        const url = promoList[clazz[j]];
+        if (url) {
+          // found a matching class name - replace with table embed
+          embed.replaceWith(DOM.createTable([
+            ['Embed'],
+            [`<a href="${url}">${url}</a>`],
+          ], document));
+          return;
+        }
+      }
+    }
+  }
+
   async process(document: Document, url: string, entryParams?: any): Promise<PageImporterResource[]> {
     DOMUtils.remove(document, [
       'header',
@@ -199,9 +219,10 @@ export default class BlogToBlogImporter extends PageImporter {
     const head = document.querySelector('head');
     const main = document.querySelector('main');
 
+    this.convertOldStylePromotions(main, entryParams.promoList, document);
+
     Blocks.convertBlocksToTables(main, document);
 
-    // TODO: rename "Promotion" block to "Banner"
     // TODO: check ESI include embed currently broken
 
     this.renameBlocks(main, document);
