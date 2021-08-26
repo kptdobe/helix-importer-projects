@@ -52,7 +52,11 @@ async function getEntries() {
       const e = json.data[i];
       try {
         const u = new URL(e.URL);
-        res.push(e);
+        if (e.Category) {
+          res.push(e);
+        } else {
+          console.warn(`No category for ${e.URL}`);
+        }
       } catch(error) {
         // ignore rows with invalid URL
       }
@@ -149,7 +153,8 @@ async function main() {
   let output = `source;file;lang;author;date;category;topics;tags;\n`;
   await Utils.asyncForEach(entries, async (e) => {
     try {
-      const resources = await importer.import(e.URL, { category: e.Category, tags: e['Article Tags'], promoList: promoListJSON });
+      // TODO: convert to docx and not md
+      const resources = await importer.import(e.URL, { allEntries: entries, category: e.Category, tags: e['Article Tags'], promoList: promoListJSON });
 
       resources.forEach((entry) => {
         console.log(`${entry.source} -> ${entry.file}`);

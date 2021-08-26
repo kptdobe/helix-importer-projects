@@ -239,6 +239,8 @@ export default class BlogToBlogImporter extends PageImporter {
     Blocks.convertBlocksToTables(main, document);
 
     // TODO: check ESI include embed currently broken
+    // TODO: replace URLs (old migrated blog urls -> new business urls)
+    // TODO: collect list of promotions and export in import_output
 
     this.renameBlocks(main, document);
     this.buildRecommendedArticlesTable(main, document);
