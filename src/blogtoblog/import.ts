@@ -16,10 +16,29 @@ import { FSHandler, CSV, Utils } from '@adobe/helix-importer';
 import { BlobHandler } from '@adobe/helix-documents-support';
 
 import { config } from 'dotenv';
+import fetch from 'node-fetch';
 
 // tslint:disable: no-console
 
 config();
+
+async function getPromoList() {
+  const req = await fetch('https://main--business-website--adobe.hlx.page/drafts/alex/import/promotions.json');
+  const res = {};
+  if (req.ok) {
+    const json = await req.json();
+    json.data.forEach((e) => {
+      const className = `embed-internal-${e.file
+          .toLowerCase()
+          .substring(e.file.lastIndexOf('/')+1)
+          .replace(/-/gm, '')}`;
+
+      if (res[className]) throw new Error(`Duplicate entry for ${e.file}`);
+      res[className] = e.url;
+    });
+  }
+  return res;
+}
 
 async function main() {
   const handler = new FSHandler('output/blogtoblog', console);
@@ -36,6 +55,8 @@ async function main() {
       error: () => console.error(...arguments),
     },
   });
+
+  const promoListJSON = await getPromoList();
 
   // const csv = await handler.get('posts.csv');
   // const entries = CSV.toArray(csv.toString());
@@ -107,7 +128,8 @@ async function main() {
   let output = `source;file;lang;author;date;topics;products;\n`;
   await Utils.asyncForEach(entries, async (e) => {
     try {
-      const resources = await importer.import(e.URL, { category: e.Category, tags: e['Article Tags'] });
+      const resources = await importer.import(e.URL, { category: e.Category, tags: e['Article Tags'], promoList: promoListJSON });
+
       resources.forEach((entry) => {
         console.log(`${entry.source} -> ${entry.file}`);
         output += `${entry.source};${entry.file};${entry.extra.lang};${entry.extra.author};${entry.extra.date};${entry.extra.topics.join(', ')};${entry.extra.products.join(', ')};\n`;
