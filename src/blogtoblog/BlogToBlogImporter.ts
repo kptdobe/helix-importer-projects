@@ -115,7 +115,7 @@ export default class BlogToBlogImporter extends PageImporter {
     let author;
     let date;
     if (authorStr) {
-      author = authorStr.replace('By ', '').trim();
+      author = authorStr.replace('By ', '').replace('by ', '').trim();
       const authorRow = document.createElement('tr');
       table.append(authorRow);
       const authorTitle = document.createElement('td');
@@ -145,8 +145,8 @@ export default class BlogToBlogImporter extends PageImporter {
     if (topicsStr) {
       const allTopics = productsStr ? topicsStr + productsStr : topicsStr;
       allTopics
-        .replace('Topics: ', '')
-        .replace('Products: ', '')
+        .replace('Topics:', '')
+        .replace('Products:', '')
         .split(',')
         .forEach((topic) => {
           if (topic.trim().length) {
