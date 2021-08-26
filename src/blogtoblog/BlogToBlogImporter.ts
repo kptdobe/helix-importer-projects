@@ -71,7 +71,7 @@ export default class BlogToBlogImporter extends PageImporter {
     });
   }
 
-  buildMetadataTable(head: Element, main: Element, document: Document, params: any): void {
+  buildMetadataTable(head: Element, main: Element, document: Document, params: any): any {
     const table = document.createElement('table');
     const headRow = document.createElement('tr');
     table.append(headRow);
@@ -135,6 +135,9 @@ export default class BlogToBlogImporter extends PageImporter {
       dateRow.append(dateData);
     }
 
+    let category;
+    let tags;
+
     if (params) {
       if (params.category) {
         const categoryRow = document.createElement('tr');
@@ -145,6 +148,7 @@ export default class BlogToBlogImporter extends PageImporter {
         const categoryData = document.createElement('td');
         categoryData.textContent = params.category;
         categoryRow.append(categoryData);
+        category = params.category;
       }
 
       if (params.tags) {
@@ -154,7 +158,8 @@ export default class BlogToBlogImporter extends PageImporter {
         tagsTitle.textContent = 'Tags';
         tagsRow.append(tagsTitle);
         const tagsData = document.createElement('td');
-        tagsData.textContent = params.tags.replace(/\n/g, ' ');
+        tags = params.tags.replace(/\n/g, ' ');
+        tagsData.textContent = tags;
         tagsRow.append(tagsData);
       }
     }
@@ -191,6 +196,14 @@ export default class BlogToBlogImporter extends PageImporter {
       // don't replace non-topics div
       lastDiv.parentNode.insertBefore(table, lastDiv.nextSibling);
     }
+
+    return {
+      author,
+      date,
+      topics: topicsArr.join(', '),
+      category,
+      tags,
+    };
   }
 
   convertOldStylePromotions(main: Element, promoList: any, document: Document): void {
@@ -229,21 +242,20 @@ export default class BlogToBlogImporter extends PageImporter {
 
     this.renameBlocks(main, document);
     this.buildRecommendedArticlesTable(main, document);
-    this.buildMetadataTable(head, main, document, entryParams);
+    const meta = this.buildMetadataTable(head, main, document, entryParams);
 
     const u = new URL(url);
     const p = path.parse(u.pathname);
     const s = p.dir.split('/');
     const name = p.name;
     const lang = s[1];
-    const folder = `${s[3]}/${s[4]}/${s[5]}`;
-    const date = `${s[4]}-${s[5]}-${s[3]}`;
 
-    const pir = new PageImporterResource(name, `${entryParams.category}/${name}`, main, null, {
-      topics: [],
-      products: [],
-      author: '',
-      date,
+    const pir = new PageImporterResource(name, `blog/${entryParams.category}`, main, null, {
+      topics: meta.topics,
+      tags: meta.tags,
+      author: meta.author,
+      category: meta.category,
+      date: meta.date,
       lang,
     });
 

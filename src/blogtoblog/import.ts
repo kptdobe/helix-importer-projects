@@ -12,7 +12,7 @@
 
 import BlogToBlogImporter from './BlogToBlogImporter';
 
-import { FSHandler, CSV, Utils } from '@adobe/helix-importer';
+import { FSHandler, Utils } from '@adobe/helix-importer';
 import { BlobHandler } from '@adobe/helix-documents-support';
 
 import { config } from 'dotenv';
@@ -40,6 +40,27 @@ async function getPromoList() {
   return res;
 }
 
+
+const DATA_LIMIT = 20;
+
+async function getEntries() {
+  const req = await fetch('https://main--business-website--adobe.hlx.page/drafts/alex/import/cmo-dx-content-to-migrate---official.json');
+  const res = [];
+  if (req.ok) {
+    const json = await req.json();
+    for (let i=0; i < Math.min(DATA_LIMIT, json.data.length); i++) {
+      const e = json.data[i];
+      try {
+        const u = new URL(e.URL);
+        res.push(e);
+      } catch(error) {
+        // ignore rows with invalid URL
+      }
+    }
+  }
+  return res;
+}
+
 async function main() {
   const handler = new FSHandler('output/blogtoblog', console);
   // tslint:disable-next-line: no-empty
@@ -58,9 +79,7 @@ async function main() {
 
   const promoListJSON = await getPromoList();
 
-  // const csv = await handler.get('posts.csv');
-  // const entries = CSV.toArray(csv.toString());
-  const entries = [
+  // const entries = [
     // {
     //   url: 'https://blog.adobe.com/en/publish/2021/08/17/photoshop-releases-major-update-sky-replacement-healing-brush-magic-wand-on-ipad-much-more.html',
     // },{
@@ -96,28 +115,30 @@ async function main() {
     // },{
     //   url: 'https://blog.adobe.com/en/publish/2015/04/09/top-5-internet-things-devices.html',
     // },
-    {
-      URL: 'https://blog.adobe.com/en/publish/2021/06/07/improving-the-customer-experience-cios-look-beyond-business-technology-to-privacy.html',
-      'Destination URL': 'https://business.adobe.com/blog/insights/improving-the-customer-experience-cios-look-beyond-business-technology-to-privacy.html',
-      Category: 'insights',
-      'Article Tags': 'Personalization,\nData Management,\nIT Executive',
-      '': 0,
-    },
-    {
-      URL: 'https://blog.adobe.com/en/publish/2021/06/07/back-to-school-2021-how-digital-technologies-can-ease-the-return-to-in-person-education.html',
-      'Destination URL': 'https://business.adobe.com/blog/insights/back-to-school-2021-how-digital-technologies-can-ease-the-return-to-in-person-education.html',
-      Category: 'insights',
-      'Article Tags': 'Education,\nDocument Management,\nAdobe Sign',
-      '': 0,
-    },
-    {
-      URL: 'https://blog.adobe.com/en/publish/2021/06/04/mind-blowing-stats-adobe-impact-on-environmental-sustainability.html',
-      'Destination URL': 'https://business.adobe.com/blog/insights/mind-blowing-stats-adobe-impact-on-environmental-sustainability.html',
-      Category: 'insights',
-      'Article Tags': 'Tech For Good,\nAdobe Creative Cloud,\nAdobe Experience Cloud,\nAdobe Sign',
-      '': 0,
-    },
-  ];
+  //   {
+  //     URL: 'https://blog.adobe.com/en/publish/2021/06/07/improving-the-customer-experience-cios-look-beyond-business-technology-to-privacy.html',
+  //     'Destination URL': 'https://business.adobe.com/blog/insights/improving-the-customer-experience-cios-look-beyond-business-technology-to-privacy.html',
+  //     Category: 'insights',
+  //     'Article Tags': 'Personalization,\nData Management,\nIT Executive',
+  //     '': 0,
+  //   },
+  //   {
+  //     URL: 'https://blog.adobe.com/en/publish/2021/06/07/back-to-school-2021-how-digital-technologies-can-ease-the-return-to-in-person-education.html',
+  //     'Destination URL': 'https://business.adobe.com/blog/insights/back-to-school-2021-how-digital-technologies-can-ease-the-return-to-in-person-education.html',
+  //     Category: 'insights',
+  //     'Article Tags': 'Education,\nDocument Management,\nAdobe Sign',
+  //     '': 0,
+  //   },
+  //   {
+  //     URL: 'https://blog.adobe.com/en/publish/2021/06/04/mind-blowing-stats-adobe-impact-on-environmental-sustainability.html',
+  //     'Destination URL': 'https://business.adobe.com/blog/insights/mind-blowing-stats-adobe-impact-on-environmental-sustainability.html',
+  //     Category: 'insights',
+  //     'Article Tags': 'Tech For Good,\nAdobe Creative Cloud,\nAdobe Experience Cloud,\nAdobe Sign',
+  //     '': 0,
+  //   },
+  // ];
+
+  const entries = await getEntries();
 
   const importer = new BlogToBlogImporter({
     storageHandler: handler,
@@ -125,14 +146,14 @@ async function main() {
     cache: '.cache/blogtoblog',
   });
 
-  let output = `source;file;lang;author;date;topics;products;\n`;
+  let output = `source;file;lang;author;date;category;topics;tags;\n`;
   await Utils.asyncForEach(entries, async (e) => {
     try {
       const resources = await importer.import(e.URL, { category: e.Category, tags: e['Article Tags'], promoList: promoListJSON });
 
       resources.forEach((entry) => {
         console.log(`${entry.source} -> ${entry.file}`);
-        output += `${entry.source};${entry.file};${entry.extra.lang};${entry.extra.author};${entry.extra.date};${entry.extra.topics.join(', ')};${entry.extra.products.join(', ')};\n`;
+        output += `${entry.source};${entry.file};${entry.extra.lang};${entry.extra.author};${entry.extra.date};${entry.extra.category};${entry.extra.topics};${entry.extra.tags};\n`;
       });
       await handler.put('importer_output.csv', output);
     } catch(error) {
