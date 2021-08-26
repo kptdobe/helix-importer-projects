@@ -67,6 +67,8 @@ async function main() {
       url: 'https://blog.adobe.com/en/publish/2021/06/07/back-to-school-2021-how-digital-technologies-can-ease-the-return-to-in-person-education.html',
     }, {
       url: 'https://blog.adobe.com/en/publish/2021/03/31/premiere-gal-shares-her-adobe-premiere-pro-knowledge.html',
+    }, {
+      url: 'https://blog.adobe.com/en/publish/2020/05/27/the-connection-by-adobe-advertising-cloud.html',
     },{
       url: 'https://blog.adobe.com/en/publish/2021/01/14/adobe-stock-motion-audio-creative-trends-2021.html',
     },{
