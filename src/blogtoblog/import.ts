@@ -148,6 +148,7 @@ async function main() {
     storageHandler: handler,
     blobHandler: blob,
     cache: '.cache/blogtoblog',
+    skipAssetsUpload: true,
   });
 
   let output = `source;file;lang;author;date;category;topics;tags;\n`;
