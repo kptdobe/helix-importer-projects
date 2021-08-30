@@ -19,7 +19,7 @@
   "license": "ISC",
   "dependencies": {
     "@adobe/helix-documents-support": "3.4.3",
-    "@adobe/helix-importer": "1.0.0",
+    "@adobe/helix-importer": "git+https://github.com/adobe/helix-importer.git",
     "@types/mocha": "8.0.4",
     "@types/node-fetch": "2.5.7",
     "dotenv": "8.2.0",
