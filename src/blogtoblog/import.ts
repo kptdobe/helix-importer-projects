@@ -83,7 +83,7 @@ async function main() {
 
   const promoListJSON = await getPromoList();
 
-  // const entries = [
+  const entries = [
     // {
     //   url: 'https://blog.adobe.com/en/publish/2021/08/17/photoshop-releases-major-update-sky-replacement-healing-brush-magic-wand-on-ipad-much-more.html',
     // },{
@@ -133,16 +133,16 @@ async function main() {
   //     'Article Tags': 'Education,\nDocument Management,\nAdobe Sign',
   //     '': 0,
   //   },
-  //   {
-  //     URL: 'https://blog.adobe.com/en/publish/2021/06/04/mind-blowing-stats-adobe-impact-on-environmental-sustainability.html',
-  //     'Destination URL': 'https://business.adobe.com/blog/insights/mind-blowing-stats-adobe-impact-on-environmental-sustainability.html',
-  //     Category: 'insights',
-  //     'Article Tags': 'Tech For Good,\nAdobe Creative Cloud,\nAdobe Experience Cloud,\nAdobe Sign',
-  //     '': 0,
-  //   },
-  // ];
+    {
+      URL: 'https://master--theblog--adobe.hlx-3.page/en/publish/2020/05/27/the-connection-by-adobe-advertising-cloud.html',
+      'Destination URL': 'https://business.adobe.com/blog/insights/mind-blowing-stats-adobe-impact-on-environmental-sustainability.html',
+      Category: 'insights',
+      'Article Tags': 'Tech For Good,\nAdobe Creative Cloud,\nAdobe Experience Cloud,\nAdobe Sign',
+      '': 0,
+    },
+  ];
 
-  const entries = await getEntries();
+  // const entries = await getEntries();
 
   const importer = new BlogToBlogImporter({
     storageHandler: handler,
@@ -154,7 +154,6 @@ async function main() {
   let output = `source;file;lang;author;date;category;topics;tags;\n`;
   await Utils.asyncForEach(entries, async (e) => {
     try {
-      // TODO: convert to docx and not md
       const resources = await importer.import(e.URL, { allEntries: entries, category: e.Category, tags: e['Article Tags'], promoList: promoListJSON });
 
       resources.forEach((entry) => {
