@@ -13,7 +13,10 @@ jobs:
       uses: actions/setup-node@v1
       with:
         node-version: '12'
-    - run: git config --global url."https://${{ secrets.GH_TOKEN }}@github.com/".insteadOf https://github.com/
+    - name: configure git auth
+      run: git config --global url."https://${{ secrets.GH_TOKEN }}@github.com/".insteadOf https://github.com/
+    - name: configure npm registry
+      run: echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" >> ~/.npmrc
     - run: npm install
       working-directory: test
     - run: npm run lint

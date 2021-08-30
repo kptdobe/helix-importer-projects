@@ -225,6 +225,26 @@ export default class BlogToBlogImporter extends PageImporter {
     }
   }
 
+  rewriteImgSrc(main: Element): void {
+    main.querySelectorAll('img').forEach((img) => {
+      const { src } = img;
+      if (src && src.indexOf('?') !== -1) {
+        img.src = src.split('?')[0];
+      }
+    });
+  }
+
+  rewriteLinks(main: Element): void {
+    main.querySelectorAll('a').forEach((a) => {
+      const { href, innerHTML } = a;
+      // TODO: use outer cdn URL
+      if (href.startsWith('https://blog.adobe.com/')) {
+        a.href = href.replace('https://blog.adobe.com/', 'https://main--business-website--adobe.hlx3.page/');
+        a.innerHTML = innerHTML.replace('https://blog.adobe.com/', 'https://main--business-website--adobe.hlx3.page/');
+      }
+    });
+  }
+
   async process(document: Document, url: string, entryParams?: any): Promise<PageImporterResource[]> {
     DOMUtils.remove(document, [
       'header',
@@ -239,12 +259,15 @@ export default class BlogToBlogImporter extends PageImporter {
     Blocks.convertBlocksToTables(main, document);
 
     // TODO: check ESI include embed currently broken
-    // TODO: replace URLs (old migrated blog urls -> new business urls)
     // TODO: collect list of promotions and export in import_output
 
     this.renameBlocks(main, document);
     this.buildRecommendedArticlesTable(main, document);
     const meta = this.buildMetadataTable(head, main, document, entryParams);
+
+    // TODO: replace URLs (old migrated blog urls -> new business urls)
+    this.rewriteLinks(main);
+    this.rewriteImgSrc(main);
 
     const u = new URL(url);
     const p = path.parse(u.pathname);
