@@ -41,7 +41,7 @@ async function getPromoList() {
 }
 
 
-const DATA_LIMIT = 20;
+const DATA_LIMIT = 10;
 
 async function getEntries() {
   const req = await fetch('https://main--business-website--adobe.hlx.page/drafts/alex/import/cmo-dx-content-to-migrate---official.json');
@@ -149,16 +149,17 @@ async function main() {
     blobHandler: blob,
     cache: '.cache/blogtoblog',
     skipAssetsUpload: true,
+    skipDocxConversion: true,
   });
 
-  let output = `source;file;lang;author;date;category;topics;tags;\n`;
+  let output = `source;file;lang;author;date;category;topics;tags;banners;\n`;
   await Utils.asyncForEach(entries, async (e) => {
     try {
       const resources = await importer.import(e.URL, { allEntries: entries, category: e.Category, tags: e['Article Tags'], promoList: promoListJSON });
 
       resources.forEach((entry) => {
         console.log(`${entry.source} -> ${entry.file}`);
-        output += `${entry.source};${entry.file};${entry.extra.lang};${entry.extra.author};${entry.extra.date};${entry.extra.category};${entry.extra.topics};${entry.extra.tags};\n`;
+        output += `${entry.source};${entry.file};${entry.extra.lang};${entry.extra.author};${entry.extra.date};${entry.extra.category};${entry.extra.topics};${entry.extra.tags};${entry.extra.banners}\n`;
       });
       await handler.put('importer_output.csv', output);
     } catch(error) {
