@@ -41,6 +41,16 @@ export default class BlogToBlogImporter extends PageImporter {
     });
   }
 
+  findBanners(element: Element, document: Document): any {
+    const banners = [];
+    element.querySelectorAll('main > div > table th').forEach((th) => {
+      if (th.innerHTML === 'Banner') {
+        banners.push(th.parentElement.parentElement.querySelector('a').textContent);
+      }
+    });
+    return banners.join(', ');
+  }
+
   buildRecommendedArticlesTable(element: Element, document: Document): void {
     element.querySelectorAll('main > div > h2').forEach((h2) => {
       if (h2.textContent.toLowerCase().startsWith('featured posts')) {
@@ -214,9 +224,9 @@ export default class BlogToBlogImporter extends PageImporter {
       for (let j = 0; j < clazz.length; j++) {
         const url = promoList[clazz[j]];
         if (url) {
-          // found a matching class name - replace with table embed
+          // found a matching class name - replace with table banner
           embed.replaceWith(DOM.createTable([
-            ['Embed'],
+            ['Banner'],
             [`<a href="${url}">${url}</a>`],
           ], document));
           return;
@@ -262,6 +272,7 @@ export default class BlogToBlogImporter extends PageImporter {
     // TODO: collect list of promotions and export in import_output
 
     this.renameBlocks(main, document);
+    const banners = this.findBanners(main, document);
     this.buildRecommendedArticlesTable(main, document);
     const meta = this.buildMetadataTable(head, main, document, entryParams);
 
@@ -282,6 +293,7 @@ export default class BlogToBlogImporter extends PageImporter {
       category: meta.category,
       date: meta.date,
       lang,
+      banners,
     });
 
     return [pir];
