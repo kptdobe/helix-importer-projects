@@ -235,6 +235,18 @@ export default class BlogToBlogImporter extends PageImporter {
     }
   }
 
+  convertESIEmbedsToTable(main: Element, document: Document): void {
+    document.querySelectorAll('.embed[data-url]').forEach((embed) => {
+      const url = embed.getAttribute('data-url');
+      if (url) {
+        embed.replaceWith(DOM.createTable([
+          ['Embed'],
+          [`<a href="${url}">${url}</a>`],
+        ], document));
+      }
+    });
+  }
+
   rewriteImgSrc(main: Element): void {
     main.querySelectorAll('img').forEach((img) => {
       const { src } = img;
@@ -264,6 +276,7 @@ export default class BlogToBlogImporter extends PageImporter {
     const head = document.querySelector('head');
     const main = document.querySelector('main');
 
+    this.convertESIEmbedsToTable(main, document);
     this.convertOldStylePromotions(main, entryParams.promoList, document);
 
     Blocks.convertBlocksToTables(main, document);
