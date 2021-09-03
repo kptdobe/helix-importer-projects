@@ -222,8 +222,11 @@ export default class BlogToBlogImporter extends PageImporter {
       const embed = embeds[i];
       const clazz = Array.from(embed.classList.values()).reverse();
       for (let j = 0; j < clazz.length; j++) {
-        const url = promoList[clazz[j]];
+        let url = promoList[clazz[j]];
         if (url) {
+          url = url.replace('blog.adobe.com', 'main--business-website--adobe.hlx3.page')
+            .replace('/promotions/', '/banners/')
+            .replace('/en/', '/blog/');
           // found a matching class name - replace with table banner
           embed.replaceWith(DOM.createTable([
             ['Banner'],
@@ -263,6 +266,10 @@ export default class BlogToBlogImporter extends PageImporter {
       if (href.startsWith('https://blog.adobe.com/')) {
         a.href = href.replace('https://blog.adobe.com/', 'https://main--business-website--adobe.hlx3.page/');
         a.innerHTML = innerHTML.replace('https://blog.adobe.com/', 'https://main--business-website--adobe.hlx3.page/');
+      }
+      if (href.endsWith('.html')) {
+        a.href = href.replace('.html', '');
+        a.innerHTML = innerHTML.replace('.html', '');
       }
     });
   }
