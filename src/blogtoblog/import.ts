@@ -43,6 +43,15 @@ async function getPromoList() {
 
 const DATA_LIMIT = 200000;
 
+const [argMin, argMax] = process.argv.slice(2);
+
+function sectionData(data, min, max) {
+  min = min ? Number(min) : 0;
+  max = max ? Number(max) : data.length;
+  const section = data.slice(min, max);
+  return section;
+}
+
 async function getEntries() {
   const req = await fetch('https://main--business-website--adobe.hlx.page/drafts/alex/import/cmo-dx-content-to-migrate---official.json');
   const res = [];
@@ -143,7 +152,8 @@ async function main() {
   //   },
   // ];
 
-  const entries = await getEntries();
+  const allEntries = await getEntries();
+  const entries = sectionData(allEntries, argMin, argMax);
 
   // entries.forEach((e) => {
   //   e.URL = e.URL.replace('https://blog.adobe.com', 'https://master--theblog--adobe.hlx.page');
@@ -154,7 +164,7 @@ async function main() {
     blobHandler: blob,
     cache: '.cache/blogtoblog',
     skipAssetsUpload: true,
-    // skipDocxConversion: true,
+    skipDocxConversion: true,
   });
 
   let output = `source;file;lang;author;date;category;topics;tags;banners;\n`;
