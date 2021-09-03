@@ -130,8 +130,6 @@ export default class BlogToBlogImporter extends PageImporter {
       }
     }
 
-
-
     const [authorStr, dateStr] = Array
       .from(main.querySelectorAll('main > div:nth-child(3) > p'))
       .map(p => p.textContent);
