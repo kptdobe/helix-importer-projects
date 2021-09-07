@@ -95,21 +95,21 @@ describe('BlogToBlogImporter#buildMetadataTable tests', () => {
 
   it('build metadata table, constructed description omitted', () => {
     test(
-      `<meta name="description" content="${shortp}"></head>`,
+      `<meta name="description" content="${shortp}">`,
       `<meta name="description" content="${shortp}">`,
       `<main>${div}${div}<div><p>By Katie Sexton</p><p>Posted on 09-09-2019</p></div>${pdiv}<div><p>Topics: Alpha, Beta, Gamma,</p><p>Products: Delta, Echo, Foxtrot,</p></div></main>`,
       `<main>${div}${div}${pdiv}<table><tr><th>Metadata</th></tr><tr><td>Author</td><td>Katie Sexton</td></tr><tr><td>Publication Date</td><td>09-09-2019</td></tr><tr><td>Category</td><td>news</td></tr><tr><td>Tags</td><td>Creative Cloud, News</td></tr><tr><td>Topics</td><td>Alpha, Beta, Gamma, Delta, Echo, Foxtrot</td></tr></table></main>`);
   });
   it('build metadata table, missing date', () => {
     test(
-      `<meta name="description" content="${shortp}"></head>`,
+      `<meta name="description" content="${shortp}">`,
       `<meta name="description" content="${shortp}">`,
       `<main>${div}${div}<div><p>By Katie Sexton</p></div>${pdiv}<div><p>Topics: Alpha, Beta, Gamma,</p><p>Products: Delta, Echo, Foxtrot,</p></div></main>`,
       `<main>${div}${div}${pdiv}<table><tr><th>Metadata</th></tr><tr><td>Author</td><td>Katie Sexton</td></tr><tr><td>Category</td><td>news</td></tr><tr><td>Tags</td><td>Creative Cloud, News</td></tr><tr><td>Topics</td><td>Alpha, Beta, Gamma, Delta, Echo, Foxtrot</td></tr></table></main>`);
   });
   it('build metadata table, missing category', () => {
     test(
-      `<meta name="description" content="${shortp}"></head>`,
+      `<meta name="description" content="${shortp}">`,
       `<meta name="description" content="${shortp}">`,
       `<main>${div}${div}<div><p>By Katie Sexton</p></div>${pdiv}<div><p>Topics: Alpha, Beta, Gamma,</p><p>Products: Delta, Echo, Foxtrot,</p></div></main>`,
       `<main>${div}${div}${pdiv}<table><tr><th>Metadata</th></tr><tr><td>Author</td><td>Katie Sexton</td></tr><tr><td>Category</td><td>news</td></tr><tr><td>Tags</td><td>Creative Cloud, News</td></tr><tr><td>Topics</td><td>Alpha, Beta, Gamma, Delta, Echo, Foxtrot</td></tr></table></main>`);

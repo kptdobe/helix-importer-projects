@@ -115,17 +115,19 @@ export default class BlogToBlogImporter extends PageImporter {
       } else {
         // check if heading follows h1 in "article header" area
         const h1 = main.querySelector('h1');
-        const h1Sibling = h1.nextElementSibling;
-        if (h1Sibling.nodeName.startsWith('H')) {
-          const descRow = document.createElement('tr');
-          table.append(descRow);
-          const descTitle = document.createElement('td');
-          descTitle.textContent = 'Description';
-          descRow.append(descTitle);
-          const descData = document.createElement('td');
-          descData.textContent = h1Sibling.textContent;
-          descRow.append(descData);
-          h1Sibling.remove();
+        if (h1) {
+          const h1Sibling = h1.nextElementSibling;
+          if (h1Sibling.nodeName.startsWith('H')) {
+            const descRow = document.createElement('tr');
+            table.append(descRow);
+            const descTitle = document.createElement('td');
+            descTitle.textContent = 'Description';
+            descRow.append(descTitle);
+            const descData = document.createElement('td');
+            descData.textContent = h1Sibling.textContent;
+            descRow.append(descData);
+            h1Sibling.remove();
+          }
         }
       }
     }
