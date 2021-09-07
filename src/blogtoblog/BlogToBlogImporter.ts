@@ -134,7 +134,7 @@ export default class BlogToBlogImporter extends PageImporter {
       authorRow.append(authorData);
     }
     if (dateStr) {
-      date = dateStr.replace('Posted on ', '').trim();
+      date = dateStr.toLowerCase().replace('posted on ', '').trim();
       const dateRow = document.createElement('tr');
       table.append(dateRow);
       const dateTitle = document.createElement('td');
