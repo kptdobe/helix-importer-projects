@@ -46,7 +46,8 @@ const DATA_LIMIT = 200000;
 const [argMin, argMax] = process.argv.slice(2);
 
 function sectionData(data, min, max) {
-  min = min ? Number(min) : 0;
+  if (!min) { return data; }
+  min = Number(min);
   max = max ? Number(max) : data.length;
   const section = data.slice(min, max);
   return section;
