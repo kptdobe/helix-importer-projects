@@ -241,14 +241,19 @@ export default class BlogToBlogImporter extends PageImporter {
       const embed = embeds[i];
       const clazz = Array.from(embed.classList.values()).reverse();
       for (let j = 0; j < clazz.length; j++) {
-        const url = promoList[clazz[j]];
+        let url = promoList[clazz[j]];
         if (url) {
+          // adjust diff path between blog and business
+          url = url
+            .toLowerCase()
+            .replace('/en/promotions/', '/blog/banners/')
+            .replace('.html', '');
           // found a matching class name - replace with table banner
           embed.replaceWith(DOM.createTable([
             ['Banner'],
             [`<a href="${url}">${url}</a>`],
           ], document));
-          return;
+          j = clazz.length;
         }
       }
     }
