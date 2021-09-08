@@ -44,7 +44,7 @@ async function getPromoList() {
 const DATA_LIMIT = 200000;
 
 async function getEntries() {
-  const req = await fetch('https://main--business-website--adobe.hlx.page/drafts/alex/import/cmo-dx-content-to-migrate---official.json');
+  const req = await fetch('https://main--business-website--adobe.hlx.page/drafts/poolson/cmo-dx-content-to-migrate---official.json');
   const res = [];
   if (req.ok) {
     const json = await req.json();
