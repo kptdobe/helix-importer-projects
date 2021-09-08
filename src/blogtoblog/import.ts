@@ -54,7 +54,7 @@ function sectionData(data, min, max) {
 }
 
 async function getEntries() {
-  const req = await fetch('https://main--business-website--adobe.hlx.page/drafts/alex/import/cmo-dx-content-to-migrate---official.json');
+  const req = await fetch('https://main--business-website--adobe.hlx.page/drafts/poolson/cmo-dx-content-to-migrate---official.json');
   const res = [];
   if (req.ok) {
     const json = await req.json();
@@ -165,7 +165,7 @@ async function main() {
     blobHandler: blob,
     cache: '.cache/blogtoblog',
     skipAssetsUpload: true,
-    skipDocxConversion: true,
+    // skipDocxConversion: true,
   });
 
   let output = `source;file;lang;author;date;category;topics;tags;banners;\n`;
