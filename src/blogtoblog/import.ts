@@ -41,7 +41,7 @@ async function getPromoList() {
 }
 
 
-const DATA_LIMIT = 200000;
+const DATA_LIMIT = 20000;
 
 const [argMin, argMax] = process.argv.slice(2);
 
@@ -63,6 +63,11 @@ async function getEntries() {
       try {
         const u = new URL(e.URL);
         e.Category = e.Category || 'unknown';
+        const title = e.URL
+          .split('/')
+          .pop()
+          .replace('.html', '');
+        e.Target = `/blog/${e.Category}/${title}`;
         if (e.Category) {
           res.push(e);
         } else {
@@ -170,14 +175,14 @@ async function main() {
     blobHandler: blob,
     cache: '.cache/blogtoblog',
     skipAssetsUpload: true,
-    // skipDocxConversion: true,
-    logger: customLogger,
+    skipDocxConversion: true,
+    // logger: customLogger,
   });
 
   let output = `source;file;lang;author;date;category;topics;tags;banners;\n`;
   await Utils.asyncForEach(entries, async (e) => {
     try {
-      const resources = await importer.import(e.URL, { allEntries: entries, category: e.Category, tags: e['Article Tags'], promoList: promoListJSON });
+      const resources = await importer.import(e.URL, { allEntries, category: e.Category, tags: e['Article Tags'], promoList: promoListJSON });
 
       resources.forEach((entry) => {
         console.log(`${entry.source} -> ${entry.docx}`);
