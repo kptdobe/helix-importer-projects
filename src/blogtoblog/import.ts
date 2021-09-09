@@ -77,19 +77,24 @@ async function getEntries() {
 }
 
 async function main() {
-  const handler = new FSHandler('output/blogtoblog', console);
   // tslint:disable-next-line: no-empty
   const noop = () => {};
+
+  const customLogger = {
+    debug: noop,
+    info: noop,
+    log: noop,
+    warn: () => console.log(...arguments),
+    error: () => console.error(...arguments),
+  };
+
+  const handler = new FSHandler('output/blogtoblog', customLogger);
+
   const blob = new BlobHandler({
     skipSchedule: true,
     azureBlobSAS: process.env.AZURE_BLOB_SAS,
     azureBlobURI: process.env.AZURE_BLOB_URI,
-    log: {
-      debug: noop,
-      info: noop,
-      warn: noop,
-      error: () => console.error(...arguments),
-    },
+    log: customLogger,
   });
 
   const promoListJSON = await getPromoList();
@@ -166,6 +171,7 @@ async function main() {
     cache: '.cache/blogtoblog',
     skipAssetsUpload: true,
     // skipDocxConversion: true,
+    logger: customLogger,
   });
 
   let output = `source;file;lang;author;date;category;topics;tags;banners;\n`;
@@ -174,8 +180,8 @@ async function main() {
       const resources = await importer.import(e.URL, { allEntries: entries, category: e.Category, tags: e['Article Tags'], promoList: promoListJSON });
 
       resources.forEach((entry) => {
-        console.log(`${entry.source} -> ${entry.file}`);
-        output += `${entry.source};${entry.file};${entry.extra.lang};${entry.extra.author};${entry.extra.date};${entry.extra.category};${entry.extra.topics};${entry.extra.tags};${entry.extra.banners}\n`;
+        console.log(`${entry.source} -> ${entry.docx}`);
+        output += `${entry.source};${entry.docx};${entry.extra.lang};${entry.extra.author};${entry.extra.date};${entry.extra.category};${entry.extra.topics};${entry.extra.tags};${entry.extra.banners}\n`;
       });
       await handler.put('importer_output.csv', output);
     } catch(error) {
