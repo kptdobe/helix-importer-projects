@@ -253,7 +253,7 @@ export default class BlogToBlogImporter extends PageImporter {
             ['Banner'],
             [`<a href="${url}">${url}</a>`],
           ], document));
-          j = clazz.length;
+          break;
         }
       }
     }
