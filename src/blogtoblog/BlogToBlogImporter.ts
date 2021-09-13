@@ -20,7 +20,6 @@ import { Document } from 'jsdom';
 
 import Blocks from '../utils/Blocks';
 import DOM from '../utils/DOM';
-import { collapseTextChangeRangesAcrossMultipleVersions } from 'typescript';
 
 export default class BlogToBlogImporter extends PageImporter {
   async fetch(url): Promise<Response> {
