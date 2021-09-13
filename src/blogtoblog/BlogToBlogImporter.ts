@@ -313,6 +313,18 @@ export default class BlogToBlogImporter extends PageImporter {
     });
   }
 
+  cleanName(name: string): string {
+    const firstChar = name.charAt(0);
+    const lastChar = name.charAt(name.length - 1);
+    if (!/[A-Za-z0-9]/.test(firstChar)) {
+      name = name.substring(1);
+    }
+    if (!/[A-Za-z0-9]/.test(lastChar)) {
+      name = name.slice(0, -1);
+    }
+    return name;
+  }
+
   async process(document: Document, url: string, entryParams?: any): Promise<PageImporterResource[]> {
     DOMUtils.remove(document, [
       'header',
@@ -342,7 +354,7 @@ export default class BlogToBlogImporter extends PageImporter {
     const u = new URL(url);
     const p = path.parse(u.pathname);
     const s = p.dir.split('/');
-    const name = p.name;
+    const name = this.cleanName(p.name);
     const lang = s[1];
 
     const pir = new PageImporterResource(name, `blog/${entryParams.category}`, main, null, {
