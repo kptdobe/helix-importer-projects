@@ -241,13 +241,8 @@ export default class BlogToBlogImporter extends PageImporter {
       const embed = embeds[i];
       const clazz = Array.from(embed.classList.values()).reverse();
       for (let j = 0; j < clazz.length; j++) {
-        let url = promoList[clazz[j]];
+        const url = promoList[clazz[j]];
         if (url) {
-          // adjust diff path between blog and business
-          url = url
-            .toLowerCase()
-            .replace('/en/promotions/', '/blog/banners/')
-            .replace('.html', '');
           // found a matching class name - replace with table banner
           embed.replaceWith(DOM.createTable([
             ['Banner'],
@@ -280,13 +275,36 @@ export default class BlogToBlogImporter extends PageImporter {
     });
   }
 
-  rewriteLinks(main: Element): void {
+  rewriteLinks(main: Element, entries: any, target: string): void {
     main.querySelectorAll('a').forEach((a) => {
       const { href, innerHTML } = a;
       // TODO: use outer cdn URL
       if (href.startsWith('https://blog.adobe.com/')) {
-        a.href = href.replace('https://blog.adobe.com/', 'https://main--business-website--adobe.hlx3.page/');
-        a.innerHTML = innerHTML.replace('https://blog.adobe.com/', 'https://main--business-website--adobe.hlx3.page/');
+        // check linked blog posts
+        if (href.startsWith('https://blog.adobe.com/en/publish')) {
+          const title = href.split('/').pop().split('.').shift();
+          const match = entries.find((entry) => {
+            return entry.Target.includes(title);
+          });
+          if (match) {
+            // linked blog post is imported, update url
+            a.href = `${target}${match.Target}`;
+            a.innerHTML = `${target}${match.Target}`;
+          }
+        } else {
+          a.href = href.replace('https://blog.adobe.com/', `${target}/`);
+          a.innerHTML = innerHTML.replace('https://blog.adobe.com/', `${target}/`);
+        }
+      }
+      if (href.includes('/en/promotions/')) {
+        a.href = a.href
+          .toLowerCase()
+          .replace('/en/promotions/', '/blog/banners/')
+          .replace('.html', '');
+        a.innerHTML = a.innerHTML
+          .toLowerCase()
+          .replace('/en/promotions/', '/blog/banners/')
+          .replace('.html', '');
       }
     });
   }
@@ -314,7 +332,7 @@ export default class BlogToBlogImporter extends PageImporter {
     // TODO: remove the .html at the end of all urls
     // TODO: manage the recommanded article (imported vs non imported and URL rewrite)
 
-    this.rewriteLinks(main);
+    this.rewriteLinks(main, entryParams.allEntries, entryParams.target);
     this.rewriteImgSrc(main);
 
     const u = new URL(url);
