@@ -275,7 +275,7 @@ export default class BlogToBlogImporter extends PageImporter {
     });
   }
 
-  rewriteLinks(main: Element, entries: any): void {
+  rewriteLinks(main: Element, entries: any, target: string): void {
     main.querySelectorAll('a').forEach((a) => {
       const { href, innerHTML } = a;
       // TODO: use outer cdn URL
@@ -288,12 +288,12 @@ export default class BlogToBlogImporter extends PageImporter {
           });
           if (match) {
             // linked blog post is imported, update url
-            a.href = `https://main--business-website--adobe.hlx3.page${match.Target}`;
-            a.innerHTML = `https://main--business-website--adobe.hlx3.page${match.Target}`;
+            a.href = `${target}${match.Target}`;
+            a.innerHTML = `${target}${match.Target}`;
           }
         } else {
-          a.href = href.replace('https://blog.adobe.com/', 'https://main--business-website--adobe.hlx3.page/');
-          a.innerHTML = innerHTML.replace('https://blog.adobe.com/', 'https://main--business-website--adobe.hlx3.page/');
+          a.href = href.replace('https://blog.adobe.com/', `${target}/`);
+          a.innerHTML = innerHTML.replace('https://blog.adobe.com/', `${target}/`);
         }
       }
       if (href.includes('/en/promotions/')) {
@@ -332,7 +332,7 @@ export default class BlogToBlogImporter extends PageImporter {
     // TODO: remove the .html at the end of all urls
     // TODO: manage the recommanded article (imported vs non imported and URL rewrite)
 
-    this.rewriteLinks(main, entryParams.allEntries);
+    this.rewriteLinks(main, entryParams.allEntries, entryParams.target);
     this.rewriteImgSrc(main);
 
     const u = new URL(url);

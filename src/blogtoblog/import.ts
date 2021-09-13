@@ -22,8 +22,10 @@ import fetch from 'node-fetch';
 
 config();
 
+const TARGET_HOST = 'https://main--business-website--adobe.hlx.page';
+
 async function getPromoList() {
-  const req = await fetch('https://main--business-website--adobe.hlx.page/drafts/alex/import/promotions.json');
+  const req = await fetch(`${TARGET_HOST}/drafts/alex/import/promotions.json`);
   const res = {};
   if (req.ok) {
     const json = await req.json();
@@ -54,7 +56,7 @@ function sectionData(data, min, max) {
 }
 
 async function getEntries() {
-  const req = await fetch('https://main--business-website--adobe.hlx.page/drafts/poolson/cmo-dx-content-to-migrate---official.json');
+  const req = await fetch(`${TARGET_HOST}/drafts/poolson/cmo-dx-content-to-migrate---official.json`);
   const res = [];
   if (req.ok) {
     const json = await req.json();
@@ -167,7 +169,7 @@ async function main() {
   const entries = sectionData(allEntries, argMin, argMax);
 
   // entries.forEach((e) => {
-  //   e.URL = e.URL.replace('https://blog.adobe.com', 'https://master--theblog--adobe.hlx.page');
+  //   e.URL = e.URL.replace('https://blog.adobe.com', TARGET_HOST);
   // });
 
   const importer = new BlogToBlogImporter({
@@ -182,7 +184,7 @@ async function main() {
   let output = `source;file;lang;author;date;category;topics;tags;banners;\n`;
   await Utils.asyncForEach(entries, async (e) => {
     try {
-      const resources = await importer.import(e.URL, { allEntries, category: e.Category, tags: e['Article Tags'], promoList: promoListJSON });
+      const resources = await importer.import(e.URL, { target: TARGET_HOST, allEntries, category: e.Category, tags: e['Article Tags'], promoList: promoListJSON });
 
       resources.forEach((entry) => {
         console.log(`${entry.source} -> ${entry.docx}`);
