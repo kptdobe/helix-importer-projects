@@ -134,13 +134,17 @@ export default class BlogToBlogImporter extends PageImporter {
       }
     }
 
-    const [authorStr, dateStr] = Array
+    let [authorStr, dateStr] = Array
       .from(main.querySelectorAll('main > div:nth-child(3) > p'))
       .map(p => p.textContent);
     main.querySelector('main > div:nth-child(3)').remove();
 
     let author;
     let date;
+    if (authorStr && authorStr.toLowerCase().includes('posted ')) {
+      dateStr = authorStr;
+      authorStr = null;
+    }
     if (authorStr) {
       author = authorStr.replace('By ', '').replace('by ', '').trim();
       const authorRow = document.createElement('tr');
