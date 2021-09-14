@@ -313,7 +313,7 @@ export default class BlogToBlogImporter extends PageImporter {
     });
   }
 
-  cleanName(name: string): string {
+  cleanupName(name: string): string {
     const firstChar = name.charAt(0);
     const lastChar = name.charAt(name.length - 1);
     if (!/[A-Za-z0-9]/.test(firstChar)) {
@@ -354,7 +354,7 @@ export default class BlogToBlogImporter extends PageImporter {
     const u = new URL(url);
     const p = path.parse(u.pathname);
     const s = p.dir.split('/');
-    const name = this.cleanName(p.name);
+    const name = this.cleanupName(p.name);
     const lang = s[1];
 
     const pir = new PageImporterResource(name, `blog/${entryParams.category}`, main, null, {
