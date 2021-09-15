@@ -134,13 +134,17 @@ export default class BlogToBlogImporter extends PageImporter {
       }
     }
 
-    const [authorStr, dateStr] = Array
+    let [authorStr, dateStr] = Array
       .from(main.querySelectorAll('main > div:nth-child(3) > p'))
       .map(p => p.textContent);
     main.querySelector('main > div:nth-child(3)').remove();
 
     let author;
     let date;
+    if (authorStr && authorStr.toLowerCase().includes('posted ')) {
+      dateStr = authorStr;
+      authorStr = null;
+    }
     if (authorStr) {
       author = authorStr.replace('By ', '').replace('by ', '').trim();
       const authorRow = document.createElement('tr');
@@ -241,13 +245,8 @@ export default class BlogToBlogImporter extends PageImporter {
       const embed = embeds[i];
       const clazz = Array.from(embed.classList.values()).reverse();
       for (let j = 0; j < clazz.length; j++) {
-        let url = promoList[clazz[j]];
+        const url = promoList[clazz[j]];
         if (url) {
-          // adjust diff path between blog and business
-          url = url
-            .toLowerCase()
-            .replace('/en/promotions/', '/blog/banners/')
-            .replace('.html', '');
           // found a matching class name - replace with table banner
           embed.replaceWith(DOM.createTable([
             ['Banner'],
@@ -280,15 +279,50 @@ export default class BlogToBlogImporter extends PageImporter {
     });
   }
 
-  rewriteLinks(main: Element): void {
+  rewriteLinks(main: Element, entries: any, target: string): void {
     main.querySelectorAll('a').forEach((a) => {
       const { href, innerHTML } = a;
       // TODO: use outer cdn URL
       if (href.startsWith('https://blog.adobe.com/')) {
-        a.href = href.replace('https://blog.adobe.com/', 'https://main--business-website--adobe.hlx3.page/');
-        a.innerHTML = innerHTML.replace('https://blog.adobe.com/', 'https://main--business-website--adobe.hlx3.page/');
+        // check linked blog posts
+        if (href.startsWith('https://blog.adobe.com/en/publish')) {
+          const title = href.split('/').pop().split('.').shift();
+          const match = entries.find((entry) => {
+            return entry.Target.includes(title);
+          });
+          if (match) {
+            // linked blog post is imported, update url
+            a.href = `${target}${match.Target}`;
+            a.innerHTML = `${target}${match.Target}`;
+          }
+        } else {
+          a.href = href.replace('https://blog.adobe.com/', `${target}/`);
+          a.innerHTML = innerHTML.replace('https://blog.adobe.com/', `${target}/`);
+        }
+      }
+      if (href.includes('/en/promotions/')) {
+        a.href = a.href
+          .toLowerCase()
+          .replace('/en/promotions/', '/blog/banners/')
+          .replace('.html', '');
+        a.innerHTML = a.innerHTML
+          .toLowerCase()
+          .replace('/en/promotions/', '/blog/banners/')
+          .replace('.html', '');
       }
     });
+  }
+
+  cleanupName(name: string): string {
+    const firstChar = name.charAt(0);
+    const lastChar = name.charAt(name.length - 1);
+    if (!/[A-Za-z0-9]/.test(firstChar)) {
+      name = name.substring(1);
+    }
+    if (!/[A-Za-z0-9]/.test(lastChar)) {
+      name = name.slice(0, -1);
+    }
+    return name;
   }
 
   async process(document: Document, url: string, entryParams?: any): Promise<PageImporterResource[]> {
@@ -314,13 +348,13 @@ export default class BlogToBlogImporter extends PageImporter {
     // TODO: remove the .html at the end of all urls
     // TODO: manage the recommanded article (imported vs non imported and URL rewrite)
 
-    this.rewriteLinks(main);
+    this.rewriteLinks(main, entryParams.allEntries, entryParams.target);
     this.rewriteImgSrc(main);
 
     const u = new URL(url);
     const p = path.parse(u.pathname);
     const s = p.dir.split('/');
-    const name = p.name;
+    const name = this.cleanupName(p.name);
     const lang = s[1];
 
     const pir = new PageImporterResource(name, `blog/${entryParams.category}`, main, null, {
