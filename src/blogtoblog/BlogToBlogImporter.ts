@@ -273,8 +273,9 @@ export default class BlogToBlogImporter extends PageImporter {
   rewriteImgSrc(main: Element): void {
     main.querySelectorAll('img').forEach((img) => {
       const { src } = img;
-      if (src && src.indexOf('?') !== -1) {
-        img.src = src.split('?')[0];
+      if (src) {
+        const s = src.split('?')[0];
+        img.src = `${s}?auto=webp&format=pjpg&width=1600`;
       }
     });
   }
