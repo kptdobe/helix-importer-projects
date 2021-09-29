@@ -10,7 +10,7 @@
  * governing permissions and limitations under the License.
  */
 
-import BlogToBlogImporter from './BlogToBlogImporter';
+import BlogToBusinessImporter from './BlogToBusinessImporter';
 
 import { FSHandler, Utils } from '@adobe/helix-importer';
 import { BlobHandler } from '@adobe/helix-documents-support';
@@ -22,7 +22,7 @@ import fetch from 'node-fetch';
 
 config();
 
-const TARGET_HOST = 'https://main--blog--adobe.hlx.page';
+const TARGET_HOST = 'https://main--business-website--adobe.hlx.page';
 
 async function getPromoList() {
   const req = await fetch(`${TARGET_HOST}/drafts/alex/import/promotions.json`);
@@ -95,7 +95,7 @@ async function main() {
     error: () => console.error(...arguments),
   };
 
-  const handler = new FSHandler('output/blogtoblog', customLogger);
+  const handler = new FSHandler('output/blogtobusiness', customLogger);
 
   const blob = new BlobHandler({
     skipSchedule: true,
@@ -113,7 +113,7 @@ async function main() {
   //   e.URL = e.URL.replace('https://blog.adobe.com', TARGET_HOST);
   // });
 
-  const importer = new BlogToBlogImporter({
+  const importer = new BlogToBusinessImporter({
     storageHandler: handler,
     blobHandler: blob,
     cache: '.cache/blogadobecom',
