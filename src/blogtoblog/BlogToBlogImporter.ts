@@ -311,6 +311,13 @@ export default class BlogToBlogImporter extends PageImporter {
           .replace('/en/promotions/', '/blog/banners/')
           .replace('.html', '');
       }
+      if (href.includes('hlx.blob.core')) {
+        const { pathname } = new URL(href);
+        const helixId = pathname.split('/')[2];
+        const type = href.includes('.mp4') ? 'mp4' : 'gif';
+        a.href = `${target}/media_${helixId}.${type}`;
+        a.innerHTML = `${target}/media_${helixId}.${type}`;
+      }
     });
   }
 
