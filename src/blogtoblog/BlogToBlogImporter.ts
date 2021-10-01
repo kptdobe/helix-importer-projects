@@ -280,35 +280,15 @@ export default class BlogToBlogImporter extends PageImporter {
     });
   }
 
-  rewriteLinks(main: Element, entries: any, target: string): void {
+  rewriteLinks(main: Element, target: string): void {
     main.querySelectorAll('a').forEach((a) => {
       const { href, innerHTML } = a;
-      // TODO: use outer cdn URL
-      if (href.startsWith('https://blog.adobe.com/')) {
-        // check linked blog posts
-        if (href.startsWith('https://blog.adobe.com/en/publish')) {
-          const title = href.split('/').pop().split('.').shift();
-          const match = entries.find((entry) => {
-            return entry.Target.includes(title);
-          });
-          if (match) {
-            // linked blog post is imported, update url
-            a.href = `${target}${match.Target}`;
-            a.innerHTML = `${target}${match.Target}`;
-          }
-        } else {
-          a.href = href.replace('https://blog.adobe.com/', `${target}/`);
-          a.innerHTML = innerHTML.replace('https://blog.adobe.com/', `${target}/`);
-        }
-      }
       if (href.includes('/en/promotions/')) {
         a.href = a.href
           .toLowerCase()
-          .replace('/en/promotions/', '/blog/banners/')
           .replace('.html', '');
         a.innerHTML = a.innerHTML
           .toLowerCase()
-          .replace('/en/promotions/', '/blog/banners/')
           .replace('.html', '');
       }
       if (href.includes('hlx.blob.core')) {
@@ -352,11 +332,7 @@ export default class BlogToBlogImporter extends PageImporter {
     this.buildRecommendedArticlesTable(main, document);
     const meta = this.buildMetadataTable(head, main, document, entryParams);
 
-    // TODO: replace URLs (old migrated blog urls -> new business urls)
-    // TODO: remove the .html at the end of all urls
-    // TODO: manage the recommanded article (imported vs non imported and URL rewrite)
-
-    this.rewriteLinks(main, entryParams.allEntries, entryParams.target);
+    this.rewriteLinks(main, entryParams.target);
     this.rewriteImgSrc(main);
 
     const u = new URL(url);
@@ -365,7 +341,7 @@ export default class BlogToBlogImporter extends PageImporter {
     const name = this.cleanupName(p.name);
     const lang = s[1];
 
-    const pir = new PageImporterResource(name, `blog/${entryParams.category}`, main, null, {
+    const pir = new PageImporterResource(name, `${p.dir}`, main, null, {
       topics: meta.topics,
       tags: meta.tags,
       author: meta.author,

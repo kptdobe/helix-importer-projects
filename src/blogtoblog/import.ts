@@ -22,7 +22,10 @@ import fetch from 'node-fetch';
 
 config();
 
-const TARGET_HOST = 'https://main--blog--adobe.hlx.page';
+const TARGET_HOST = 'https://blog.adobe.com';
+const DATA_LIMIT = 2000;
+
+const [argMin, argMax] = process.argv.slice(2);
 
 async function getPromoList() {
   const req = await fetch(`${TARGET_HOST}/drafts/alex/import/promotions.json`);
@@ -42,11 +45,6 @@ async function getPromoList() {
   return res;
 }
 
-
-const DATA_LIMIT = 20000;
-
-const [argMin, argMax] = process.argv.slice(2);
-
 function sectionData(data, min, max) {
   if (!min) { return data; }
   min = Number(min);
@@ -56,25 +54,15 @@ function sectionData(data, min, max) {
 }
 
 async function getEntries() {
-  const req = await fetch(`${TARGET_HOST}/drafts/poolson/cmo-dx-content-to-migrate---official.json`);
+  const req = await fetch(`${TARGET_HOST}/en/query-index.json?limit=256&offset=0`);
   const res = [];
   if (req.ok) {
     const json = await req.json();
     for (let i=0; i < Math.min(DATA_LIMIT, json.data.length); i++) {
       const e = json.data[i];
       try {
-        const u = new URL(e.URL);
-        e.Category = e.Category || 'unknown';
-        const title = e.URL
-          .split('/')
-          .pop()
-          .replace('.html', '');
-        e.Target = `/blog/${e.Category}/${title}`;
-        if (e.Category) {
-          res.push(e);
-        } else {
-          console.warn(`No category for ${e.URL}`);
-        }
+        e.URL = `${TARGET_HOST}${e.path}`;
+        res.push(e);
       } catch(error) {
         // ignore rows with invalid URL
       }
@@ -109,10 +97,6 @@ async function main() {
   const allEntries = await getEntries();
   const entries = sectionData(allEntries, argMin, argMax);
 
-  // entries.forEach((e) => {
-  //   e.URL = e.URL.replace('https://blog.adobe.com', TARGET_HOST);
-  // });
-
   const importer = new BlogToBlogImporter({
     storageHandler: handler,
     blobHandler: blob,
@@ -125,7 +109,7 @@ async function main() {
   let output = `source;file;lang;author;date;category;topics;tags;banners;\n`;
   await Utils.asyncForEach(entries, async (e) => {
     try {
-      const resources = await importer.import(e.URL, { target: TARGET_HOST, allEntries, category: e.Category, tags: e['Article Tags'], promoList: promoListJSON });
+      const resources = await importer.import(e.URL, { target: TARGET_HOST, allEntries, promoList: promoListJSON });
 
       resources.forEach((entry) => {
         console.log(`${entry.source} -> ${entry.docx}`);
@@ -133,7 +117,7 @@ async function main() {
       });
       await handler.put('importer_output.csv', output);
     } catch(error) {
-      console.error(`Could not import ${e.url}`, error);
+      console.error(`Could not import ${e.URL}`, error.message, error.stack);
     }
   });
   console.log('Done');
