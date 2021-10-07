@@ -294,11 +294,15 @@ export default class BlogToBusinessImporter extends PageImporter {
           if (match) {
             // linked blog post is imported, update url
             a.href = `${target}${match.Target}`;
-            a.innerHTML = `${target}${match.Target}`;
+            if (href === innerHTML) {
+              a.innerHTML = `${target}${match.Target}`;
+            }
           }
         } else {
           a.href = href.replace('https://blog.adobe.com/', `${target}/`);
-          a.innerHTML = innerHTML.replace('https://blog.adobe.com/', `${target}/`);
+          if (href === innerHTML) {
+            a.innerHTML = innerHTML.replace('https://blog.adobe.com/', `${target}/`);
+          }
         }
       }
       if (href.includes('/en/promotions/')) {
