@@ -275,7 +275,7 @@ export default class BlogToBusinessImporter extends PageImporter {
       const { src } = img;
       if (src) {
         const s = src.split('?')[0];
-        img.src = `${s}?auto=webp&format=pjpg&width=1600`;
+        img.src = `${s}?auto=webp&format=pjpg&width=2000`;
       }
     });
   }
