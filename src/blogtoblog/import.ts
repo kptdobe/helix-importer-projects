@@ -106,14 +106,14 @@ async function main() {
     logger: customLogger,
   });
 
-  let output = `source;file;lang;author;date;category;topics;tags;banners;\n`;
+  let output = `source;file;lang;author;date;tags;banners;\n`;
   await Utils.asyncForEach(entries, async (e) => {
     try {
       const resources = await importer.import(e.URL, { target: TARGET_HOST, allEntries, promoList: promoListJSON });
 
       resources.forEach((entry) => {
         console.log(`${entry.source} -> ${entry.docx}`);
-        output += `${entry.source};${entry.docx};${entry.extra.lang};${entry.extra.author};${entry.extra.date};${entry.extra.category};${entry.extra.topics};${entry.extra.tags};${entry.extra.banners}\n`;
+        output += `${entry.source};${entry.docx};${entry.extra.lang};${entry.extra.author};${entry.extra.date};${entry.extra.tags};${entry.extra.banners}\n`;
       });
       await handler.put('importer_output.csv', output);
     } catch(error) {

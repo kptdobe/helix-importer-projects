@@ -168,35 +168,6 @@ export default class BlogToBlogImporter extends PageImporter {
       dateRow.append(dateData);
     }
 
-    let category;
-    let tags;
-
-    if (params) {
-      if (params.category) {
-        const categoryRow = document.createElement('tr');
-        table.append(categoryRow);
-        const categoryTitle = document.createElement('td');
-        categoryTitle.textContent = 'Category';
-        categoryRow.append(categoryTitle);
-        const categoryData = document.createElement('td');
-        categoryData.textContent = params.category;
-        categoryRow.append(categoryData);
-        category = params.category;
-      }
-
-      if (params.tags) {
-        const tagsRow = document.createElement('tr');
-        table.append(tagsRow);
-        const tagsTitle = document.createElement('td');
-        tagsTitle.textContent = 'Tags';
-        tagsRow.append(tagsTitle);
-        const tagsData = document.createElement('td');
-        tags = params.tags.replace(/\n/g, ' ');
-        tagsData.textContent = tags;
-        tagsRow.append(tagsData);
-      }
-    }
-
     const topicsArr = [];
     const [topicsStr, productsStr] = Array
       .from(main.querySelectorAll('main > div:last-child > p'))
@@ -205,7 +176,7 @@ export default class BlogToBlogImporter extends PageImporter {
       const allTopics = productsStr ? topicsStr + productsStr : topicsStr;
       allTopics
         .replace('Topics:', '')
-        .replace('Products:', '')
+        .replace('Products:', ',')
         .split(',')
         .forEach((topic) => {
           if (topic.trim().length) {
@@ -215,7 +186,7 @@ export default class BlogToBlogImporter extends PageImporter {
       const topicsRow = document.createElement('tr');
       table.append(topicsRow);
       const topicsTitle = document.createElement('td');
-      topicsTitle.textContent = 'Topics';
+      topicsTitle.textContent = 'Tags';
       topicsRow.append(topicsTitle);
       const topicsData = document.createElement('td');
       topicsData.textContent = topicsArr.join(', ');
@@ -233,9 +204,7 @@ export default class BlogToBlogImporter extends PageImporter {
     return {
       author,
       date,
-      topics: topicsArr.join(', '),
-      category,
-      tags,
+      tags: topicsArr.join(', '),
     };
   }
 
@@ -283,7 +252,8 @@ export default class BlogToBlogImporter extends PageImporter {
   rewriteLinks(main: Element, target: string): void {
     main.querySelectorAll('a').forEach((a) => {
       const { href, innerHTML } = a;
-      if (href.includes('/en/promotions/')) {
+
+      if (href.startsWith('https://blog.adobe.com/')) {
         a.href = a.href
           .toLowerCase()
           .replace('.html', '');
@@ -342,10 +312,8 @@ export default class BlogToBlogImporter extends PageImporter {
     const lang = s[1];
 
     const pir = new PageImporterResource(name, `${p.dir}`, main, null, {
-      topics: meta.topics,
       tags: meta.tags,
       author: meta.author,
-      category: meta.category,
       date: meta.date,
       lang,
       banners,
