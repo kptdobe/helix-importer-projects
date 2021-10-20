@@ -179,8 +179,9 @@ export default class BlogToBlogImporter extends PageImporter {
         .replace('Products:', ',')
         .split(',')
         .forEach((topic) => {
-          if (topic.trim().length) {
-            topicsArr.push(topic.trim());
+          const t = topic.trim();
+          if (topic.length && !topicsArr.includes(topic)) {
+            topicsArr.push(topic);
           }
         });
       const topicsRow = document.createElement('tr');
@@ -312,6 +313,7 @@ export default class BlogToBlogImporter extends PageImporter {
     const lang = s[1];
 
     const pir = new PageImporterResource(name, `${p.dir}`, main, null, {
+      path: `${p.dir}/${name}`,
       tags: meta.tags,
       author: meta.author,
       date: meta.date,

@@ -23,7 +23,7 @@ import fetch from 'node-fetch';
 config();
 
 const TARGET_HOST = 'https://blog.adobe.com';
-const DATA_LIMIT = 2000;
+const DATA_LIMIT = 100;
 
 const [argMin, argMax] = process.argv.slice(2);
 
@@ -61,7 +61,11 @@ async function getEntries() {
     for (let i=0; i < Math.min(DATA_LIMIT, json.data.length); i++) {
       const e = json.data[i];
       try {
-        e.URL = `${TARGET_HOST}${e.path}`;
+        let path = e.path;
+        if (!path.startsWith('/')) {
+          path = `/${path}`;
+        }
+        e.URL = `${TARGET_HOST}${path}`;
         res.push(e);
       } catch(error) {
         // ignore rows with invalid URL
@@ -106,14 +110,14 @@ async function main() {
     logger: customLogger,
   });
 
-  let output = `source;file;lang;author;date;tags;banners;\n`;
+  let output = `source;path;file;lang;author;date;tags;banners;\n`;
   await Utils.asyncForEach(entries, async (e) => {
     try {
       const resources = await importer.import(e.URL, { target: TARGET_HOST, allEntries, promoList: promoListJSON });
 
       resources.forEach((entry) => {
         console.log(`${entry.source} -> ${entry.docx}`);
-        output += `${entry.source};${entry.docx};${entry.extra.lang};${entry.extra.author};${entry.extra.date};${entry.extra.tags};${entry.extra.banners}\n`;
+        output += `${entry.source};${entry.extra.path};${entry.docx};${entry.extra.lang};${entry.extra.author};${entry.extra.date};${entry.extra.tags};${entry.extra.banners}\n`;
       });
       await handler.put('importer_output.csv', output);
     } catch(error) {
