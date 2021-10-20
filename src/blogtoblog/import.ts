@@ -107,6 +107,7 @@ async function main() {
     cache: '.cache/blogadobecom',
     skipAssetsUpload: true,
     // skipDocxConversion: true,
+    skipMDFileCreation: true,
     logger: customLogger,
   });
 
