@@ -180,10 +180,25 @@ export default class BlogToBlogImporter extends PageImporter {
         .split(',')
         .forEach((topic) => {
           const t = topic.trim();
-          if (topic.length && !topicsArr.includes(topic)) {
-            topicsArr.push(topic);
+          if (t.length && !topicsArr.includes(t)) {
+            topicsArr.push(t);
           }
         });
+      const taxonomy = params.taxonomy;
+      if (taxonomy && topicsArr.length > 1) {
+        // make sure the first topic is a visible one.
+        // Otherwise move the first one to the top of the list
+        const first = topicsArr.findIndex((topic) => {
+          const t = taxonomy[topic];
+          return t && t.isVisible;
+        });
+        if (first > 0) {
+          const firstTopic = topicsArr[first];
+          topicsArr.splice(first, 1);
+          topicsArr.unshift(firstTopic);
+        }
+      }
+        
       const topicsRow = document.createElement('tr');
       table.append(topicsRow);
       const topicsTitle = document.createElement('td');

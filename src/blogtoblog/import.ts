@@ -23,7 +23,8 @@ import fetch from 'node-fetch';
 config();
 
 const TARGET_HOST = 'https://blog.adobe.com';
-const DATA_LIMIT = 100;
+const LANG = 'en';
+const DATA_LIMIT = 10;
 
 const [argMin, argMax] = process.argv.slice(2);
 
@@ -54,7 +55,7 @@ function sectionData(data, min, max) {
 }
 
 async function getEntries() {
-  const req = await fetch(`${TARGET_HOST}/en/query-index.json?limit=256&offset=0`);
+  const req = await fetch(`${TARGET_HOST}/${LANG}/query-index.json?limit=256&offset=0`);
   const res = [];
   if (req.ok) {
     const json = await req.json();
@@ -73,6 +74,21 @@ async function getEntries() {
     }
   }
   return res;
+}
+
+async function getTaxonomy() {
+  const res = await fetch(`https://main--blog--adobe.hlx3.page/${LANG}/topics/taxonomy.json`);
+  const json = await res.json();
+
+  const taxonomy = {};
+
+  json.data.forEach((t) => {
+    const name = t['Level 3'] || t['Level 2'] || t['Level 1'];
+    t.isVisible = t.Hidden === '';
+    taxonomy[name] = t;
+  });
+
+  return taxonomy;
 }
 
 async function main() {
@@ -106,15 +122,17 @@ async function main() {
     blobHandler: blob,
     cache: '.cache/blogadobecom',
     skipAssetsUpload: true,
-    // skipDocxConversion: true,
-    skipMDFileCreation: true,
+    skipDocxConversion: true,
+    // skipMDFileCreation: true,
     logger: customLogger,
   });
+
+  const taxonomy = await getTaxonomy();
 
   let output = `source;path;file;lang;author;date;tags;banners;\n`;
   await Utils.asyncForEach(entries, async (e) => {
     try {
-      const resources = await importer.import(e.URL, { target: TARGET_HOST, allEntries, promoList: promoListJSON });
+      const resources = await importer.import(e.URL, { target: TARGET_HOST, allEntries, promoList: promoListJSON, taxonomy });
 
       resources.forEach((entry) => {
         console.log(`${entry.source} -> ${entry.docx}`);
