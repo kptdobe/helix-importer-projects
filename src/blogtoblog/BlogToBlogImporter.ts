@@ -198,7 +198,7 @@ export default class BlogToBlogImporter extends PageImporter {
           topicsArr.unshift(firstTopic);
         }
       }
-        
+
       const topicsRow = document.createElement('tr');
       table.append(topicsRow);
       const topicsTitle = document.createElement('td');
