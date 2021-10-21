@@ -17,6 +17,7 @@ import { BlobHandler } from '@adobe/helix-documents-support';
 
 import { config } from 'dotenv';
 import fetch from 'node-fetch';
+import Excel from 'exceljs';
 
 // tslint:disable: no-console
 
@@ -24,7 +25,7 @@ config();
 
 const TARGET_HOST = 'https://blog.adobe.com';
 const LANG = 'en';
-const DATA_LIMIT = 10;
+const DATA_LIMIT = 200;
 
 const [argMin, argMax] = process.argv.slice(2);
 
@@ -122,8 +123,8 @@ async function main() {
     blobHandler: blob,
     cache: '.cache/blogadobecom',
     skipAssetsUpload: true,
-    skipDocxConversion: true,
-    // skipMDFileCreation: true,
+    // skipDocxConversion: true,
+    skipMDFileCreation: true,
     logger: customLogger,
   });
 
@@ -135,14 +136,20 @@ async function main() {
       const resources = await importer.import(e.URL, { target: TARGET_HOST, allEntries, promoList: promoListJSON, taxonomy });
 
       resources.forEach((entry) => {
-        console.log(`${entry.source} -> ${entry.docx}`);
-        output += `${entry.source};${entry.extra.path};${entry.docx};${entry.extra.lang};${entry.extra.author};${entry.extra.date};${entry.extra.tags};${entry.extra.banners}\n`;
+        console.log(`${entry.source} -> ${entry.docx || entry.md}`);
+        output += `${entry.source};${entry.extra.path};${entry.docx || entry.md};${entry.extra.lang};${entry.extra.author};${entry.extra.date};${entry.extra.tags};${entry.extra.banners}\n`;
       });
-      await handler.put('importer_output.csv', output);
+      await handler.put(`${LANG}_importer_output.csv`, output);
     } catch(error) {
       console.error(`Could not import ${e.URL}`, error.message, error.stack);
     }
   });
+
+  const workbook = new Excel.Workbook();
+  const sheet = workbook.addWorksheet('helix-default');
+  const data = output.split('\n').map((row: string) => row.split(';'));
+  sheet.addRows(data);
+  await workbook.xlsx.writeFile(`output/blogtoblog/${LANG}_importer_output.xlsx`);
   console.log('Done');
 }
 
