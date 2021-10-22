@@ -212,11 +212,10 @@ export default class BlogToBlogImporter extends PageImporter {
     const lastDiv = document.querySelector('main > div:last-child');
     if (lastDiv) {
       if (topicsStr || productsStr) {
-        lastDiv.replaceWith(table);
-      } else {
-        // don't replace non-topics div
-        lastDiv.parentNode.insertBefore(table, lastDiv.nextSibling);
+        // remove p tags
+        main.querySelectorAll('main > div:last-child > p').forEach(p => p.remove());
       }
+      lastDiv.parentNode.append(table);
     } else {
       throw new Error('Potential invalid document structure, no last div found');
     }
@@ -319,8 +318,8 @@ export default class BlogToBlogImporter extends PageImporter {
 
     this.renameBlocks(main, document);
     const banners = this.findBanners(main, document);
-    this.buildRecommendedArticlesTable(main, document);
     const meta = this.buildMetadataTable(head, main, document, entryParams);
+    this.buildRecommendedArticlesTable(main, document);
 
     this.rewriteLinks(main, entryParams.target);
     this.rewriteImgSrc(main);
