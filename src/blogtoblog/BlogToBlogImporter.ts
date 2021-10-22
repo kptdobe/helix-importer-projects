@@ -89,9 +89,11 @@ export default class BlogToBlogImporter extends PageImporter {
     th.textContent = 'Metadata';
     headRow.append(th);
 
-    const metaDesc = head
-      .querySelector('meta[name~="description"]')
-      .getAttribute('content');
+    const metaDescTag = head.querySelector('meta[name~="description"]');
+    let metaDesc;
+    if (metaDesc) {
+      metaDesc = metaDescTag.getAttribute('content');
+    }
     if (metaDesc) {
       let descArr = [];
       main.querySelectorAll('div > p').forEach((p) => {
