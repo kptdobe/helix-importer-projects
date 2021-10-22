@@ -210,11 +210,15 @@ export default class BlogToBlogImporter extends PageImporter {
     }
 
     const lastDiv = document.querySelector('main > div:last-child');
-    if (topicsStr || productsStr) {
-      lastDiv.replaceWith(table);
+    if (lastDiv) {
+      if (topicsStr || productsStr) {
+        lastDiv.replaceWith(table);
+      } else {
+        // don't replace non-topics div
+        lastDiv.parentNode.insertBefore(table, lastDiv.nextSibling);
+      }
     } else {
-      // don't replace non-topics div
-      lastDiv.parentNode.insertBefore(table, lastDiv.nextSibling);
+      throw new Error('Potential invalid document structure, no last div found');
     }
 
     return {
