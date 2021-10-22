@@ -24,18 +24,20 @@ import Excel from 'exceljs';
 
 config();
 
+const HLX_HOST = 'https://main--blog--adobe.hlx3.page';
 const TARGET_HOST = 'https://blog.adobe.com';
 const LANG = 'en';
 const DATA_LIMIT = 30000;
-const BATCH_SIZE = 10;
+const BATCH_SIZE = 20;
 
 const [argMin, argMax] = process.argv.slice(2);
 
 async function getPromoList() {
-  const req = await fetch(`${TARGET_HOST}/drafts/alex/import/promotions.json`);
+  const url = `${HLX_HOST}/${LANG}/drafts/import/promotions.json`;
+  const response = await fetch(url);
   const res = {};
-  if (req.ok) {
-    const json = await req.json();
+  if (response.ok) {
+    const json = await response.json();
     json.data.forEach((e) => {
       const className = `embed-internal-${e.file
           .toLowerCase()
@@ -45,6 +47,8 @@ async function getPromoList() {
       if (res[className]) throw new Error(`Duplicate entry for ${e.file}`);
       res[className] = e.url;
     });
+  } else {
+    throw new Error(`Cound not find promotion mapping at ${url}`);
   }
   return res;
 }
@@ -80,7 +84,7 @@ async function getEntries() {
 }
 
 async function getTaxonomy() {
-  const res = await fetch(`https://main--blog--adobe.hlx3.page/${LANG}/topics/taxonomy.json`);
+  const res = await fetch(`${HLX_HOST}/${LANG}/topics/taxonomy.json`);
   const json = await res.json();
 
   const taxonomy = {};

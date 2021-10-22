@@ -232,7 +232,8 @@ export default class BlogToBlogImporter extends PageImporter {
     for (let i = 0; i < embeds.length; i++) {
       const embed = embeds[i];
       const clazz = Array.from(embed.classList.values()).reverse();
-      for (let j = 0; j < clazz.length; j++) {
+      let j = 0;
+      for (; j < clazz.length; j++) {
         const url = promoList[clazz[j]];
         if (url) {
           // found a matching class name - replace with table banner
@@ -242,6 +243,9 @@ export default class BlogToBlogImporter extends PageImporter {
           ], document));
           break;
         }
+      }
+      if (j === clazz.length) {
+        throw new Error(`No matching promotion found for internal embed "${clazz.join(' ')}"`);
       }
     }
   }
