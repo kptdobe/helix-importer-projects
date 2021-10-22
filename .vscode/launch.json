@@ -295,6 +295,14 @@
       "preLaunchTask": "tsc: build - tsconfig.json",
       "outFiles": ["${workspaceFolder}/build/**/*.js"]
     },{
+      "name": "Blog To Blog: preview and publish",
+      "program": "${workspaceFolder}/src/blogtoblog/pp.mjs",
+      "request": "launch",
+      "skipFiles": [
+        "<node_internals>/**"
+      ],
+      "type": "node"
+    },{
       "name": "Blog To Business: import",
       "program": "${workspaceFolder}/src/blogtobusiness/import.ts",
       "request": "launch",

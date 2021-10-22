@@ -17,6 +17,7 @@ import { BlobHandler } from '@adobe/helix-documents-support';
 
 import { config } from 'dotenv';
 import fetch from 'node-fetch';
+import fs from 'fs-extra';
 import Excel from 'exceljs';
 
 // tslint:disable: no-console
@@ -25,7 +26,7 @@ config();
 
 const TARGET_HOST = 'https://blog.adobe.com';
 const LANG = 'en';
-const DATA_LIMIT = 200;
+const DATA_LIMIT = 300;
 
 const [argMin, argMax] = process.argv.slice(2);
 
@@ -149,7 +150,8 @@ async function main() {
   const sheet = workbook.addWorksheet('helix-default');
   const data = output.split('\n').map((row: string) => row.split(';'));
   sheet.addRows(data);
-  await workbook.xlsx.writeFile(`output/blogtoblog/${LANG}_importer_output.xlsx`);
+  await fs.ensureDir(`output/blogtoblog/${LANG}/drafts/import/`);
+  await workbook.xlsx.writeFile(`output/blogtoblog/${LANG}/drafts/import/output.xlsx`);
   console.log('Done');
 }
 
