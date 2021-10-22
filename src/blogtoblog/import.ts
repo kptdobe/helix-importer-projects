@@ -26,7 +26,8 @@ config();
 
 const TARGET_HOST = 'https://blog.adobe.com';
 const LANG = 'en';
-const DATA_LIMIT = 300;
+const DATA_LIMIT = 30000;
+const BATCH_SIZE = 10;
 
 const [argMin, argMax] = process.argv.slice(2);
 
@@ -57,7 +58,7 @@ function sectionData(data, min, max) {
 }
 
 async function getEntries() {
-  const req = await fetch(`${TARGET_HOST}/${LANG}/query-index.json?limit=256&offset=0`);
+  const req = await fetch(`${TARGET_HOST}/${LANG}/query-index.json`);
   const res = [];
   if (req.ok) {
     const json = await req.json();
@@ -94,6 +95,7 @@ async function getTaxonomy() {
 }
 
 async function main() {
+  const startTime = new Date().getTime();
   // tslint:disable-next-line: no-empty
   const noop = () => {};
 
@@ -124,35 +126,50 @@ async function main() {
     blobHandler: blob,
     cache: '.cache/blogadobecom',
     skipAssetsUpload: true,
-    // skipDocxConversion: true,
-    skipMDFileCreation: true,
+    skipDocxConversion: true,
+    // skipMDFileCreation: true,
     logger: customLogger,
   });
 
   const taxonomy = await getTaxonomy();
 
   let output = `source;path;file;lang;author;date;tags;banners;\n`;
-  await Utils.asyncForEach(entries, async (e) => {
-    try {
-      const resources = await importer.import(e.URL, { target: TARGET_HOST, allEntries, promoList: promoListJSON, taxonomy });
+  let promises = [];
+  await Utils.asyncForEach(entries, async (e, index) => {
+    promises.push(new Promise(async (resolve, reject) => {
+      try {
+        const resources = await importer.import(e.URL, { target: TARGET_HOST, allEntries, promoList: promoListJSON, taxonomy });
 
-      resources.forEach((entry) => {
-        console.log(`${entry.source} -> ${entry.docx || entry.md}`);
-        output += `${entry.source};${entry.extra.path};${entry.docx || entry.md};${entry.extra.lang};${entry.extra.author};${entry.extra.date};${entry.extra.tags};${entry.extra.banners}\n`;
-      });
+        resources.forEach((entry) => {
+          console.log(`${index}: ${entry.source} -> ${entry.docx || entry.md}`);
+          output += `${entry.source};${entry.extra.path};${entry.docx || entry.md};${entry.extra.lang};${entry.extra.author};${entry.extra.date};${entry.extra.tags};${entry.extra.banners}\n`;
+        });
+      } catch(error) {
+        console.error(`Could not import ${e.URL}`, error.message, error.stack);
+      }
+      resolve(true);
+    }));
+
+    if (promises.length === BATCH_SIZE) {
+      await Promise.all(promises);
+      promises = [];
       await handler.put(`${LANG}_importer_output.csv`, output);
-    } catch(error) {
-      console.error(`Could not import ${e.URL}`, error.message, error.stack);
     }
   });
+
+  if (promises.length > 0) {
+    await Promise.all(promises);
+    await handler.put(`${LANG}_importer_output.csv`, output);
+  }
 
   const workbook = new Excel.Workbook();
   const sheet = workbook.addWorksheet('helix-default');
   const data = output.split('\n').map((row: string) => row.split(';'));
   sheet.addRows(data);
-  await fs.ensureDir(`output/blogtoblog/${LANG}/drafts/import/`);
-  await workbook.xlsx.writeFile(`output/blogtoblog/${LANG}/drafts/import/output.xlsx`);
-  console.log('Done');
+  const dir = `output/blogtoblog/${LANG}/drafts/import/`;
+  await fs.ensureDir(dir);
+  await workbook.xlsx.writeFile(`${dir}/output.xlsx`);
+  console.log(`Done in ${(new Date().getTime()-startTime)/1000}s.`);
 }
 
 main();
