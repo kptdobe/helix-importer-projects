@@ -1,35 +1,18 @@
 import fetch from 'node-fetch';
 import { Utils } from '@adobe/helix-importer';
 
-const OWNER = 'adobe';
-const REPO = 'blog';
-const BRANCH = 'main';
+import { pp } from '../utils';
+import config from '../config';
 
-const LANG = 'en';
-
-const INDEX_PATH = `/${LANG}/drafts/import/output.json`;
-const INDEX_URL = `https://${BRANCH}--${REPO}--${OWNER}.hlx3.page${INDEX_PATH}`;
+// tslint:disable: no-console
 
 const BATCH_SIZE = 8;
 const START_INDEX = -1;
 
-async function pp(path, index) {
-  let url = `https://admin.hlx3.page/preview/${OWNER}/${REPO}/${BRANCH}${path}`;
-  console.log(`${index} - Previewing ${url}`);
-  let r = await fetch(url, { method: 'POST' });
-  if (!r.ok) {
-    console.error(`Something wrong with ${url}`);
-  }
+async function main(lang) {
+  const INDEX_PATH = `/${lang}/drafts/import/output.json`;
+  const INDEX_URL = `https://${config.BRANCH}--${config.REPO}--${config.OWNER}.hlx3.page${INDEX_PATH}`;
 
-  url = `https://admin.hlx3.page/live/${OWNER}/${REPO}/${BRANCH}${path}`;
-  console.log(`${index} - Publishing ${url}`);
-  r = await fetch(url, { method: 'POST' });
-  if (!r.ok) {
-    console.error(`Something wrong with ${url}`);
-  }
-}
-
-async function main() {
   // preview and publish the index file
   await pp(INDEX_PATH, -1);
   const res = await fetch(INDEX_URL);
@@ -41,7 +24,7 @@ async function main() {
       if (index >= START_INDEX && d.path) {
         promises.push(new Promise(async (resolve, reject) => {
           await pp(d.path, index);
-          resolve();
+          resolve(true);
         }));
       }
       if (promises.length === BATCH_SIZE) {
@@ -58,5 +41,5 @@ async function main() {
   }
 }
 
-main();
+main('en');
 

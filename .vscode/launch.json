@@ -295,13 +295,25 @@
       "preLaunchTask": "tsc: build - tsconfig.json",
       "outFiles": ["${workspaceFolder}/build/**/*.js"]
     },{
-      "name": "Blog To Blog: preview and publish",
-      "program": "${workspaceFolder}/src/blogtoblog/pp.mjs",
+      "name": "Blog To Blog: preview and publish from index",
+      "program": "${workspaceFolder}/src/blogtoblog/cli/pp.ts",
       "request": "launch",
       "skipFiles": [
         "<node_internals>/**"
       ],
-      "type": "node"
+      "type": "node",
+      "preLaunchTask": "tsc: build - tsconfig.json",
+      "outFiles": ["${workspaceFolder}/build/**/*.js"]
+    },{
+      "name": "Blog To Blog: generate promotions",
+      "program": "${workspaceFolder}/src/blogtoblog/cli/promotions.ts",
+      "request": "launch",
+      "skipFiles": [
+        "<node_internals>/**"
+      ],
+      "type": "node",
+      "preLaunchTask": "tsc: build - tsconfig.json",
+      "outFiles": ["${workspaceFolder}/build/**/*.js"]
     },{
       "name": "Blog To Business: import",
       "program": "${workspaceFolder}/src/blogtobusiness/import.ts",

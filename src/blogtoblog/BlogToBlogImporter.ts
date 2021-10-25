@@ -233,21 +233,15 @@ export default class BlogToBlogImporter extends PageImporter {
     const embeds = Array.from(main.querySelectorAll('.embed-internal'));
     for (let i = 0; i < embeds.length; i++) {
       const embed = embeds[i];
-      const clazz = Array.from(embed.classList.values()).reverse();
-      let j = 0;
-      for (; j < clazz.length; j++) {
-        const url = promoList[clazz[j]];
-        if (url) {
-          // found a matching class name - replace with table banner
-          embed.replaceWith(DOM.createTable([
+      const p = promoList[embed.className];
+      if (p) {
+        // found a matching class name - replace with table banner
+        embed.replaceWith(DOM.createTable([
             ['Banner'],
-            [`<a href="${url}">${url}</a>`],
-          ], document));
-          break;
-        }
-      }
-      if (j === clazz.length) {
-        throw new Error(`No matching promotion found for internal embed "${clazz.join(' ')}"`);
+            [`<a href="${p}">${p}</a>`],
+        ], document));
+      } else {
+        throw new Error(`No matching promotion found for internal embed "${embed.className}"`);
       }
     }
   }
