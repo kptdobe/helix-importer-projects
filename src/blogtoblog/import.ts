@@ -63,42 +63,25 @@ function sectionData(data, min, max) {
 }
 
 async function getEntries() {
-  // const req = await fetch(`${TARGET_HOST}/${LANG}/query-index.json`);
-  // const res = [];
-  // if (req.ok) {
-  //   const json = await req.json();
-  //   for (let i=0; i < Math.min(DATA_LIMIT, json.data.length); i++) {
-  //     const e = json.data[i];
-  //     try {
-  //       let path = e.path;
-  //       if (!path.startsWith('/')) {
-  //         path = `/${path}`;
-  //       }
-  //       e.URL = `${TARGET_HOST}${path}`;
-  //       res.push(e);
-  //     } catch(error) {
-  //       // ignore rows with invalid URL
-  //     }
-  //   }
-  // }
-  // return res;
-  return [{
-    URL: 'https://blog.adobe.com/en/publish/2018/03/27/adobe-campaign-introduces-new-email-capabilities-powered-creativity-data.html',
-  },{
-    URL: 'https://blog.adobe.com/en/publish/2018/12/03/need-for-speed-delivering-great-content-at-greater-velocity.html',
-  },{
-    URL: 'https://blog.adobe.com/en/publish/2018/11/30/why-ai-is-the-secret-to-mobile-app-success.html',
-  },{
-    URL: 'https://blog.adobe.com/en/publish/2018/10/23/fast-track-your-adobe-expertise-with-experience-league.html',
-  },{
-    URL: 'https://blog.adobe.com/en/publish/2018/03/27/blueprint-success-experience-era.html',
-  }, {
-    URL: 'https://blog.adobe.com/en/publish/2018/03/27/adobe-summit-helping-make-experience-business.html',
-  },{
-    URL: 'https://blog.adobe.com/en/publish/2018/03/27/adobe-summit-whats-new-analytics-cloud.html',
-  },{
-    URL: 'https://blog.adobe.com/en/publish/2017/11/20/make-experience-business.html',
-  }];
+  const req = await fetch(`${TARGET_HOST}/${LANG}/query-index.json`);
+  const res = [];
+  if (req.ok) {
+    const json = await req.json();
+    for (let i=0; i < Math.min(DATA_LIMIT, json.data.length); i++) {
+      const e = json.data[i];
+      try {
+        let path = e.path;
+        if (!path.startsWith('/')) {
+          path = `/${path}`;
+        }
+        e.URL = `${TARGET_HOST}${path}`;
+        res.push(e);
+      } catch(error) {
+        // ignore rows with invalid URL
+      }
+    }
+  }
+  return res;
 }
 
 async function getTaxonomy() {
