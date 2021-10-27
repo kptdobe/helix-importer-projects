@@ -1,6 +1,7 @@
 import fg from 'fast-glob';
 import fs from 'fs-extra';
 import Excel from 'exceljs';
+import siteconfig from '../config';
 
 import { config } from 'dotenv';
 config();
@@ -32,7 +33,7 @@ async function main(lang) {
     const newPath = currentPath.toLowerCase();
 
     // tslint:disable-next-line: no-console
-    console.log(currentPath, newPath, selector);
+    // console.log(currentPath, newPath, selector);
 
     rows.push([
       currentPath,
@@ -49,4 +50,4 @@ async function main(lang) {
   await workbook.xlsx.writeFile(`${dir}/promotions.xlsx`);
 }
 
-main('en');
+siteconfig.LOCALES.forEach(l => main(l));
