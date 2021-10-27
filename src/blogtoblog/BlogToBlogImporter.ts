@@ -136,19 +136,19 @@ export default class BlogToBlogImporter extends PageImporter {
       }
     }
 
-    let [authorStr, dateStr] = Array
-      .from(main.querySelectorAll('main > div:nth-child(3) > p'))
-      .map(p => p.textContent);
+    let [authorPTag, datePTag] = Array
+      .from(main.querySelectorAll('main > div:nth-child(3) > p'));
+      // .map(p => p.textContent);
     main.querySelector('main > div:nth-child(3)').remove();
 
     let author;
     let date;
-    if (authorStr && authorStr.toLowerCase().includes('posted ')) {
-      dateStr = authorStr;
-      authorStr = null;
+    if (authorPTag && authorPTag.textContent.toLowerCase().includes('posted ')) {
+      datePTag = authorPTag;
+      authorPTag = null;
     }
-    if (authorStr) {
-      author = authorStr.replace('By ', '').replace('by ', '').trim();
+    if (authorPTag) {
+      author = authorPTag.textContent.replace('By ', '').replace('by ', '').trim();
       const authorRow = document.createElement('tr');
       table.append(authorRow);
       const authorTitle = document.createElement('td');
@@ -157,9 +157,21 @@ export default class BlogToBlogImporter extends PageImporter {
       const authorData = document.createElement('td');
       authorData.textContent = author;
       authorRow.append(authorData);
+
+      const a = authorPTag.querySelector('a');
+      if (a && a.href) {
+        const authorURLRow = document.createElement('tr');
+        table.append(authorURLRow);
+        const authorURLTitle = document.createElement('td');
+        authorURLTitle.textContent = 'Author URL';
+        authorURLRow.append(authorURLTitle);
+        const authorURLData = document.createElement('td');
+        authorURLData.textContent = a.href.toLowerCase().replace('.html', '');
+        authorURLRow.append(authorURLData);
+      }
     }
-    if (dateStr) {
-      date = /\d{1,2}[.\/-]\d{1,2}[.\/-]\d{2,4}/.exec(dateStr)[0];
+    if (datePTag) {
+      date = /\d{1,2}[.\/-]\d{1,2}[.\/-]\d{2,4}/.exec(datePTag.textContent)[0];
       const dateRow = document.createElement('tr');
       table.append(dateRow);
       const dateTitle = document.createElement('td');
@@ -241,7 +253,8 @@ export default class BlogToBlogImporter extends PageImporter {
             [`<a href="${p}">${p}</a>`],
         ], document));
       } else {
-        throw new Error(`No matching promotion found for internal embed "${embed.className}"`);
+        embed.remove();
+        this.logger.warn(`No matching promotion found for internal embed "${embed.className}"`);
       }
     }
   }
@@ -262,17 +275,29 @@ export default class BlogToBlogImporter extends PageImporter {
     main.querySelectorAll('img').forEach((img) => {
       const { src } = img;
       if (src) {
-        const s = src.split('?')[0];
-        img.src = `${s}?auto=webp&format=pjpg&width=2000`;
+        if (
+          src.startsWith('/Users') ||
+          src.startsWith('https://blogsimages.adobe.com') ||
+          src.startsWith('http://blogsimages.adobe.com') ||
+          src.startsWith('https://theblogimages.adobe.com') ||
+          src.startsWith('http://theblogimages.adobe.com') ||
+          src.startsWith('http://blogs.adobe.com') ||
+          src.startsWith('https://blogs.adobe.com')) {
+          // remove broken images
+          img.remove();
+        } else {
+          const s = src.split('?')[0];
+          img.src = `${s}?auto=webp&format=pjpg&width=2000`;
+        }
       }
     });
   }
 
   rewriteLinks(main: Element, target: string): void {
     main.querySelectorAll('a').forEach((a) => {
-      const { href, innerHTML } = a;
+      a.href.replace('https://master--theblog--adobe.hlx.page/', 'https://blog.adobe.com/');
 
-      if (href.startsWith('https://blog.adobe.com/')) {
+      if (a.href.startsWith('https://blog.adobe.com/')) {
         a.href = a.href
           .toLowerCase()
           .replace('.html', '');
@@ -280,10 +305,10 @@ export default class BlogToBlogImporter extends PageImporter {
           .toLowerCase()
           .replace('.html', '');
       }
-      if (href.includes('hlx.blob.core')) {
-        const { pathname } = new URL(href);
+      if (a.href.includes('hlx.blob.core')) {
+        const { pathname } = new URL(a.href);
         const helixId = pathname.split('/')[2];
-        const type = href.includes('.mp4') ? 'mp4' : 'gif';
+        const type = a.href.includes('.mp4') ? 'mp4' : 'gif';
         a.href = `${target}/media_${helixId}.${type}`;
         a.innerHTML = `${target}/media_${helixId}.${type}`;
       }

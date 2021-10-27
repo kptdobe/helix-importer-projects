@@ -17,6 +17,7 @@ import { BlobHandler } from '@adobe/helix-documents-support';
 
 import { config } from 'dotenv';
 import fetch from 'node-fetch';
+import { Response } from 'node-fetch';
 import fs from 'fs-extra';
 import Excel from 'exceljs';
 
@@ -31,12 +32,13 @@ const TARGET_HOST = 'https://blog.adobe.com';
 const LANG = 'en';
 const DATA_LIMIT = 30000;
 const BATCH_SIZE = 20;
+const DO_PREVIEWS = true;
 
 const [argMin, argMax] = process.argv.slice(2);
 
 async function getPromoList() {
   const path = `/${LANG}/drafts/import/promotions.json`;
-  await preview(path);
+  if (DO_PREVIEWS) await preview(path);
   const url = `${HLX_HOST}${path}`;
 
   const response = await fetch(url);
@@ -63,30 +65,52 @@ function sectionData(data, min, max) {
 }
 
 async function getEntries() {
-  const req = await fetch(`${TARGET_HOST}/${LANG}/query-index.json`);
+  const path = `${TARGET_HOST}/${LANG}/query-index.json`;
   const res = [];
-  if (req.ok) {
-    const json = await req.json();
-    for (let i=0; i < Math.min(DATA_LIMIT, json.data.length); i++) {
-      const e = json.data[i];
-      try {
-        let path = e.path;
-        if (!path.startsWith('/')) {
-          path = `/${path}`;
+
+  const OFFSET = 256;
+  let offset = 0;
+  let response: Response;
+  let doContinue;
+  do {
+    doContinue = false;
+    const queryParams = new URLSearchParams();
+    queryParams.set('limit', `${OFFSET}`);
+    queryParams.set('offset', `${offset}`);
+
+    response = await fetch(`${path}?${queryParams.toString()}`);
+    console.log(response.url);
+
+    if (response.ok) {
+      const json = await response.json();
+
+      for (let i=0; i < json.data.length; i++) {
+        const e = json.data[i];
+        try {
+          let p = e.path;
+          if (!p.startsWith('/')) {
+            p = `/${p}`;
+          }
+          e.URL = `${TARGET_HOST}${p}`;
+          res.push(e);
+        } catch(error) {
+          // ignore rows with invalid URL
+          console.warn(`Entries - ignoring ${e.path}.`);
         }
-        e.URL = `${TARGET_HOST}${path}`;
-        res.push(e);
-      } catch(error) {
-        // ignore rows with invalid URL
       }
+
+      doContinue = json.data.length === OFFSET;
     }
-  }
+
+    offset += OFFSET;
+  } while (doContinue);
+
   return res;
 }
 
 async function getTaxonomy() {
   const path = `/${LANG}/topics/taxonomy.json`;
-  await preview(path);
+  if (DO_PREVIEWS) await preview(path);
   const res = await fetch(`${HLX_HOST}/${path}`);
   const json = await res.json();
 
@@ -126,15 +150,17 @@ async function main() {
   const promoListJSON = await getPromoList();
 
   const allEntries = await getEntries();
+  console.log(`Entries - found ${allEntries.length} in index`);
   const entries = sectionData(allEntries, argMin, argMax);
+  console.log(`Entries - after filtering: ${entries.length}`);
 
   const importer = new BlogToBlogImporter({
     storageHandler: handler,
     blobHandler: blob,
     cache: '.cache/blogadobecom',
     skipAssetsUpload: true,
-    skipDocxConversion: true,
-    // skipMDFileCreation: true,
+    // skipDocxConversion: true,
+    skipMDFileCreation: true,
     logger: customLogger,
   });
 
@@ -142,6 +168,7 @@ async function main() {
 
   let output = `source;path;file;lang;author;date;tags;banners;\n`;
   let promises = [];
+  let count = 0;
   await Utils.asyncForEach(entries, async (e, index) => {
     promises.push(new Promise(async (resolve, reject) => {
       try {
@@ -150,6 +177,7 @@ async function main() {
         resources.forEach((entry) => {
           console.log(`${index}: ${entry.source} -> ${entry.docx || entry.md}`);
           output += `${entry.source};${entry.extra.path};${entry.docx || entry.md};${entry.extra.lang};${entry.extra.author};${entry.extra.date};${entry.extra.tags};${entry.extra.banners}\n`;
+          count++;
         });
       } catch(error) {
         console.error(`Could not import ${e.URL}`, error.message, error.stack);
@@ -168,6 +196,8 @@ async function main() {
     await Promise.all(promises);
     await handler.put(`${LANG}_importer_output.csv`, output);
   }
+
+  console.log(`Entries - imported ${count}.`);
 
   const workbook = new Excel.Workbook();
   const sheet = workbook.addWorksheet('helix-default');
