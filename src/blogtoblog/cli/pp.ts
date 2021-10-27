@@ -1,7 +1,7 @@
 import fetch from 'node-fetch';
 import { Utils } from '@adobe/helix-importer';
 
-import { pp } from '../utils';
+import { pp, preview } from '../utils';
 import config from '../config';
 
 // tslint:disable: no-console
@@ -14,7 +14,7 @@ async function main(lang) {
   const INDEX_URL = `https://${config.BRANCH}--${config.REPO}--${config.OWNER}.hlx3.page${INDEX_PATH}`;
 
   // preview and publish the index file
-  await pp(INDEX_PATH, -1);
+  await preview(INDEX_PATH, -1);
   const res = await fetch(INDEX_URL);
   if (res.ok) {
     const json = await res.json();
@@ -41,5 +41,5 @@ async function main(lang) {
   }
 }
 
-main('en');
+main('fr');
 
