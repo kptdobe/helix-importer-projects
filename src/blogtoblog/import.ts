@@ -150,9 +150,7 @@ async function main() {
   const promoListJSON = await getPromoList();
 
   const allEntries = await getEntries();
-  console.log(`Entries - found ${allEntries.length} in index`);
   const entries = sectionData(allEntries, argMin, argMax);
-  console.log(`Entries - after filtering: ${entries.length}`);
 
   const importer = new BlogToBlogImporter({
     storageHandler: handler,
@@ -197,6 +195,8 @@ async function main() {
     await handler.put(`${LANG}_importer_output.csv`, output);
   }
 
+  console.log(`Entries - found ${allEntries.length} in index`);
+  console.log(`Entries - after filtering: ${entries.length}`);
   console.log(`Entries - imported ${count}.`);
 
   const workbook = new Excel.Workbook();
