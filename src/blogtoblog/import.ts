@@ -85,7 +85,9 @@ async function getEntries() {
 }
 
 async function getTaxonomy() {
-  const res = await fetch(`${HLX_HOST}/${LANG}/topics/taxonomy.json`);
+  const path = `/${LANG}/topics/taxonomy.json`;
+  await preview(path);
+  const res = await fetch(`${HLX_HOST}/${path}`);
   const json = await res.json();
 
   const taxonomy = {};
