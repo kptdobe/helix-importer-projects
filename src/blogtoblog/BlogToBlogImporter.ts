@@ -71,7 +71,9 @@ export default class BlogToBlogImporter extends PageImporter {
 
           const td = document.createElement('td');
           links.forEach((a) => {
-            td.append(a, `\n`);
+            const p = document.createElement('p');
+            p.append(a);
+            td.append(p);
           });
           bodyRow.append(td);
 
