@@ -8,8 +8,10 @@ export async function preview(path, index = 0) {
   console.log(`${index} - Previewing ${url}`);
   const r = await fetch(url, { method: 'POST' });
   if (!r.ok) {
-    console.error(`Something wrong with ${url}`);
+    console.error(`Preview problem - something wrong with ${url} - ${r.headers.get('x-error')}`);
+    return false;
   }
+  return true;
 }
 
 export async function publish(path, index = 0) {
@@ -17,11 +19,15 @@ export async function publish(path, index = 0) {
   console.log(`${index} - Publishing ${url}`);
   const r = await fetch(url, { method: 'POST' });
   if (!r.ok) {
-    console.error(`Something wrong with ${url}`);
+    console.error(`Publish problem - something wrong with ${url} - ${r.headers.get('x-error')}`);
+    return false;
   }
+  return true;
 }
 
 export async function pp(path, index = 0) {
-  await preview(path, index);
-  await publish(path, index);
+  if (await preview(path, index)) {
+    return await publish(path, index);
+  }
+  return false;
 }
