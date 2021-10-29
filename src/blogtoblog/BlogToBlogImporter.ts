@@ -89,23 +89,25 @@ export default class BlogToBlogImporter extends PageImporter {
     th.textContent = 'Metadata';
     headRow.append(th);
 
-    const metaDescTag = head.querySelector('meta[name~="description"]');
-    let metaDesc;
-    if (metaDesc) {
-      metaDesc = metaDescTag.getAttribute('content');
+    const titleTag = head.querySelector('title');
+    if (titleTag) {
+      const title = titleTag.textContent;
+      if (title) {
+        const titleRow = document.createElement('tr');
+        table.append(titleRow);
+        const titleTitle = document.createElement('td');
+        titleTitle.textContent = 'Title';
+        titleRow.append(titleTitle);
+        const titleData = document.createElement('td');
+        titleData.textContent = title;
+        titleRow.append(titleData);
+      }
     }
-    if (metaDesc) {
-      let descArr = [];
-      main.querySelectorAll('div > p').forEach((p) => {
-        if (descArr.length === 0) {
-          const words = p.textContent.trim().split(/\s+/);
-          if (words.length >= 10 || words.some(w => w.length > 25 && !w.startsWith('http'))) {
-            descArr = descArr.concat(words);
-          }
-        }
-      });
-      const computedDesc = `${descArr.slice(0, 25).join(' ')}${descArr.length > 25 ? ' ...' : ''}`;
-      if (metaDesc !== computedDesc) {
+
+    const metaDescTag = head.querySelector('meta[name~="description"]');
+    if (metaDescTag) {
+      const metaDesc = metaDescTag.getAttribute('content');
+      if (metaDesc) {
         const descRow = document.createElement('tr');
         table.append(descRow);
         const descTitle = document.createElement('td');
@@ -114,25 +116,6 @@ export default class BlogToBlogImporter extends PageImporter {
         const descData = document.createElement('td');
         descData.textContent = metaDesc;
         descRow.append(descData);
-      } else {
-        // check if heading follows h1 in "article header" area
-        const h1 = main.querySelector('h1');
-        if (h1) {
-          const h1Sibling = h1.nextElementSibling;
-          if (h1Sibling) {
-            if (h1Sibling.nodeName.startsWith('H')) {
-              const descRow = document.createElement('tr');
-              table.append(descRow);
-              const descTitle = document.createElement('td');
-              descTitle.textContent = 'Description';
-              descRow.append(descTitle);
-              const descData = document.createElement('td');
-              descData.textContent = h1Sibling.textContent;
-              descRow.append(descData);
-              h1Sibling.remove();
-            }
-          }
-        }
       }
     }
 
