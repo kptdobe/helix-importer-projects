@@ -26,6 +26,21 @@ export default class BlogToBlogImporter extends PageImporter {
     return fetch(url);
   }
 
+  captureCaptions(main: Element, document: Document): void {
+    main.querySelectorAll(':scope p em').forEach((em) => {
+      // "p em" -> convert to caption block if previous is an embed
+      const parent = em.parentElement;
+      const previous = parent.previousElementSibling;
+      if (previous && previous.classList.contains('block-embed')) {
+        const block = document.createElement('div');
+        block.classList.add('caption');
+        block.innerHTML = '<div><div></div></div>';
+        block.firstChild.firstChild.append(em);
+        parent.replaceWith(block);
+      }
+    });
+  }
+
   renameBlocks(element: Element, document: Document): void {
     element.querySelectorAll('main > div > table th').forEach((th) => {
       const blockName = th.innerHTML.trim().toLowerCase();
@@ -71,7 +86,9 @@ export default class BlogToBlogImporter extends PageImporter {
 
           const td = document.createElement('td');
           links.forEach((a) => {
-            td.append(a, `\n`);
+            const p = document.createElement('p');
+            p.append(a);
+            td.append(p);
           });
           bodyRow.append(td);
 
@@ -89,21 +106,25 @@ export default class BlogToBlogImporter extends PageImporter {
     th.textContent = 'Metadata';
     headRow.append(th);
 
-    const metaDesc = head
-      .querySelector('meta[name~="description"]')
-      .getAttribute('content');
-    if (metaDesc) {
-      let descArr = [];
-      main.querySelectorAll('div > p').forEach((p) => {
-        if (descArr.length === 0) {
-          const words = p.textContent.trim().split(/\s+/);
-          if (words.length >= 10 || words.some(w => w.length > 25 && !w.startsWith('http'))) {
-            descArr = descArr.concat(words);
-          }
-        }
-      });
-      const computedDesc = `${descArr.slice(0, 25).join(' ')}${descArr.length > 25 ? ' ...' : ''}`;
-      if (metaDesc !== computedDesc) {
+    const titleTag = head.querySelector('title');
+    if (titleTag) {
+      const title = titleTag.textContent;
+      if (title) {
+        const titleRow = document.createElement('tr');
+        table.append(titleRow);
+        const titleTitle = document.createElement('td');
+        titleTitle.textContent = 'Title';
+        titleRow.append(titleTitle);
+        const titleData = document.createElement('td');
+        titleData.textContent = title;
+        titleRow.append(titleData);
+      }
+    }
+
+    const metaDescTag = head.querySelector('meta[name~="description"]');
+    if (metaDescTag) {
+      const metaDesc = metaDescTag.getAttribute('content');
+      if (metaDesc) {
         const descRow = document.createElement('tr');
         table.append(descRow);
         const descTitle = document.createElement('td');
@@ -112,41 +133,22 @@ export default class BlogToBlogImporter extends PageImporter {
         const descData = document.createElement('td');
         descData.textContent = metaDesc;
         descRow.append(descData);
-      } else {
-        // check if heading follows h1 in "article header" area
-        const h1 = main.querySelector('h1');
-        if (h1) {
-          const h1Sibling = h1.nextElementSibling;
-          if (h1Sibling) {
-            if (h1Sibling.nodeName.startsWith('H')) {
-              const descRow = document.createElement('tr');
-              table.append(descRow);
-              const descTitle = document.createElement('td');
-              descTitle.textContent = 'Description';
-              descRow.append(descTitle);
-              const descData = document.createElement('td');
-              descData.textContent = h1Sibling.textContent;
-              descRow.append(descData);
-              h1Sibling.remove();
-            }
-          }
-        }
       }
     }
 
-    let [authorStr, dateStr] = Array
-      .from(main.querySelectorAll('main > div:nth-child(3) > p'))
-      .map(p => p.textContent);
+    let [authorPTag, datePTag] = Array
+      .from(main.querySelectorAll('main > div:nth-child(3) > p'));
+      // .map(p => p.textContent);
     main.querySelector('main > div:nth-child(3)').remove();
 
     let author;
     let date;
-    if (authorStr && authorStr.toLowerCase().includes('posted ')) {
-      dateStr = authorStr;
-      authorStr = null;
+    if (authorPTag && authorPTag.textContent.toLowerCase().includes('posted ')) {
+      datePTag = authorPTag;
+      authorPTag = null;
     }
-    if (authorStr) {
-      author = authorStr.replace('By ', '').replace('by ', '').trim();
+    if (authorPTag) {
+      author = authorPTag.textContent.replace('By ', '').replace('by ', '').trim();
       const authorRow = document.createElement('tr');
       table.append(authorRow);
       const authorTitle = document.createElement('td');
@@ -155,9 +157,21 @@ export default class BlogToBlogImporter extends PageImporter {
       const authorData = document.createElement('td');
       authorData.textContent = author;
       authorRow.append(authorData);
+
+      const a = authorPTag.querySelector('a');
+      if (a && a.href) {
+        const authorURLRow = document.createElement('tr');
+        table.append(authorURLRow);
+        const authorURLTitle = document.createElement('td');
+        authorURLTitle.textContent = 'Author URL';
+        authorURLRow.append(authorURLTitle);
+        const authorURLData = document.createElement('td');
+        authorURLData.textContent = a.href.toLowerCase().replace('.html', '');
+        authorURLRow.append(authorURLData);
+      }
     }
-    if (dateStr) {
-      date = /\d{1,2}[.\/-]\d{1,2}[.\/-]\d{2,4}/.exec(dateStr)[0];
+    if (datePTag) {
+      date = /\d{1,2}[.\/-]\d{1,2}[.\/-]\d{2,4}/.exec(datePTag.textContent)[0];
       const dateRow = document.createElement('tr');
       table.append(dateRow);
       const dateTitle = document.createElement('td');
@@ -180,10 +194,25 @@ export default class BlogToBlogImporter extends PageImporter {
         .split(',')
         .forEach((topic) => {
           const t = topic.trim();
-          if (topic.length && !topicsArr.includes(topic)) {
-            topicsArr.push(topic);
+          if (t.length && !topicsArr.includes(t)) {
+            topicsArr.push(t);
           }
         });
+      const taxonomy = params.taxonomy;
+      if (taxonomy && topicsArr.length > 1) {
+        // make sure the first topic is a visible one.
+        // Otherwise move the first one to the top of the list
+        const first = topicsArr.findIndex((topic) => {
+          const t = taxonomy[topic];
+          return t && t.isVisible;
+        });
+        if (first > 0) {
+          const firstTopic = topicsArr[first];
+          topicsArr.splice(first, 1);
+          topicsArr.unshift(firstTopic);
+        }
+      }
+
       const topicsRow = document.createElement('tr');
       table.append(topicsRow);
       const topicsTitle = document.createElement('td');
@@ -195,11 +224,14 @@ export default class BlogToBlogImporter extends PageImporter {
     }
 
     const lastDiv = document.querySelector('main > div:last-child');
-    if (topicsStr || productsStr) {
-      lastDiv.replaceWith(table);
+    if (lastDiv) {
+      if (topicsStr || productsStr) {
+        // remove p tags
+        main.querySelectorAll('main > div:last-child > p').forEach(p => p.remove());
+      }
+      lastDiv.parentNode.append(table);
     } else {
-      // don't replace non-topics div
-      lastDiv.parentNode.insertBefore(table, lastDiv.nextSibling);
+      throw new Error('Potential invalid document structure, no last div found');
     }
 
     return {
@@ -213,17 +245,16 @@ export default class BlogToBlogImporter extends PageImporter {
     const embeds = Array.from(main.querySelectorAll('.embed-internal'));
     for (let i = 0; i < embeds.length; i++) {
       const embed = embeds[i];
-      const clazz = Array.from(embed.classList.values()).reverse();
-      for (let j = 0; j < clazz.length; j++) {
-        const url = promoList[clazz[j]];
-        if (url) {
-          // found a matching class name - replace with table banner
-          embed.replaceWith(DOM.createTable([
+      const p = promoList[embed.className];
+      if (p) {
+        // found a matching class name - replace with table banner
+        embed.replaceWith(DOM.createTable([
             ['Banner'],
-            [`<a href="${url}">${url}</a>`],
-          ], document));
-          break;
-        }
+            [`<a href="${p}">${p}</a>`],
+        ], document));
+      } else {
+        embed.remove();
+        this.logger.warn(`No matching promotion found for internal embed "${embed.className}"`);
       }
     }
   }
@@ -244,17 +275,29 @@ export default class BlogToBlogImporter extends PageImporter {
     main.querySelectorAll('img').forEach((img) => {
       const { src } = img;
       if (src) {
-        const s = src.split('?')[0];
-        img.src = `${s}?auto=webp&format=pjpg&width=2000`;
+        if (
+          src.startsWith('/Users') ||
+          src.startsWith('https://blogsimages.adobe.com') ||
+          src.startsWith('http://blogsimages.adobe.com') ||
+          src.startsWith('https://theblogimages.adobe.com') ||
+          src.startsWith('http://theblogimages.adobe.com') ||
+          src.startsWith('http://blogs.adobe.com') ||
+          src.startsWith('https://blogs.adobe.com')) {
+          // remove broken images
+          img.remove();
+        } else {
+          const s = src.split('?')[0];
+          img.src = `${s}?auto=webp&format=pjpg&width=2000`;
+        }
       }
     });
   }
 
   rewriteLinks(main: Element, target: string): void {
     main.querySelectorAll('a').forEach((a) => {
-      const { href, innerHTML } = a;
+      a.href.replace('https://master--theblog--adobe.hlx.page/', 'https://blog.adobe.com/');
 
-      if (href.startsWith('https://blog.adobe.com/')) {
+      if (a.href.startsWith('https://blog.adobe.com/')) {
         a.href = a.href
           .toLowerCase()
           .replace('.html', '');
@@ -262,10 +305,10 @@ export default class BlogToBlogImporter extends PageImporter {
           .toLowerCase()
           .replace('.html', '');
       }
-      if (href.includes('hlx.blob.core')) {
-        const { pathname } = new URL(href);
+      if (a.href.includes('hlx.blob.core')) {
+        const { pathname } = new URL(a.href);
         const helixId = pathname.split('/')[2];
-        const type = href.includes('.mp4') ? 'mp4' : 'gif';
+        const type = a.href.includes('.mp4') ? 'mp4' : 'gif';
         a.href = `${target}/media_${helixId}.${type}`;
         a.innerHTML = `${target}/media_${helixId}.${type}`;
       }
@@ -293,6 +336,7 @@ export default class BlogToBlogImporter extends PageImporter {
     const head = document.querySelector('head');
     const main = document.querySelector('main');
 
+    this.captureCaptions(main, document);
     this.convertESIEmbedsToTable(main, document);
     this.convertOldStylePromotions(main, entryParams.promoList, document);
 
@@ -300,8 +344,8 @@ export default class BlogToBlogImporter extends PageImporter {
 
     this.renameBlocks(main, document);
     const banners = this.findBanners(main, document);
-    this.buildRecommendedArticlesTable(main, document);
     const meta = this.buildMetadataTable(head, main, document, entryParams);
+    this.buildRecommendedArticlesTable(main, document);
 
     this.rewriteLinks(main, entryParams.target);
     this.rewriteImgSrc(main);

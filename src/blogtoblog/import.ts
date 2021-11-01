@@ -17,30 +17,41 @@ import { BlobHandler } from '@adobe/helix-documents-support';
 
 import { config } from 'dotenv';
 import fetch from 'node-fetch';
+import { Response } from 'node-fetch';
+import fs from 'fs-extra';
+import Excel from 'exceljs';
+
+import { preview } from './utils';
 
 // tslint:disable: no-console
 
 config();
 
+const HLX_HOST = 'https://main--blog--adobe.hlx3.page';
 const TARGET_HOST = 'https://blog.adobe.com';
-const DATA_LIMIT = 100;
+const LANG = 'en';
+const DATA_LIMIT = 30000;
+const BATCH_SIZE = 20;
+const DO_PREVIEWS = true;
 
 const [argMin, argMax] = process.argv.slice(2);
 
 async function getPromoList() {
-  const req = await fetch(`${TARGET_HOST}/drafts/alex/import/promotions.json`);
-  const res = {};
-  if (req.ok) {
-    const json = await req.json();
-    json.data.forEach((e) => {
-      const className = `embed-internal-${e.file
-          .toLowerCase()
-          .substring(e.file.lastIndexOf('/')+1)
-          .replace(/-/gm, '')}`;
+  const path = `/${LANG}/drafts/import/promotions.json`;
+  if (DO_PREVIEWS) await preview(path);
+  const url = `${HLX_HOST}${path}`;
 
-      if (res[className]) throw new Error(`Duplicate entry for ${e.file}`);
-      res[className] = e.url;
+  const response = await fetch(url);
+  const res = {};
+  if (response.ok) {
+    const json = await response.json();
+    json.data.forEach((e) => {
+      if (!res[e.selector]) {
+        res[e.selector] = e.newPath;
+      }
     });
+  } else {
+    throw new Error(`Cound not find promotion mapping at ${url}`);
   }
   return res;
 }
@@ -54,28 +65,68 @@ function sectionData(data, min, max) {
 }
 
 async function getEntries() {
-  const req = await fetch(`${TARGET_HOST}/en/query-index.json?limit=256&offset=0`);
+  const path = `${TARGET_HOST}/${LANG}/query-index.json`;
   const res = [];
-  if (req.ok) {
-    const json = await req.json();
-    for (let i=0; i < Math.min(DATA_LIMIT, json.data.length); i++) {
-      const e = json.data[i];
-      try {
-        let path = e.path;
-        if (!path.startsWith('/')) {
-          path = `/${path}`;
+
+  const OFFSET = 256;
+  let offset = 0;
+  let response: Response;
+  let doContinue;
+  do {
+    doContinue = false;
+    const queryParams = new URLSearchParams();
+    queryParams.set('limit', `${OFFSET}`);
+    queryParams.set('offset', `${offset}`);
+
+    response = await fetch(`${path}?${queryParams.toString()}`);
+    console.log(response.url);
+
+    if (response.ok) {
+      const json = await response.json();
+
+      for (let i=0; i < json.data.length; i++) {
+        const e = json.data[i];
+        try {
+          let p = e.path;
+          if (!p.startsWith('/')) {
+            p = `/${p}`;
+          }
+          e.URL = `${TARGET_HOST}${p}`;
+          res.push(e);
+        } catch(error) {
+          // ignore rows with invalid URL
+          console.warn(`Entries - ignoring ${e.path}.`);
         }
-        e.URL = `${TARGET_HOST}${path}`;
-        res.push(e);
-      } catch(error) {
-        // ignore rows with invalid URL
       }
+
+      doContinue = json.data.length === OFFSET;
     }
-  }
+
+    offset += OFFSET;
+  } while (doContinue);
+
   return res;
 }
 
+async function getTaxonomy() {
+  const path = `/${LANG}/topics/taxonomy.json`;
+  if (DO_PREVIEWS) await preview(path);
+  const res = await fetch(`${HLX_HOST}/${path}`);
+  const json = await res.json();
+
+  const taxonomy = {};
+
+  json.data.forEach((t) => {
+    const name = t['Level 3'] || t['Level 2'] || t['Level 1'];
+    t.isVisible = t.Hidden === '';
+    taxonomy[name] = t;
+  });
+
+  return taxonomy;
+}
+
 async function main() {
+  const startTime = new Date().getTime();
   // tslint:disable-next-line: no-empty
   const noop = () => {};
 
@@ -111,21 +162,51 @@ async function main() {
     logger: customLogger,
   });
 
-  let output = `source;path;file;lang;author;date;tags;banners;\n`;
-  await Utils.asyncForEach(entries, async (e) => {
-    try {
-      const resources = await importer.import(e.URL, { target: TARGET_HOST, allEntries, promoList: promoListJSON });
+  const taxonomy = await getTaxonomy();
 
-      resources.forEach((entry) => {
-        console.log(`${entry.source} -> ${entry.docx}`);
-        output += `${entry.source};${entry.extra.path};${entry.docx};${entry.extra.lang};${entry.extra.author};${entry.extra.date};${entry.extra.tags};${entry.extra.banners}\n`;
-      });
-      await handler.put('importer_output.csv', output);
-    } catch(error) {
-      console.error(`Could not import ${e.URL}`, error.message, error.stack);
+  let output = `source;path;file;lang;author;date;tags;banners;\n`;
+  let promises = [];
+  let count = 0;
+  await Utils.asyncForEach(entries, async (e, index) => {
+    promises.push(new Promise(async (resolve, reject) => {
+      try {
+        const resources = await importer.import(e.URL, { target: TARGET_HOST, allEntries, promoList: promoListJSON, taxonomy });
+
+        resources.forEach((entry) => {
+          console.log(`${index}: ${entry.source} -> ${entry.docx || entry.md}`);
+          output += `${entry.source};${entry.extra.path};${entry.docx || entry.md};${entry.extra.lang};${entry.extra.author};${entry.extra.date};${entry.extra.tags};${entry.extra.banners}\n`;
+          count++;
+        });
+      } catch(error) {
+        console.error(`Could not import ${e.URL}`, error.message, error.stack);
+      }
+      resolve(true);
+    }));
+
+    if (promises.length === BATCH_SIZE) {
+      await Promise.all(promises);
+      promises = [];
+      await handler.put(`${LANG}_importer_output.csv`, output);
     }
   });
-  console.log('Done');
+
+  if (promises.length > 0) {
+    await Promise.all(promises);
+    await handler.put(`${LANG}_importer_output.csv`, output);
+  }
+
+  console.log(`Entries - found ${allEntries.length} in index`);
+  console.log(`Entries - after filtering: ${entries.length}`);
+  console.log(`Entries - imported ${count}.`);
+
+  const workbook = new Excel.Workbook();
+  const sheet = workbook.addWorksheet('helix-default');
+  const data = output.split('\n').map((row: string) => row.split(';'));
+  sheet.addRows(data);
+  const dir = `output/blogtoblog/${LANG}/drafts/import/`;
+  await fs.ensureDir(dir);
+  await workbook.xlsx.writeFile(`${dir}/output.xlsx`);
+  console.log(`Done in ${(new Date().getTime()-startTime)/1000}s.`);
 }
 
 main();
