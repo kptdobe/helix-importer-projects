@@ -26,6 +26,21 @@ export default class BlogToBlogImporter extends PageImporter {
     return fetch(url);
   }
 
+  captureCaptions(main: Element, document: Document): void {
+    main.querySelectorAll(':scope p em').forEach((em) => {
+      // "p em" -> convert to caption block if previous is an embed
+      const parent = em.parentElement;
+      const previous = parent.previousElementSibling;
+      if (previous && previous.classList.contains('block-embed')) {
+        const block = document.createElement('div');
+        block.classList.add('caption');
+        block.innerHTML = '<div><div></div></div>';
+        block.firstChild.firstChild.append(em);
+        parent.replaceWith(block);
+      }
+    });
+  }
+
   renameBlocks(element: Element, document: Document): void {
     element.querySelectorAll('main > div > table th').forEach((th) => {
       const blockName = th.innerHTML.trim().toLowerCase();
@@ -321,6 +336,7 @@ export default class BlogToBlogImporter extends PageImporter {
     const head = document.querySelector('head');
     const main = document.querySelector('main');
 
+    this.captureCaptions(main, document);
     this.convertESIEmbedsToTable(main, document);
     this.convertOldStylePromotions(main, entryParams.promoList, document);
 
