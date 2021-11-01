@@ -4,6 +4,8 @@
   // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
   "version": "0.2.0",
   "configurations": [
+  
+
     {
       "name": "XD: import",
       "program": "${workspaceFolder}/src/xd/import.ts",
@@ -317,6 +319,16 @@
     },{
       "name": "Blog To Blog: generate promotions",
       "program": "${workspaceFolder}/src/blogtoblog/cli/promotions.ts",
+      "request": "launch",
+      "skipFiles": [
+        "<node_internals>/**"
+      ],
+      "type": "node",
+      "preLaunchTask": "tsc: build - tsconfig.json",
+      "outFiles": ["${workspaceFolder}/build/**/*.js"]
+    },{
+      "name": "Blog To Blog: generate authors",
+      "program": "${workspaceFolder}/src/blogtoblog/cli/authors.ts",
       "request": "launch",
       "skipFiles": [
         "<node_internals>/**"
