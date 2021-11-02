@@ -39,6 +39,51 @@ export default class BlogToBlogImporter extends PageImporter {
         parent.replaceWith(block);
       }
     });
+
+    main.querySelectorAll('div.caption').forEach((caption) => {
+      let em = caption.querySelector('em');
+      const previous = caption.previousElementSibling;
+      const div = caption.firstElementChild?.firstElementChild;
+      if (!em && div) {
+        const p = document.createElement('p');
+        em = document.createElement('em');
+        em.innerHTML = div.innerHTML;
+        p.append(em);
+        div.innerHTML = '';
+        div.append(p);
+      } else {
+        // empty caption
+        caption.remove();
+      }
+
+      if (em) {
+        if (previous &&
+          (previous.classList.contains('block-embed') ||
+          previous.classList.contains('animation') ||
+          previous.classList.contains('image') ||
+          previous.classList.contains('infographic') ||
+          previous.classList.contains('video'))) {
+          let where = previous.querySelector('a') as any;
+          if (!where) {
+            where = previous.querySelector('picture');
+          }
+          if (!where) {
+            throw new Error('Do not know where to position the caption');
+          }
+          const span = document.createElement('span');
+          where.parentElement.append(span);
+          const p = document.createElement('p');
+          p.append(where);
+          const p2 = document.createElement('p');
+          p2.append(em);
+          span.append(p, p2);
+          caption.remove();
+        } else {
+          caption.replaceWith(em.parentElement);
+          // throw new Error('Caption after unknow block');
+        }
+      }
+    });
   }
 
   renameBlocks(element: Element, document: Document): void {
