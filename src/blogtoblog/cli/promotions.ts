@@ -9,8 +9,8 @@ config();
 const PROMOTIONS_PATH = '/promotions';
 
 async function main(lang) {
-  const entries = await fg('**/*.{docx,,md}', {
-    cwd: `${process.env.BLOGTOBLOG_SRC_FOLDER}/${lang}${PROMOTIONS_PATH}`,
+  const entries = await fg('**/*.{docx,md}', {
+    cwd: `${process.env.BLOGTOBLOG_THEBLOG_LOCAL_FOLDER}/${lang}${PROMOTIONS_PATH}`,
   });
 
   const rows = [];

@@ -305,6 +305,16 @@
       "preLaunchTask": "tsc: build - tsconfig.json",
       "outFiles": ["${workspaceFolder}/build/**/*.js"]
     },{
+      "name": "Blog To Blog: preview and publish from local path",
+      "program": "${workspaceFolder}/src/blogtoblog/cli/pplocal.ts",
+      "request": "launch",
+      "skipFiles": [
+        "<node_internals>/**"
+      ],
+      "type": "node",
+      "preLaunchTask": "tsc: build - tsconfig.json",
+      "outFiles": ["${workspaceFolder}/build/**/*.js"]
+    },{
       "name": "Blog To Blog: site load prerequisites",
       "program": "${workspaceFolder}/src/blogtoblog/cli/sitepreload.ts",
       "request": "launch",
