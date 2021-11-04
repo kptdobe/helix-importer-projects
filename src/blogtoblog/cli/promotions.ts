@@ -8,17 +8,12 @@ config();
 
 const PROMOTIONS_PATH = '/promotions';
 
-async function main(lang) {
+export async function getPromotions(lang) {
   const entries = await fg('**/*.{docx,md}', {
     cwd: `${process.env.BLOGTOBLOG_THEBLOG_LOCAL_FOLDER}/${lang}${PROMOTIONS_PATH}`,
   });
 
-  const rows = [];
-  rows.push([
-    'currentPath',
-    'newPath',
-    'selector',
-  ]);
+  const promotions = [];
   entries.forEach((e) => {
     const currentPath = `${PROMOTIONS_PATH}/${e.split('.')[0]}`;
 
@@ -31,14 +26,31 @@ async function main(lang) {
     const selector = `embed embed-internal embed-internal-${selectorBasename} embed-internal-${selectorDirname}`;
 
     const newPath = currentPath.toLowerCase();
-
-    // tslint:disable-next-line: no-console
-    // console.log(currentPath, newPath, selector);
-
-    rows.push([
+    promotions.push({
       currentPath,
       newPath,
       selector,
+    });
+  });
+
+  return promotions;
+}
+
+async function main(lang) {
+  const promotions = await getPromotions(lang);
+
+  const rows = [];
+  rows.push([
+    'currentPath',
+    'newPath',
+    'selector',
+  ]);
+
+  promotions.forEach((p) => {
+    rows.push([
+      p.currentPath,
+      p.newPath,
+      p.selector,
     ]);
   });
 
@@ -50,4 +62,4 @@ async function main(lang) {
   await workbook.xlsx.writeFile(`${dir}/promotions.xlsx`);
 }
 
-siteconfig.LOCALES.forEach(l => main(l));
+// siteconfig.LOCALES.forEach(l => main(l));

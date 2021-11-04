@@ -320,19 +320,27 @@ export default class BlogToBlogImporter extends PageImporter {
     main.querySelectorAll('img').forEach((img) => {
       const { src } = img;
       if (src) {
-        if (
-          src.startsWith('/Users') ||
+        if ((
+          !src.startsWith('https://') &&
+          !src.startsWith('http://') &&
+          !src.startsWith('./media_')) ||
           src.startsWith('https://blogsimages.adobe.com') ||
           src.startsWith('http://blogsimages.adobe.com') ||
           src.startsWith('https://theblogimages.adobe.com') ||
           src.startsWith('http://theblogimages.adobe.com') ||
+          src.startsWith('https://rum.hlx3.page') ||
           src.startsWith('http://blogs.adobe.com') ||
           src.startsWith('https://blogs.adobe.com')) {
           // remove broken images
+          if (!src.startsWith('https://blogs.adobe.com')) {
+            console.log(`Removing image ${src}`);
+          }
           img.remove();
         } else {
-          const s = src.split('?')[0];
-          img.src = `${s}?auto=webp&format=pjpg&width=2000`;
+          if (src.startsWith('https://blog.adobe.com') || src.startsWith('./media_')) {
+            const s = src.split('?')[0];
+            img.src = `${s}?auto=webp&format=pjpg&width=2000`;
+          }
         }
       }
     });
@@ -343,10 +351,12 @@ export default class BlogToBlogImporter extends PageImporter {
       a.href.replace('https://master--theblog--adobe.hlx.page/', 'https://blog.adobe.com/');
 
       if (a.href.startsWith('https://blog.adobe.com/')) {
-        a.href = a.href
+        if (a.href === a.innerHTML) {
+          a.innerHTML = a.innerHTML
           .toLowerCase()
           .replace('.html', '');
-        a.innerHTML = a.innerHTML
+        }
+        a.href = a.href
           .toLowerCase()
           .replace('.html', '');
       }
@@ -372,6 +382,19 @@ export default class BlogToBlogImporter extends PageImporter {
     return name;
   }
 
+  removeEmptyDivs(element: Element) {
+    element.querySelectorAll('div:empty').forEach((div) => {
+      div.remove();
+    });
+  }
+
+  cleanupDivs(element: Element) {
+    // weird case with JP characters ending up in class names and breaking everything
+    element.querySelectorAll('div[class*="----"').forEach((div) => {
+      div.remove();
+    });
+  }
+
   async process(document: Document, url: string, entryParams?: any): Promise<PageImporterResource[]> {
     DOMUtils.remove(document, [
       'header',
@@ -381,6 +404,8 @@ export default class BlogToBlogImporter extends PageImporter {
     const head = document.querySelector('head');
     const main = document.querySelector('main');
 
+    this.removeEmptyDivs(main);
+    this.cleanupDivs(main);
     this.captureCaptions(main, document);
     this.convertESIEmbedsToTable(main, document);
     this.convertOldStylePromotions(main, entryParams.promoList, document);

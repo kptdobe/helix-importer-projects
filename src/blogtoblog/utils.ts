@@ -1,3 +1,4 @@
+import fg from 'fast-glob';
 import fetch from 'node-fetch';
 import config from './config';
 
@@ -5,9 +6,9 @@ import { Utils } from '@adobe/helix-importer';
 
 // tslint:disable: no-console
 
-export async function preview(path, index = 0) {
+export async function preview(path, index = 0, total?) {
   const url = `https://admin.hlx3.page/preview/${config.OWNER}/${config.REPO}/${config.BRANCH}${path}`;
-  console.log(`${index} - Previewing ${url}`);
+  console.log(`${index}${total ? `/${total}`: ''} - Previewing ${url}`);
   const r = await fetch(url, { method: 'POST' });
   if (!r.ok) {
     console.error(`Preview problem - something wrong with ${url} - ${r.headers.get('x-error')}`);
@@ -16,9 +17,9 @@ export async function preview(path, index = 0) {
   return true;
 }
 
-export async function publish(path, index = 0) {
+export async function publish(path, index = 0, total?) {
   const url = `https://admin.hlx3.page/live/${config.OWNER}/${config.REPO}/${config.BRANCH}${path}`;
-  console.log(`${index} - Publishing ${url}`);
+  console.log(`${index}${total ? `/${total}`: ''} - Publishing ${url}`);
   const r = await fetch(url, { method: 'POST' });
   if (!r.ok) {
     console.error(`Publish problem - something wrong with ${url} - ${r.headers.get('x-error')}`);
@@ -27,9 +28,9 @@ export async function publish(path, index = 0) {
   return true;
 }
 
-export async function pp(path, index = 0) {
-  if (await preview(path, index)) {
-    return await publish(path, index);
+export async function pp(path, index = 0, total?) {
+  if (await preview(path, index, total)) {
+    return await publish(path, index, total);
   }
   return false;
 }
@@ -40,7 +41,7 @@ function delay(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-export async function batchPreviewPublish(paths, startIndex = -1) {
+export async function batchPreviewPublish(paths, startIndex = -1, doReject = true, doPublish = true) {
   let promises = [];
   let total = 0;
   await Utils.asyncForEach(paths, async (path, index) => {
@@ -49,7 +50,11 @@ export async function batchPreviewPublish(paths, startIndex = -1) {
         let success = false;
         let retry = 0;
         do {
-          success = await pp(path, index);
+          if (doPublish) {
+            success = await pp(path, index, paths.length);
+          } else {
+            success = await preview(path, index, paths.length);
+          }
           if (!success) {
             console.log(`Retrying ${path}...`);
             // pause 1s to let the system cool down (maybe...)
@@ -61,8 +66,12 @@ export async function batchPreviewPublish(paths, startIndex = -1) {
         } while (retry < 3);
 
         if (!success) {
-          console.error(`Could not preview / publish ${path}...`);
-          reject(false);
+          console.error(`Could not preview / publish ${path}`);
+          if (doReject) {
+            reject(false);
+          } else {
+            resolve(false);
+          }
         } else {
           total += 1;
           resolve(true);
@@ -80,4 +89,46 @@ export async function batchPreviewPublish(paths, startIndex = -1) {
   }
 
   return total;
+}
+
+export function sanitize(name) {
+  return name
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-|-$/g, '');
+}
+
+export async function getPathsFromFolder(root, pathname) {
+  const cwd = `${root}${pathname}`;
+  const entries = await fg('**/*.{docx,md}', {
+    cwd,
+  });
+
+  const IGNORED = [
+    'document',
+    'documento',
+    'dokument',
+  ];
+
+  const rows = [];
+
+  entries.forEach((e) => {
+    const noExt = e.substring(0, e.lastIndexOf('.'));
+    const folders = noExt.substring(0, noExt.lastIndexOf('/'));
+    const filename = sanitize(noExt.replace(`${folders}/`, '').toLowerCase());
+    const path = `${pathname}/${folders}/${filename}`;
+
+    if (!IGNORED.includes(filename)) {
+      const src = `/${pathname}/${e}`;
+      rows.push({
+        src,
+        path,
+      });
+    } else {
+      console.warn('ignoring', path);
+    }
+  });
+  return rows;
 }

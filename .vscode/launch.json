@@ -335,6 +335,27 @@
       "preLaunchTask": "tsc: build - tsconfig.json",
       "outFiles": ["${workspaceFolder}/build/**/*.js"]
     },{
+      "name": "Blog To Blog: generate index",
+      "program": "${workspaceFolder}/src/blogtoblog/cli/generateIndex.ts",
+      "request": "launch",
+      "skipFiles": [
+        "<node_internals>/**"
+      ],
+      "type": "node",
+      "preLaunchTask": "tsc: build - tsconfig.json",
+      "outFiles": ["${workspaceFolder}/build/**/*.js"]
+    },{
+      "name": "Blog To Blog: copy diff",
+      "program": "${workspaceFolder}/src/blogtoblog/cli/copydiff.ts",
+      "request": "launch",
+      "skipFiles": [
+        "<node_internals>/**"
+      ],
+      "type": "node",
+      "preLaunchTask": "tsc: build - tsconfig.json",
+      "outFiles": ["${workspaceFolder}/build/**/*.js"],
+      "cwd": "${workspaceFolder}"
+    },{
       "name": "Blog To Business: import",
       "program": "${workspaceFolder}/src/blogtobusiness/import.ts",
       "request": "launch",

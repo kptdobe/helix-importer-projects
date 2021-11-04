@@ -17,11 +17,11 @@ import { BlobHandler } from '@adobe/helix-documents-support';
 
 import { config } from 'dotenv';
 import fetch from 'node-fetch';
-import { Response } from 'node-fetch';
 import fs from 'fs-extra';
 import Excel from 'exceljs';
 
-import { preview } from './utils';
+import { preview, getPathsFromFolder } from './utils';
+import { getPromotions } from './cli/promotions';
 
 // tslint:disable: no-console
 
@@ -29,30 +29,20 @@ config();
 
 const HLX_HOST = 'https://main--blog--adobe.hlx3.page';
 const TARGET_HOST = 'https://blog.adobe.com';
-const LANG = 'en';
-const DATA_LIMIT = 30000;
+const LANG = 'jp';
 const BATCH_SIZE = 20;
-const DO_PREVIEWS = true;
+const DO_PREVIEWS = false;
 
 const [argMin, argMax] = process.argv.slice(2);
 
 async function getPromoList() {
-  const path = `/${LANG}/drafts/import/promotions.json`;
-  if (DO_PREVIEWS) await preview(path);
-  const url = `${HLX_HOST}${path}`;
-
-  const response = await fetch(url);
+  const promotions = await getPromotions(LANG);
   const res = {};
-  if (response.ok) {
-    const json = await response.json();
-    json.data.forEach((e) => {
-      if (!res[e.selector]) {
-        res[e.selector] = e.newPath;
-      }
-    });
-  } else {
-    throw new Error(`Cound not find promotion mapping at ${url}`);
-  }
+  promotions.forEach((e) => {
+    if (!res[e.selector]) {
+      res[e.selector] = e.newPath;
+    }
+  });
   return res;
 }
 
@@ -65,46 +55,13 @@ function sectionData(data, min, max) {
 }
 
 async function getEntries() {
-  const path = `${TARGET_HOST}/${LANG}/query-index.json`;
+  const files = await getPathsFromFolder(process.env.BLOGTOBLOG_THEBLOG_LOCAL_FOLDER, `/${LANG}/publish`);
   const res = [];
-
-  const OFFSET = 256;
-  let offset = 0;
-  let response: Response;
-  let doContinue;
-  do {
-    doContinue = false;
-    const queryParams = new URLSearchParams();
-    queryParams.set('limit', `${OFFSET}`);
-    queryParams.set('offset', `${offset}`);
-
-    response = await fetch(`${path}?${queryParams.toString()}`);
-    console.log(response.url);
-
-    if (response.ok) {
-      const json = await response.json();
-
-      for (let i=0; i < json.data.length; i++) {
-        const e = json.data[i];
-        try {
-          let p = e.path;
-          if (!p.startsWith('/')) {
-            p = `/${p}`;
-          }
-          e.URL = `${TARGET_HOST}${p}`;
-          res.push(e);
-        } catch(error) {
-          // ignore rows with invalid URL
-          console.warn(`Entries - ignoring ${e.path}.`);
-        }
-      }
-
-      doContinue = json.data.length === OFFSET;
-    }
-
-    offset += OFFSET;
-  } while (doContinue);
-
+  files.forEach((e) => {
+    res.push({
+      URL: `${TARGET_HOST}${e.path}.html`,
+    });
+  });
   return res;
 }
 
@@ -155,7 +112,7 @@ async function main() {
   const importer = new BlogToBlogImporter({
     storageHandler: handler,
     blobHandler: blob,
-    cache: '.cache/blogadobecom',
+    cache: `.cache/blogadobecom/${LANG}`,
     skipAssetsUpload: true,
     // skipDocxConversion: true,
     skipMDFileCreation: true,
@@ -173,7 +130,7 @@ async function main() {
         const resources = await importer.import(e.URL, { target: TARGET_HOST, allEntries, promoList: promoListJSON, taxonomy });
 
         resources.forEach((entry) => {
-          console.log(`${index}: ${entry.source} -> ${entry.docx || entry.md}`);
+          console.log(`${index}/${entries.length}: ${entry.source} -> ${entry.docx || entry.md}`);
           output += `${entry.source};${entry.extra.path};${entry.docx || entry.md};${entry.extra.lang};${entry.extra.author};${entry.extra.date};${entry.extra.tags};${entry.extra.banners}\n`;
           count++;
         });
