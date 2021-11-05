@@ -6,21 +6,21 @@ import siteconfig from '../config';
 import { config } from 'dotenv';
 config();
 
-const AUTHORS_PATH = '/authors';
+const TOPICS_PATH = '/tags';
 
-async function main(lang) {
+async function main() {
   const entries = await fg('**/*.{docx,md}', {
-    cwd: `${process.env.BLOGTOBLOG_SRC_FOLDER}/${lang}${AUTHORS_PATH}`,
+    cwd: `${process.env.BLOGTOBLOG_SRC_FOLDER}/blog${TOPICS_PATH}`,
   });
 
   const rows = [];
   rows.push([
     'currentPath',
     'newPath',
-    'name',
+    'topic',
   ]);
   entries.forEach((e) => {
-    const currentPath = `${AUTHORS_PATH}/${e.split('.')[0]}`;
+    const currentPath = `${TOPICS_PATH}/${e.split('.')[0]}`;
 
     const [filename, dirname] = currentPath.split('/').reverse();
     const [basename] = filename.split('.');
@@ -28,31 +28,27 @@ async function main(lang) {
     const selectorBasename = (basename || '').toLowerCase().replace(/[^a-z0-9]/g, '');
     const selectorDirname = (dirname || '').toLowerCase().replace(/[^a-z0-9]/g, '');
 
-    const name = e.split('.')[0].toLowerCase();
+    const topic = e.split('.')[0].toLowerCase();
 
-    const newPath = AUTHORS_PATH + '/' + e.split('.')[0]
-      .toLowerCase()
-      .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '')
-      .replace(/[^a-z0-9]+/g, '-')
-      .replace(/^-|-$/g, '');
+    const newPath = currentPath.replace(/ /g, '-').toLowerCase();
 
     // tslint:disable-next-line: no-console
-    // console.log(currentPath, newPath, name);
+    // console.log(currentPath, newPath, topic);
 
     rows.push([
       currentPath,
       newPath,
-      name,
+      topic,
     ]);
   });
 
   const workbook = new Excel.Workbook();
   const sheet = workbook.addWorksheet('helix-default');
   sheet.addRows(rows);
-  const dir = `output/blogtoblog/${lang}/drafts/import/`;
+  const dir = `output/blogtobusiness/drafts/import/`;
   await fs.ensureDir(dir);
-  await workbook.xlsx.writeFile(`${dir}/authors.xlsx`);
+  await workbook.xlsx.writeFile(`${dir}/tags.xlsx`);
 }
 
-siteconfig.LOCALES.forEach(l => main(l));
+// siteconfig.LOCALES.forEach(l => main(l));
+main();
