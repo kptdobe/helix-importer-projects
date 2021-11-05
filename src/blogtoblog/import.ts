@@ -29,7 +29,7 @@ config();
 
 const HLX_HOST = 'https://main--blog--adobe.hlx3.page';
 const TARGET_HOST = 'https://blog.adobe.com';
-const LANG = 'jp';
+const LANG = 'it';
 const BATCH_SIZE = 20;
 const DO_PREVIEWS = false;
 
@@ -106,7 +106,26 @@ async function main() {
 
   const promoListJSON = await getPromoList();
 
-  const allEntries = await getEntries();
+  // const allEntries = await getEntries();
+  const allEntries = [{
+    URL: 'https://blog.adobe.com/it/publish/2021/10/27/disponibili-utenti-photoshop-dettagli-relativi-origine-contenuti-digitali-grazie-a-content-authenticity-initiative-1.html',
+  }, {
+    URL: 'https://blog.adobe.com/it/publish/2021/10/28/spazi-per-la-collaborazione-grazie-creative-cloud.html',
+  }, {
+    URL: 'https://blog.adobe.com/it/publish/2021/10/26/adobe-max-2021-release-fotografia.html',
+  }, {
+    URL: 'https://blog.adobe.com/it/publish/2021/10/26/adobe-max-2021-tutte-le-novita.html',
+  }, {
+    URL: 'https://blog.adobe.com/it/publish/2021/10/26/disponibili-utenti-photoshop-dettagli-relativi-origine-contenuti-digitali-grazie-a-content-authenticity-initiative.html',
+  }, {
+    URL: 'https://blog.adobe.com/it/publish/2021/10/26/dva-max-2021-novita-sviluppi-futuro-app-editing-video-adobe.html',
+  }, {
+    URL: 'https://blog.adobe.com/it/publish/2021/10/26/ecosistema-photoshop-si-arricchisce-nuovi-elementi-in-occasione-di-adobe-max.html',
+  }, {
+    URL: 'https://blog.adobe.com/it/publish/2021/09/07/aperte-registrazioni-adobe-max-2021-evento-dedicato-creativita.html',
+  }, {
+    URL: 'https://blog.adobe.com/it/publish/2021/10/15/adobe-photoshop-elements-2022-premiere-elements-2022.html',
+  }];
   const entries = sectionData(allEntries, argMin, argMax);
 
   const importer = new BlogToBlogImporter({

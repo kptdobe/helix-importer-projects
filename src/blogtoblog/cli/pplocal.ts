@@ -6,7 +6,7 @@ config();
 
 // tslint:disable: no-console
 
-const PATH_TO_PUBLISH = '/en/publish';
+const PATH_TO_PUBLISH = '/br/authors';
 
 async function main() {
   const cwd = `${process.env.BLOGTOBLOG_BLOG_LOCAL_FOLDER}${PATH_TO_PUBLISH}`;
@@ -20,7 +20,7 @@ async function main() {
     paths.push(path);
   });
 
-  const total = await batchPreviewPublish(paths, -1, false, false);
+  const total = await batchPreviewPublish(paths, -1, false);
   console.log(`Previewed and published ${total} / ${entries.length} in ${cwd}`);
 }
 

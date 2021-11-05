@@ -345,8 +345,30 @@
       "preLaunchTask": "tsc: build - tsconfig.json",
       "outFiles": ["${workspaceFolder}/build/**/*.js"]
     },{
-      "name": "Blog To Blog: copy diff",
-      "program": "${workspaceFolder}/src/blogtoblog/cli/copydiff.ts",
+      "name": "Blog To Blog: copy and preview",
+      "program": "${workspaceFolder}/src/blogtoblog/cli/copypreview.ts",
+      "request": "launch",
+      "skipFiles": [
+        "<node_internals>/**"
+      ],
+      "type": "node",
+      "preLaunchTask": "tsc: build - tsconfig.json",
+      "outFiles": ["${workspaceFolder}/build/**/*.js"],
+      "cwd": "${workspaceFolder}"
+     },{
+      "name": "Blog To Blog: verify",
+      "program": "${workspaceFolder}/src/blogtoblog/cli/verify.ts",
+      "request": "launch",
+      "skipFiles": [
+        "<node_internals>/**"
+      ],
+      "type": "node",
+      "preLaunchTask": "tsc: build - tsconfig.json",
+      "outFiles": ["${workspaceFolder}/build/**/*.js"],
+      "cwd": "${workspaceFolder}"
+    },{
+      "name": "Blog To Blog: find modified",
+      "program": "${workspaceFolder}/src/blogtoblog/cli/findModified.ts",
       "request": "launch",
       "skipFiles": [
         "<node_internals>/**"

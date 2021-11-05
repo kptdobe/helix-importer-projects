@@ -37,7 +37,7 @@ export async function pp(path, index = 0, total?) {
 
 const BATCH_SIZE = 5;
 
-function delay(ms) {
+export async function delay(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
