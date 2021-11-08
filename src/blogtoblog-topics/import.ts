@@ -22,7 +22,7 @@ import fetch from 'node-fetch';
 
 config();
 
-const LANG = 'br';
+const LANG = 'en';
 
 const [argMin, argMax] = process.argv.slice(2);
 

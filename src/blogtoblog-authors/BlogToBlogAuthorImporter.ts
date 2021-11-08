@@ -18,9 +18,6 @@ import path from 'path';
 import { Response } from 'node-fetch';
 import { Document } from 'jsdom';
 
-import Blocks from '../utils/Blocks';
-import DOM from '../utils/DOM';
-
 export default class BlogToBlogImporter extends PageImporter {
   async fetch(url): Promise<Response> {
     return fetch(url);
@@ -79,21 +76,6 @@ export default class BlogToBlogImporter extends PageImporter {
     row.append(keyTD, nameTD);
     table.append(head, row);
 
-    // if (entryParams.target !== entryParams.transform) {
-    //   const authorUrlRow = document.createElement('tr');
-    //   const authorUrlKey = document.createElement('td');
-    //   authorUrlKey.textContent = 'Author URL';
-    //   const authorURLTD = document.createElement('td');
-    //   const authorUrl = document.createElement('a');
-    //   authorUrl.href = entryParams.transform;
-    //   authorUrl.textContent = entryParams.transform;
-    //   authorURLTD.append(authorUrl);
-    //   authorUrlRow.append(authorUrlKey, authorURLTD);
-    //   table.append(authorUrlRow);
-    // }
-    // const lineBreak = document.createElement('p');
-    // lineBreak.textContent = '---';
-    // main.append(lineBreak, table);
     main.append(table);
   }
 

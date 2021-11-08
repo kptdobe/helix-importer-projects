@@ -18,7 +18,7 @@ import { BlobHandler } from '@adobe/helix-documents-support';
 import { config } from 'dotenv';
 import fetch from 'node-fetch';
 
-// tslint:disable: no-console
+// tslint:disable no-console
 
 config();
 
@@ -41,7 +41,7 @@ async function getAuthors() {
 }
 
 async function main() {
-  const handler = new FSHandler('output/blogtoblog-authors', console);
+  const handler = new FSHandler('output/blogtobusiness-authors', console);
   // tslint:disable-next-line: no-empty
   const noop = () => {};
   const blob = new BlobHandler({
@@ -68,22 +68,19 @@ async function main() {
     // skipMDFileCreation: true,
   });
 
-  // let output = `source;file;lang;author;date;category;topics;tags;banners;\n`;
+  let output = `source;file;lang;author;date;category;topics;tags;banners;\n`;
   await Utils.asyncForEach(authors, async (e) => {
     try {
-
-      console.log(e.author);
       const cleanName = e.author.toLowerCase().split(' ').join('-');
       const url = `https://blog.adobe.com/en/authors/${cleanName}`;
-      console.log(url);
 
       const resources = await importer.import(url);
 
-      // resources.forEach((entry) => {
-      //   console.log(`${entry.source} -> ${entry.file}`);
-      //   output += `${entry.source};${entry.file};${entry.extra.lang};${entry.extra.author};${entry.extra.date};${entry.extra.category};${entry.extra.topics};${entry.extra.tags};${entry.extra.banners}\n`;
-      // });
-      // await handler.put('banners-import_output.csv', output);
+      resources.forEach((entry) => {
+        console.log(`${entry.source} -> ${entry.file}`);
+        output += `${entry.source};${entry.file};${entry.extra.lang};${entry.extra.author};${entry.extra.date};${entry.extra.category};${entry.extra.topics};${entry.extra.tags};${entry.extra.banners}\n`;
+      });
+      await handler.put('banners-import_output.csv', output);
     } catch(error) {
       console.error(`Could not import ${e.author}`);
     }

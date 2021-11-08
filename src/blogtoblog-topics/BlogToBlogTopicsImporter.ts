@@ -39,8 +39,26 @@ export default class BlogToBlogImporter extends PageImporter {
   rewriteImgSrc(main: Element): void {
     main.querySelectorAll('img').forEach((img) => {
       const { src } = img;
-      if (src && src.indexOf('?') !== -1) {
-        img.src = src.split('?')[0];
+      if (src) {
+        if ((
+          !src.startsWith('https://') &&
+          !src.startsWith('http://') &&
+          !src.startsWith('./media_')) ||
+          src.startsWith('https://blogsimages.adobe.com') ||
+          src.startsWith('http://blogsimages.adobe.com') ||
+          src.startsWith('https://theblogimages.adobe.com') ||
+          src.startsWith('http://theblogimages.adobe.com') ||
+          src.startsWith('https://rum.hlx3.page') ||
+          src.startsWith('http://blogs.adobe.com') ||
+          src.startsWith('https://blogs.adobe.com')) {
+          // remove "broken" images
+          img.remove();
+        } else {
+          if (src.startsWith('https://blog.adobe.com') || src.startsWith('./media_')) {
+            const s = src.split('?')[0];
+            img.src = `${s}?auto=webp&format=pjpg&width=2000`;
+          }
+        }
       }
     });
   }
@@ -141,6 +159,7 @@ export default class BlogToBlogImporter extends PageImporter {
 
     const main = document.querySelector('main');
 
+    this.rewriteImgSrc(main);
     this.updateHeadings(main, document);
     this.buildRecommendedArticlesTable(main, document);
     this.buildArticleFeed(main, document);

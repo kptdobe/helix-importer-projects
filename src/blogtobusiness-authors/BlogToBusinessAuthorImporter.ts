@@ -18,9 +18,6 @@ import path from 'path';
 import { Response } from 'node-fetch';
 import { Document } from 'jsdom';
 
-import Blocks from '../utils/Blocks';
-import DOM from '../utils/DOM';
-
 export default class BlogToBlogImporter extends PageImporter {
   async fetch(url): Promise<Response> {
     return fetch(url);
@@ -74,13 +71,36 @@ export default class BlogToBlogImporter extends PageImporter {
     });
   }
 
-  async process(document: Document, url: string, entryParams?: any): Promise<PageImporterResource[]> {
+  buildArticleFeed(main: Element, document: Document): void {
+    const table = document.createElement('table');
+
+    const head = document.createElement('tr');
+    const blockTH = document.createElement('th');
+    blockTH.textContent = 'Article Feed';
+    head.append(blockTH);
+
+    const row = document.createElement('tr');
+    const keyTD = document.createElement('td');
+    keyTD.textContent = 'Author';
+    const nameTD = document.createElement('td');
+    nameTD.textContent = main.querySelector('h1').textContent;
+    row.append(keyTD, nameTD);
+    table.append(head, row);
+
+    main.append(table);
+  }
+
+  async process(document: Document, url: string): Promise<PageImporterResource[]> {
     DOMUtils.remove(document, [
       'header',
       'footer',
     ]);
 
     const main = document.querySelector('main');
+
+    this.rewriteImgSrc(main);
+    this.updateHeadings(main, document);
+    this.buildArticleFeed(main, document);
 
     const u = new URL(url);
     const p = path.parse(u.pathname);

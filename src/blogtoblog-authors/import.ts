@@ -18,11 +18,11 @@ import { BlobHandler } from '@adobe/helix-documents-support';
 import { config } from 'dotenv';
 import fetch from 'node-fetch';
 
-// tslint:disable: no-console
+// tslint:disable no-console
 
 config();
 
-const LANG = 'br';
+const LANG = 'en';
 
 const [argMin, argMax] = process.argv.slice(2);
 
