@@ -274,8 +274,25 @@ export default class BlogToBusinessImporter extends PageImporter {
     main.querySelectorAll('img').forEach((img) => {
       const { src } = img;
       if (src) {
-        const s = src.split('?')[0];
-        img.src = `${s}?auto=webp&format=pjpg&width=2000`;
+        if ((
+          !src.startsWith('https://') &&
+          !src.startsWith('http://') &&
+          !src.startsWith('./media_')) ||
+          src.startsWith('https://blogsimages.adobe.com') ||
+          src.startsWith('http://blogsimages.adobe.com') ||
+          src.startsWith('https://theblogimages.adobe.com') ||
+          src.startsWith('http://theblogimages.adobe.com') ||
+          src.startsWith('https://rum.hlx3.page') ||
+          src.startsWith('http://blogs.adobe.com') ||
+          src.startsWith('https://blogs.adobe.com')) {
+          // remove "broken" images
+          img.remove();
+        } else {
+          if (src.startsWith('https://blog.adobe.com') || src.startsWith('./media_')) {
+            const s = src.split('?')[0];
+            img.src = `${s}?auto=webp&format=pjpg&width=2000`;
+          }
+        }
       }
     });
   }
@@ -337,6 +354,66 @@ export default class BlogToBusinessImporter extends PageImporter {
     return name;
   }
 
+  captureCaptions(main: Element, document: Document): void {
+    main.querySelectorAll(':scope p em').forEach((em) => {
+      // "p em" -> convert to caption block if previous is an embed
+      const parent = em.parentElement;
+      const previous = parent.previousElementSibling;
+      if (previous && previous.classList.contains('block-embed')) {
+        const block = document.createElement('div');
+        block.classList.add('caption');
+        block.innerHTML = '<div><div></div></div>';
+        block.firstChild.firstChild.append(em);
+        parent.replaceWith(block);
+      }
+    });
+
+    main.querySelectorAll('div.caption').forEach((caption) => {
+      let em = caption.querySelector('em');
+      const previous = caption.previousElementSibling;
+      const div = caption.firstElementChild?.firstElementChild;
+      if (!em && div) {
+        const p = document.createElement('p');
+        em = document.createElement('em');
+        em.innerHTML = div.innerHTML;
+        p.append(em);
+        div.innerHTML = '';
+        div.append(p);
+      } else {
+        // empty caption
+        caption.remove();
+      }
+
+      if (em) {
+        if (previous &&
+          (previous.classList.contains('block-embed') ||
+          previous.classList.contains('animation') ||
+          previous.classList.contains('image') ||
+          previous.classList.contains('infographic') ||
+          previous.classList.contains('video'))) {
+          let where = previous.querySelector('a') as any;
+          if (!where) {
+            where = previous.querySelector('picture');
+          }
+          if (!where) {
+            throw new Error('Do not know where to position the caption');
+          }
+          const span = document.createElement('span');
+          where.parentElement.append(span);
+          const p = document.createElement('p');
+          p.append(where);
+          const p2 = document.createElement('p');
+          p2.append(em);
+          span.append(p, p2);
+          caption.remove();
+        } else {
+          caption.replaceWith(em.parentElement);
+          // throw new Error('Caption after unknow block');
+        }
+      }
+    });
+  }
+
   async process(document: Document, url: string, entryParams?: any): Promise<PageImporterResource[]> {
     DOMUtils.remove(document, [
       'header',
@@ -346,6 +423,7 @@ export default class BlogToBusinessImporter extends PageImporter {
     const head = document.querySelector('head');
     const main = document.querySelector('main');
 
+    this.captureCaptions(main, document);
     this.convertESIEmbedsToTable(main, document);
     this.convertOldStylePromotions(main, entryParams.promoList, document);
 
