@@ -331,10 +331,7 @@ export default class BlogToBlogImporter extends PageImporter {
           src.startsWith('https://rum.hlx3.page') ||
           src.startsWith('http://blogs.adobe.com') ||
           src.startsWith('https://blogs.adobe.com')) {
-          // remove broken images
-          if (!src.startsWith('https://blogs.adobe.com')) {
-            console.log(`Removing image ${src}`);
-          }
+          // remove "broken" images
           img.remove();
         } else {
           if (src.startsWith('https://blog.adobe.com') || src.startsWith('./media_')) {

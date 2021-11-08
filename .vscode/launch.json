@@ -286,7 +286,7 @@
       "outFiles": ["${workspaceFolder}/build/**/*.js"]
     },{
       "name": "Blog To Blog: import",
-      "program": "${workspaceFolder}/src/blogtoblog/import.ts",
+      "program": "${workspaceFolder}/src/blogtoblog/index.ts",
       "request": "launch",
       "skipFiles": [
         "<node_internals>/**"
@@ -369,6 +369,17 @@
     },{
       "name": "Blog To Blog: find modified",
       "program": "${workspaceFolder}/src/blogtoblog/cli/findModified.ts",
+      "request": "launch",
+      "skipFiles": [
+        "<node_internals>/**"
+      ],
+      "type": "node",
+      "preLaunchTask": "tsc: build - tsconfig.json",
+      "outFiles": ["${workspaceFolder}/build/**/*.js"],
+      "cwd": "${workspaceFolder}"
+    },{
+      "name": "Blog To Blog / scripts: sync sharepoints",
+      "program": "${workspaceFolder}/src/blogtoblog/scripts/spsync.ts",
       "request": "launch",
       "skipFiles": [
         "<node_internals>/**"

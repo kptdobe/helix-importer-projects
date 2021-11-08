@@ -29,14 +29,13 @@ config();
 
 const HLX_HOST = 'https://main--blog--adobe.hlx3.page';
 const TARGET_HOST = 'https://blog.adobe.com';
-const LANG = 'it';
 const BATCH_SIZE = 20;
 const DO_PREVIEWS = false;
 
 const [argMin, argMax] = process.argv.slice(2);
 
-async function getPromoList() {
-  const promotions = await getPromotions(LANG);
+async function getPromoList(lang) {
+  const promotions = await getPromotions(lang);
   const res = {};
   promotions.forEach((e) => {
     if (!res[e.selector]) {
@@ -54,8 +53,8 @@ function sectionData(data, min, max) {
   return section;
 }
 
-async function getEntries() {
-  const files = await getPathsFromFolder(process.env.BLOGTOBLOG_THEBLOG_LOCAL_FOLDER, `/${LANG}/publish`);
+async function getEntries(lang) {
+  const files = await getPathsFromFolder(process.env.BLOGTOBLOG_THEBLOG_LOCAL_FOLDER, `/${lang}/publish`);
   const res = [];
   files.forEach((e) => {
     res.push({
@@ -65,8 +64,8 @@ async function getEntries() {
   return res;
 }
 
-async function getTaxonomy() {
-  const path = `/${LANG}/topics/taxonomy.json`;
+async function getTaxonomy(lang) {
+  const path = `/${lang}/topics/taxonomy.json`;
   if (DO_PREVIEWS) await preview(path);
   const res = await fetch(`${HLX_HOST}/${path}`);
   const json = await res.json();
@@ -82,7 +81,7 @@ async function getTaxonomy() {
   return taxonomy;
 }
 
-async function main() {
+export default async function main(lang, allEntries = null) {
   const startTime = new Date().getTime();
   // tslint:disable-next-line: no-empty
   const noop = () => {};
@@ -104,41 +103,25 @@ async function main() {
     log: customLogger,
   });
 
-  const promoListJSON = await getPromoList();
+  const promoListJSON = await getPromoList(lang);
 
-  // const allEntries = await getEntries();
-  const allEntries = [{
-    URL: 'https://blog.adobe.com/it/publish/2021/10/27/disponibili-utenti-photoshop-dettagli-relativi-origine-contenuti-digitali-grazie-a-content-authenticity-initiative-1.html',
-  }, {
-    URL: 'https://blog.adobe.com/it/publish/2021/10/28/spazi-per-la-collaborazione-grazie-creative-cloud.html',
-  }, {
-    URL: 'https://blog.adobe.com/it/publish/2021/10/26/adobe-max-2021-release-fotografia.html',
-  }, {
-    URL: 'https://blog.adobe.com/it/publish/2021/10/26/adobe-max-2021-tutte-le-novita.html',
-  }, {
-    URL: 'https://blog.adobe.com/it/publish/2021/10/26/disponibili-utenti-photoshop-dettagli-relativi-origine-contenuti-digitali-grazie-a-content-authenticity-initiative.html',
-  }, {
-    URL: 'https://blog.adobe.com/it/publish/2021/10/26/dva-max-2021-novita-sviluppi-futuro-app-editing-video-adobe.html',
-  }, {
-    URL: 'https://blog.adobe.com/it/publish/2021/10/26/ecosistema-photoshop-si-arricchisce-nuovi-elementi-in-occasione-di-adobe-max.html',
-  }, {
-    URL: 'https://blog.adobe.com/it/publish/2021/09/07/aperte-registrazioni-adobe-max-2021-evento-dedicato-creativita.html',
-  }, {
-    URL: 'https://blog.adobe.com/it/publish/2021/10/15/adobe-photoshop-elements-2022-premiere-elements-2022.html',
-  }];
+  if (!allEntries) {
+    allEntries = await getEntries(lang);
+  }
+
   const entries = sectionData(allEntries, argMin, argMax);
 
   const importer = new BlogToBlogImporter({
     storageHandler: handler,
     blobHandler: blob,
-    cache: `.cache/blogadobecom/${LANG}`,
+    cache: `.cache/blogadobecom/${lang}`,
     skipAssetsUpload: true,
     // skipDocxConversion: true,
     skipMDFileCreation: true,
     logger: customLogger,
   });
 
-  const taxonomy = await getTaxonomy();
+  const taxonomy = await getTaxonomy(lang);
 
   let output = `source;path;file;lang;author;date;tags;banners;\n`;
   let promises = [];
@@ -162,13 +145,13 @@ async function main() {
     if (promises.length === BATCH_SIZE) {
       await Promise.all(promises);
       promises = [];
-      await handler.put(`${LANG}_importer_output.csv`, output);
+      await handler.put(`${lang}_importer_output.csv`, output);
     }
   });
 
   if (promises.length > 0) {
     await Promise.all(promises);
-    await handler.put(`${LANG}_importer_output.csv`, output);
+    await handler.put(`${lang}_importer_output.csv`, output);
   }
 
   console.log(`Entries - found ${allEntries.length} in index`);
@@ -179,10 +162,8 @@ async function main() {
   const sheet = workbook.addWorksheet('helix-default');
   const data = output.split('\n').map((row: string) => row.split(';'));
   sheet.addRows(data);
-  const dir = `output/blogtoblog/${LANG}/drafts/import/`;
+  const dir = `output/blogtoblog/${lang}/drafts/import/`;
   await fs.ensureDir(dir);
   await workbook.xlsx.writeFile(`${dir}/output.xlsx`);
   console.log(`Done in ${(new Date().getTime()-startTime)/1000}s.`);
 }
-
-main();

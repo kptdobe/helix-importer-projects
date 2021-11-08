@@ -132,3 +132,44 @@ export async function getPathsFromFolder(root, pathname) {
   });
   return rows;
 }
+
+export async function getModifiedSince(root, pathname, since) {
+  const cwd = `${root}${pathname}`;
+  const entries = await fg('**/*.{docx,md}', {
+    cwd,
+    ignore: [
+      '**/drafts/**',
+      '**/documentation/**',
+    ],
+    stats: true,
+  });
+
+  const IGNORED = [
+    'document',
+    'documento',
+    'dokument',
+  ];
+
+  const modified = [];
+
+  entries.forEach((e) => {
+    if (e.stats.mtimeMs > since) {
+      const name = sanitize(e.path.substring(e.path.lastIndexOf('/') + 1, e.path.lastIndexOf('.')));
+      const parent = e.path.substring(0, e.path.lastIndexOf('/'));
+      const path = `${pathname}/${parent}/${name}`;
+      const source = `${cwd}/${e.path}`;
+      modified.push({
+        entry: e,
+        path,
+        oldSource: `/${e.path}`,
+        newSource: `${path}.docx`,
+        absoluteSource: source,
+        originalName: e.name,
+        date: e.stats.mtimeMs,
+      });
+    }
+  });
+
+  console.log(`Found ${modified.length}/${entries.length} in ${cwd} since ${new Date(since)}`);
+  return modified;
+}
