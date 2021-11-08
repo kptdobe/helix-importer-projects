@@ -389,6 +389,61 @@
       "outFiles": ["${workspaceFolder}/build/**/*.js"],
       "cwd": "${workspaceFolder}"
     },{
+      "name": "Blog To Blog / scripts: sync back 1",
+      "program": "${workspaceFolder}/src/blogtoblog/scripts/syncback_1.ts",
+      "request": "launch",
+      "skipFiles": [
+        "<node_internals>/**"
+      ],
+      "type": "node",
+      "preLaunchTask": "tsc: build - tsconfig.json",
+      "outFiles": ["${workspaceFolder}/build/**/*.js"],
+      "cwd": "${workspaceFolder}"
+    },{
+      "name": "Blog To Blog / scripts: sync back 2",
+      "program": "${workspaceFolder}/src/blogtoblog/scripts/syncback_2.ts",
+      "request": "launch",
+      "skipFiles": [
+        "<node_internals>/**"
+      ],
+      "type": "node",
+      "preLaunchTask": "tsc: build - tsconfig.json",
+      "outFiles": ["${workspaceFolder}/build/**/*.js"],
+      "cwd": "${workspaceFolder}"
+    },{
+      "name": "Blog To Blog / scripts: sync back 3",
+      "program": "${workspaceFolder}/src/blogtoblog/scripts/syncback_3.ts",
+      "request": "launch",
+      "skipFiles": [
+        "<node_internals>/**"
+      ],
+      "type": "node",
+      "preLaunchTask": "tsc: build - tsconfig.json",
+      "outFiles": ["${workspaceFolder}/build/**/*.js"],
+      "cwd": "${workspaceFolder}"
+    },{
+      "name": "Blog To Blog / scripts: sync back 4",
+      "program": "${workspaceFolder}/src/blogtoblog/scripts/syncback_4.ts",
+      "request": "launch",
+      "skipFiles": [
+        "<node_internals>/**"
+      ],
+      "type": "node",
+      "preLaunchTask": "tsc: build - tsconfig.json",
+      "outFiles": ["${workspaceFolder}/build/**/*.js"],
+      "cwd": "${workspaceFolder}"
+    },{
+      "name": "Blog To Blog / scripts: sync back 5",
+      "program": "${workspaceFolder}/src/blogtoblog/scripts/syncback_5.ts",
+      "request": "launch",
+      "skipFiles": [
+        "<node_internals>/**"
+      ],
+      "type": "node",
+      "preLaunchTask": "tsc: build - tsconfig.json",
+      "outFiles": ["${workspaceFolder}/build/**/*.js"],
+      "cwd": "${workspaceFolder}"
+    },{
       "name": "Blog To Business: import",
       "program": "${workspaceFolder}/src/blogtobusiness/import.ts",
       "request": "launch",

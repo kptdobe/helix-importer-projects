@@ -13,8 +13,11 @@ config();
 const SIMULATION = true;
 
 async function copyFile(src, dest) {
-  await fs.ensureDir(path.dirname(dest));
-  await fs.copyFile(src, dest);
+  console.log(`copying from ${src} to ${dest}`);
+  if (!SIMULATION) {
+    await fs.ensureDir(path.dirname(dest));
+    await fs.copyFile(src, dest);
+  }
 }
 
 async function syncSharepoints(entry, doBlog = false) {
@@ -24,26 +27,17 @@ async function syncSharepoints(entry, doBlog = false) {
   const fullNewSource = `./output/blogtoblog${newSource}`;
   // copy to cache
   const cacheDest = `./output/blogtoblog/cache${newSource}`;
-  console.log(`Cache: copying from ${fullNewSource} to ${cacheDest}`);
-  if (!SIMULATION) {
-    await copyFile(fullNewSource, cacheDest);
-  }
+  await copyFile(fullNewSource, cacheDest);
 
   if (doBlog) {
     // copy to blog
     const blogDest = `${process.env.BLOGTOBLOG_BLOG_LOCAL_FOLDER}${newSource}`;
-    console.log(`Blog: copying from ${fullNewSource} to ${blogDest}`);
-    if (!SIMULATION) {
-      await copyFile(fullNewSource, blogDest);
-    }
+    await copyFile(fullNewSource, blogDest);
   }
 
   // copy to archive
   const archiveDest = `${process.env.BLOGTOBLOG_ARCHIVE_LOCAL_FOLDER}${oldSource}`;
-  console.log(`Archive: copying from ${fullOldSource} to ${archiveDest}`);
-  if (!SIMULATION) {
-    await copyFile(fullOldSource, archiveDest);
-  }
+  await copyFile(fullOldSource, archiveDest);
 }
 
 async function main() {
