@@ -20,7 +20,21 @@ async function copyFile(src, dest) {
   }
 }
 
-async function syncSharepoints(entry, doBlog = false) {
+async function syncSharepoints(entry) {
+  const oldSource = entry.oldSource;
+  const newSource = entry.newSource;
+  const fullOldSource = `${process.env.BLOGTOBLOG_THEBLOG_LOCAL_FOLDER}${oldSource}`;
+
+  // copy to cache
+  const cacheDest = `./output/blogtoblog/cache${newSource}`;
+  await copyFile(fullOldSource, cacheDest);
+
+  // copy to archive
+  const archiveDest = `${process.env.BLOGTOBLOG_ARCHIVE_LOCAL_FOLDER}${oldSource}`;
+  await copyFile(fullOldSource, archiveDest);
+}
+
+async function syncLocal(entry) {
   const oldSource = entry.oldSource;
   const newSource = entry.newSource;
   const fullOldSource = `${process.env.BLOGTOBLOG_THEBLOG_LOCAL_FOLDER}${oldSource}`;
@@ -29,11 +43,9 @@ async function syncSharepoints(entry, doBlog = false) {
   const cacheDest = `./output/blogtoblog/cache${newSource}`;
   await copyFile(fullNewSource, cacheDest);
 
-  if (doBlog) {
-    // copy to blog
-    const blogDest = `${process.env.BLOGTOBLOG_BLOG_LOCAL_FOLDER}${newSource}`;
-    await copyFile(fullNewSource, blogDest);
-  }
+  // copy to blog
+  const blogDest = `${process.env.BLOGTOBLOG_BLOG_LOCAL_FOLDER}${newSource}`;
+  await copyFile(fullNewSource, blogDest);
 
   // copy to archive
   const archiveDest = `${process.env.BLOGTOBLOG_ARCHIVE_LOCAL_FOLDER}${oldSource}`;
@@ -44,7 +56,7 @@ async function main() {
   const modified = await getModifiedSince(
     process.env.BLOGTOBLOG_THEBLOG_LOCAL_FOLDER,
     '',
-    new Date(2021, 10, 4, 8, 0, 0, 0).getTime());
+    new Date(2021, 10, 9, 9, 0, 0, 0).getTime());
 
   const perLanguage = {};
   const manually = [];
@@ -79,16 +91,22 @@ async function main() {
   for (const lang in perLanguage) {
     if (perLanguage[lang]) {
       const paths = perLanguage[lang].map(e => e.path);
+      const urls = perLanguage[lang].map((e) => {
+        const o = {
+          URL: `https://blog.adobe.com${e.path}.html`,
+        };
+        return o;
+      });
 
       console.log(`Importing paths for language ${lang}`, paths);
 
       if (!SIMULATION) {
-        await doImport(lang, paths);
+        await doImport(lang, urls);
       }
 
       console.log('Syncing sharepoints for imported files:');
       await Utils.asyncForEach(perLanguage[lang], async (entry) => {
-        await syncSharepoints(entry, true);
+        await syncLocal(entry);
       });
 
       if (!SIMULATION) {

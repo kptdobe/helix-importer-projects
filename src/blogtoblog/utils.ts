@@ -11,24 +11,34 @@ import { Utils } from '@adobe/helix-importer';
 
 export async function preview(p, index = 0, total?) {
   const url = `https://admin.hlx3.page/preview/${config.OWNER}/${config.REPO}/${config.BRANCH}${p}`;
-  console.log(`${index}${total ? `/${total}`: ''} - Previewing ${url}`);
-  const r = await fetch(url, { method: 'POST' });
-  if (!r.ok) {
-    console.error(`Preview problem - something wrong with ${url} - ${r.headers.get('x-error')}`);
+  try {
+    console.log(`${index}${total ? `/${total}`: ''} - Previewing ${url}`);
+    const r = await fetch(url, { method: 'POST' });
+    if (!r.ok) {
+      console.error(`Preview problem - something wrong with ${url} - ${r.headers.get('x-error')}`);
+      return false;
+    }
+    return true;
+  } catch (error) {
+    console.error(`Preview error - something wrong with ${url}: ${error.message}`);
     return false;
   }
-  return true;
 }
 
 export async function publish(p, index = 0, total?) {
   const url = `https://admin.hlx3.page/live/${config.OWNER}/${config.REPO}/${config.BRANCH}${p}`;
-  console.log(`${index}${total ? `/${total}`: ''} - Publishing ${url}`);
-  const r = await fetch(url, { method: 'POST' });
-  if (!r.ok) {
-    console.error(`Publish problem - something wrong with ${url} - ${r.headers.get('x-error')}`);
+  try {
+    console.log(`${index}${total ? `/${total}`: ''} - Publishing ${url}`);
+    const r = await fetch(url, { method: 'POST' });
+    if (!r.ok) {
+      console.error(`Publish problem - something wrong with ${url} - ${r.headers.get('x-error')}`);
+      return false;
+    }
+    return true;
+  } catch (error) {
+    console.error(`Publish error - something wrong with ${url}: ${error.message}`);
     return false;
   }
-  return true;
 }
 
 export async function pp(p, index = 0, total?) {
@@ -38,7 +48,7 @@ export async function pp(p, index = 0, total?) {
   return false;
 }
 
-const BATCH_SIZE = 5;
+const BATCH_SIZE = 3;
 
 export async function delay(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
@@ -159,7 +169,7 @@ export async function getModifiedSince(root, pathname, since) {
     if (e.stats.mtimeMs > since) {
       const name = sanitize(e.path.substring(e.path.lastIndexOf('/') + 1, e.path.lastIndexOf('.')));
       const parent = e.path.substring(0, e.path.lastIndexOf('/'));
-      const p = `${pathname}/${parent}/${name}`;
+      const p = `${pathname}/${parent}/${name}`.replace('//', '/');
       const source = `${cwd}/${e.path}`;
       modified.push({
         entry: e,
@@ -182,8 +192,8 @@ export async function copyFile(src, dest, simulation = true) {
   if (!await fs.exists(src)) {
     console.error(`${src} does not exist!`);
   } else if (!simulation) {
-    // await fs.ensureDir(path.dirname(dest));
-    // await fs.copyFile(src, dest);
+    await fs.ensureDir(path.dirname(dest));
+    await fs.copyFile(src, dest);
   }
 }
 
@@ -210,9 +220,9 @@ export async function migrateContent(folders, srcRoot, destRoot, simulation = tr
         if (ext === 'md' || blogFilename !== theblogFilename) {
           const oldName = path.join(destRoot, theblogSrc);
           const newName = path.join(destRoot, blogSrc);
-          console.log(`renaming first - from ${oldName} to ${newName}`);
+          // console.log(`renaming first - from ${oldName} to ${newName}`);
           if (!simulation) {
-            // await fs.rename(oldName, newName);
+            await fs.rename(oldName, newName);
           }
         }
         try {

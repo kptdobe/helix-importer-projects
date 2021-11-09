@@ -8,8 +8,6 @@ config();
 
 async function main() {
   const srcRoot = process.env.BLOGTOBLOG_BLOG_LOCAL_FOLDER;
-  // const destRoot = '/Users/acapt/work/dev/helix/helix-importer-projects/output/blogtoblog/playground';
-  // const destRoot = '/Users/acapt/Adobe/AlexTest - Documents/websites/blog/en/drafts/alex/playground';
 
   const SIMULATION = true;
   const destRoot = process.env.BLOGTOBLOG_THEBLOG_LOCAL_FOLDER;
