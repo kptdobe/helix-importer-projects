@@ -73,7 +73,9 @@ export default class Blocks {
             subDivs.forEach((cell: Element) => {
               if (cell.nodeName === 'DIV') {
                 // remove transparent divs
-                Array.from(cell.childNodes).forEach(c => rowData.push(c));
+                const cellContent = [];
+                Array.from(cell.childNodes).forEach(c => cellContent.push(c));
+                rowData.push(cellContent);
               } else {
                 rowData.push(cell);
               }

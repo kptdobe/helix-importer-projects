@@ -216,7 +216,8 @@ export default class BlogToBlogImporter extends PageImporter {
       }
     }
     if (datePTag) {
-      date = /\d{1,2}[.\/-]\d{1,2}[.\/-]\d{2,4}/.exec(datePTag.textContent)[0];
+      const r = /\d{1,2}[.\/-]\d{1,2}[.\/-]\d{2,4}/.exec(datePTag.textContent);
+      date = r && r.length > 0 ? r[0] : '';
       const dateRow = document.createElement('tr');
       table.append(dateRow);
       const dateTitle = document.createElement('td');
@@ -335,7 +336,10 @@ export default class BlogToBlogImporter extends PageImporter {
           img.remove();
         } else {
           if (src.startsWith('https://blog.adobe.com') || src.startsWith('./media_')) {
-            const s = src.split('?')[0];
+            let s = src.split('?')[0];
+            if (s.startsWith('./media_')) {
+              s = s.replace('./', 'https://blog.adobe.com/');
+            }
             img.src = `${s}?auto=webp&format=pjpg&width=2000`;
           }
         }
@@ -396,6 +400,7 @@ export default class BlogToBlogImporter extends PageImporter {
     DOMUtils.remove(document, [
       'header',
       'footer',
+      'source', // source element will not be used anyway
     ]);
 
     const head = document.querySelector('head');
