@@ -137,7 +137,11 @@ export default class BlogToBusinessImporter extends PageImporter {
     let [authorStr, dateStr] = Array
       .from(main.querySelectorAll('main > div:nth-child(3) > p'))
       .map(p => p.textContent);
-    main.querySelector('main > div:nth-child(3)').remove();
+
+    const div3 = main.querySelector('main > div:nth-child(3)');
+    if (div3) {
+      div3.remove();
+    }
 
     let author;
     let date;
