@@ -51,9 +51,6 @@ export default class BlogToBlogImporter extends PageImporter {
         p.append(em);
         div.innerHTML = '';
         div.append(p);
-      } else {
-        // empty caption
-        caption.remove();
       }
 
       if (em) {
@@ -82,6 +79,9 @@ export default class BlogToBlogImporter extends PageImporter {
           caption.replaceWith(em.parentElement);
           // throw new Error('Caption after unknow block');
         }
+      } else {
+        // empty caption
+        caption.remove();
       }
     });
   }
@@ -396,6 +396,12 @@ export default class BlogToBlogImporter extends PageImporter {
     });
   }
 
+  extractImageFromEmbedBlock(element: Element) {
+    element.querySelectorAll('div[class="block-embed"] > div > div > picture').forEach((picture) => {
+      picture.parentElement.parentElement.parentElement.replaceWith(picture);
+    });
+  }
+
   async process(document: Document, url: string, entryParams?: any): Promise<PageImporterResource[]> {
     DOMUtils.remove(document, [
       'header',
@@ -408,6 +414,7 @@ export default class BlogToBlogImporter extends PageImporter {
 
     this.removeEmptyDivs(main);
     this.cleanupDivs(main);
+    this.extractImageFromEmbedBlock(main);
     this.captureCaptions(main, document);
     this.convertESIEmbedsToTable(main, document);
     this.convertOldStylePromotions(main, entryParams.promoList, document);

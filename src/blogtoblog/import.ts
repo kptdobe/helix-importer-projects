@@ -94,7 +94,7 @@ export default async function main(lang, allEntries = null) {
     error: () => console.error(...arguments),
   };
 
-  const handler = new FSHandler('output/blogtoblog', customLogger);
+  const handler = new FSHandler('output/blogtoblog/import', customLogger);
 
   const blob = new BlobHandler({
     skipSchedule: true,
@@ -162,7 +162,7 @@ export default async function main(lang, allEntries = null) {
   const sheet = workbook.addWorksheet('helix-default');
   const data = output.split('\n').map((row: string) => row.split(';'));
   sheet.addRows(data);
-  const dir = `output/blogtoblog/${lang}/drafts/import/`;
+  const dir = `output/blogtoblog/import/${lang}/drafts/import/`;
   await fs.ensureDir(dir);
   await workbook.xlsx.writeFile(`${dir}/output.xlsx`);
   console.log(`Done in ${(new Date().getTime()-startTime)/1000}s.`);
