@@ -88,6 +88,23 @@ export default class PMIImporter extends PageImporter {
     }
   }
 
+  createMetadata(main: Element, document: Document): void {
+    const meta = {};
+
+    const title = document.querySelector('title');
+    if (title) {
+      meta['Title'] = title.innerHTML.replace(/[\n\t]/gm, '');
+    }
+
+    const desc = document.querySelector('[property="og:description"]');
+    if (desc) {
+      meta['Description'] = desc.content;
+    }
+
+    const block = Blocks.getMetadataBlock(document, meta);
+    main.append(block);
+  }
+
   async process(document: Document, url: string, entryParams?: any): Promise<PageImporterResource[]> {
     DOMUtils.remove(document, [
       '.nav-layout',
@@ -103,7 +120,8 @@ export default class PMIImporter extends PageImporter {
 
     this.rewriteLinks(main, entryParams.allEntries, entryParams.target);
     this.buildRelated(main, document, '.related-articles-partial', ':scope > div > div > a', 'Related Articles', entryParams.target);
-    this.buildRelated(main, document, '.related-category', ':scope > div > a', 'Related Category', entryParams.target);
+    this.buildRelated(main, document, '.related-category', ':scope > div > a', 'Related Categories', entryParams.target);
+    this.createMetadata(main, document);
 
     const u = new URL(url);
     const p = path.parse(u.pathname);
