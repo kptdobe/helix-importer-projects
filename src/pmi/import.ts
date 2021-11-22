@@ -23,7 +23,7 @@ import Excel from 'exceljs';
 
 config();
 
-const TARGET_HOST = 'https://main--helix-pmi--adobe.hlx.page';
+const TARGET_HOST = 'https://main--helix-pmi--kptdobe.hlx3.page';
 
 
 async function getEntries() {

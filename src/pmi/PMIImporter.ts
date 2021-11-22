@@ -32,8 +32,8 @@ export default class PMIImporter extends PageImporter {
       // TODO: use outer cdn URL
       if (!href || href === '') {
         a.remove();
-      } else if (href.startsWith('https://www.pmi.com/markets/italy/it/scienza-innovazione/')) {
-        a.href = href.replace('https://www.pmi.com/markets/italy/it/scienza-innovazione/', `${target}/`);
+      } else if (href.startsWith('https://www.pmi.com/markets/italy/it/')) {
+        a.href = href.replace('https://www.pmi.com/markets/italy/it/', `${target}/it/`);
       }
     });
   }
@@ -50,7 +50,7 @@ export default class PMIImporter extends PageImporter {
     return name;
   }
 
-  buildRelated(main: Element, document: Document, selector: string, linksSelector: string, blockName: string): void {
+  buildRelated(main: Element, document: Document, selector: string, linksSelector: string, blockName: string, target: string): void {
     const related = main.querySelector(selector);
     if (related) {
       const table = document.createElement('table');
@@ -69,7 +69,9 @@ export default class PMIImporter extends PageImporter {
       let hasLink = false;
       related.querySelectorAll(linksSelector).forEach((a) => {
         hasLink = true;
-        a.innerHTML = '';
+        const href = `${target}/${a.getAttribute('href')}`.replace('/markets/italy/', '');
+        a.setAttribute('href', href);
+        a.innerHTML = href;
         a.removeAttribute('class');
         a.removeAttribute('tabIndex');
         const p = document.createElement('p');
@@ -100,8 +102,8 @@ export default class PMIImporter extends PageImporter {
     const main = document.querySelector('main');
 
     this.rewriteLinks(main, entryParams.allEntries, entryParams.target);
-    this.buildRelated(main, document, '.related-articles-partial', ':scope > div > div > a', 'Related Articles');
-    this.buildRelated(main, document, '.related-category', ':scope > div > a', 'Related Category');
+    this.buildRelated(main, document, '.related-articles-partial', ':scope > div > div > a', 'Related Articles', entryParams.target);
+    this.buildRelated(main, document, '.related-category', ':scope > div > a', 'Related Category', entryParams.target);
 
     const u = new URL(url);
     const p = path.parse(u.pathname);
