@@ -63,7 +63,6 @@ async function getEntries() {
   { URL: 'https://www.pmi.com/markets/italy/it/news/details/top-employer-anche-quest-anno-philip-morris-italia-e-philip-morris-manufacturing-technology-bologna-ricevono-la-certificazione' },
   { URL: 'https://www.pmi.com/markets/italy/it/news/news-all' },
   { URL: 'https://www.pmi.com/markets/italy/it/news/philip-morris-italia-inaugura-il-digital-information-service-center-disc-a-taranto' },
-  { URL: 'https://www.pmi.com/markets/italy/it/riepilogo' },
   { URL: 'https://www.pmi.com/markets/italy/it/scienza-innovazione/approccio-scientifico-di-philip-morris' },
   { URL: 'https://www.pmi.com/markets/italy/it/scienza-innovazione/gli-scienziati-e-la-nostra-ricerca-scientifica' },
   { URL: 'https://www.pmi.com/markets/italy/it/scienza-innovazione/metodo-scientifico-ricerca-e-sviluppo' },

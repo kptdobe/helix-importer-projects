@@ -34,8 +34,14 @@ export default class PMIImporter extends PageImporter {
         a.remove();
       } else if (href.startsWith('https://www.pmi.com/markets/italy/it/')) {
         a.href = href.replace('https://www.pmi.com/markets/italy/it/', `${target}/it/`);
+        if (a.innerHTML.startsWith('https://www.pmi.com/markets/italy/it/')) {
+          a.innerHTML = a.innerHTML.replace('https://www.pmi.com/markets/italy/it/', `${target}/it/`);
+        }
       } else if (href.startsWith('/markets/italy/it/')) {
         a.href = href.replace('/markets/italy/it/', `${target}/it/`);
+        if (a.innerHTML.startsWith('/markets/italy/it/')) {
+          a.innerHTML = a.innerHTML.replace('/markets/italy/it/', `${target}/it/`);
+        }
       }
     });
   }
@@ -152,13 +158,13 @@ export default class PMIImporter extends PageImporter {
 
     const main = document.querySelector('main');
 
-    this.rewriteLinks(main, entryParams.allEntries, entryParams.target);
-
     const meta = this.createMetadata(main, document);
 
     this.buildRelated(main, document, '.related-articles-partial', ':scope > div > div > a', 'Related Articles', entryParams.target);
     this.buildRelated(main, document, '.related-category', ':scope > div > a', 'Related Categories', entryParams.target);
     this.createIntroBlock(main, document);
+
+    this.rewriteLinks(main, entryParams.allEntries, entryParams.target);
 
     const u = new URL(url);
     const p = path.parse(u.pathname);
