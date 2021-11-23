@@ -34,6 +34,8 @@ export default class PMIImporter extends PageImporter {
         a.remove();
       } else if (href.startsWith('https://www.pmi.com/markets/italy/it/')) {
         a.href = href.replace('https://www.pmi.com/markets/italy/it/', `${target}/it/`);
+      } else if (href.startsWith('/markets/italy/it/')) {
+        a.href = href.replace('/markets/italy/it/', `${target}/it/`);
       }
     });
   }
@@ -88,7 +90,7 @@ export default class PMIImporter extends PageImporter {
     }
   }
 
-  createMetadata(main: Element, document: Document): void {
+  createMetadata(main: Element, document: Document): any {
     const meta = {};
 
     const title = document.querySelector('title');
@@ -101,8 +103,40 @@ export default class PMIImporter extends PageImporter {
       meta['Description'] = desc.content;
     }
 
+    const category = main.querySelector('.related-category--category');
+    if (category) {
+      meta['Category'] = category.innerHTML;
+    }
+
+    const date = main.querySelector('.page-info-widget-content--date');
+    if (date) {
+      meta['Publicaton Date'] = date.innerHTML;
+    }
+
     const block = Blocks.getMetadataBlock(document, meta);
     main.append(block);
+
+    return meta;
+  }
+
+  createIntroBlock(main: Element, document: Document) {
+    main.querySelectorAll('.article-intro').forEach((intro) => {
+      const a = intro.querySelector('a');
+      a.innerHTML = a.href;
+      const p = document.createElement('p');
+      p.append(a);
+
+      if (intro.previousElementSibling && intro.previousElementSibling.classList.contains('article-intro-block')) {
+        // insert in previous intro block
+        const previousA = intro.previousElementSibling.querySelector('a');
+        previousA.parentNode.parentNode.append(p);
+        intro.remove();
+      } else {
+        const table = DOM.createTable([['Article Intro'], [p]], document);
+        table.classList.add('article-intro-block');
+        intro.replaceWith(table);
+      }
+    });
   }
 
   async process(document: Document, url: string, entryParams?: any): Promise<PageImporterResource[]> {
@@ -119,18 +153,21 @@ export default class PMIImporter extends PageImporter {
     const main = document.querySelector('main');
 
     this.rewriteLinks(main, entryParams.allEntries, entryParams.target);
+
+    const meta = this.createMetadata(main, document);
+
     this.buildRelated(main, document, '.related-articles-partial', ':scope > div > div > a', 'Related Articles', entryParams.target);
     this.buildRelated(main, document, '.related-category', ':scope > div > a', 'Related Categories', entryParams.target);
-    this.createMetadata(main, document);
+    this.createIntroBlock(main, document);
 
     const u = new URL(url);
     const p = path.parse(u.pathname);
     const s = p.dir.split('/');
     const name = this.cleanupName(p.name);
-    const category = s[s.length - 1];
+    const subPath = s.filter((p, i) => i > 3).join('/');
 
-    const pir = new PageImporterResource(name, `${category}`, main, null, {
-      category,
+    const pir = new PageImporterResource(name, subPath, main, null, {
+      category: meta.Category,
     });
 
     return [pir];
