@@ -116,7 +116,7 @@ export default class PMIImporter extends PageImporter {
 
     const date = main.querySelector('.page-info-widget-content--date');
     if (date) {
-      meta['Publicaton Date'] = date.innerHTML;
+      meta['Publication Date'] = date.innerHTML;
     }
 
     const block = Blocks.getMetadataBlock(document, meta);
@@ -128,20 +128,31 @@ export default class PMIImporter extends PageImporter {
   createIntroBlock(main: Element, document: Document) {
     main.querySelectorAll('.article-intro').forEach((intro) => {
       const a = intro.querySelector('a');
-      a.innerHTML = a.href;
-      const p = document.createElement('p');
-      p.append(a);
+      if (a) {
+        a.innerHTML = a.href;
+        const p = document.createElement('p');
+        p.append(a);
 
-      if (intro.previousElementSibling && intro.previousElementSibling.classList.contains('article-intro-block')) {
-        // insert in previous intro block
-        const previousA = intro.previousElementSibling.querySelector('a');
-        previousA.parentNode.parentNode.append(p);
-        intro.remove();
-      } else {
-        const table = DOM.createTable([['Article Intro'], [p]], document);
-        table.classList.add('article-intro-block');
-        intro.replaceWith(table);
+        if (intro.previousElementSibling && intro.previousElementSibling.classList.contains('article-intro-block')) {
+          // insert in previous intro block
+          const previousA = intro.previousElementSibling.querySelector('a');
+          previousA.parentNode.parentNode.append(p);
+          intro.remove();
+        } else {
+          const table = DOM.createTable([['Article Intro'], [p]], document);
+          table.classList.add('article-intro-block');
+          intro.replaceWith(table);
+        }
       }
+    });
+  }
+
+  createBlogLinkBlock(main: Element, document: Document) {
+    main.querySelectorAll('a.investor-cta-widget-blue').forEach((a) => {
+      a.innerHTML = a.querySelector('p').innerHTML;
+      const container = a.parentElement;
+      const table = DOM.createTable([['Blog Link'], [a]], document);
+      container.replaceWith(table);
     });
   }
 
@@ -163,6 +174,7 @@ export default class PMIImporter extends PageImporter {
     this.buildRelated(main, document, '.related-articles-partial', ':scope > div > div > a', 'Related Articles', entryParams.target);
     this.buildRelated(main, document, '.related-category', ':scope > div > a', 'Related Categories', entryParams.target);
     this.createIntroBlock(main, document);
+    this.createBlogLinkBlock(main, document);
 
     this.rewriteLinks(main, entryParams.allEntries, entryParams.target);
 
@@ -170,7 +182,7 @@ export default class PMIImporter extends PageImporter {
     const p = path.parse(u.pathname);
     const s = p.dir.split('/');
     const name = this.cleanupName(p.name);
-    const subPath = s.filter((p, i) => i > 3).join('/');
+    const subPath = s.filter((p, i) => i > 2).join('/');
 
     const pir = new PageImporterResource(name, subPath, main, null, {
       category: meta.Category,
