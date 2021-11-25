@@ -46,6 +46,27 @@ export default class PMIImporter extends PageImporter {
     });
   }
 
+  rewriteImgs(main: Element): void {
+    main.querySelectorAll('img').forEach((img) => {
+      if (img.src) {
+        try {
+          const u = new URL(img.src);
+          const w = u.searchParams.get('imwidth');
+          if (w) {
+            u.searchParams.set('imwidth', '1600');
+            img.src = u.toString();
+          }
+        } catch (error) {
+          // tslint:disable-next-line: no-console
+          // console.error(`Invalid image src: ${img.src}`);
+          img.remove();
+        }
+      } else {
+        img.remove();
+      }
+    });
+  }
+
   cleanupName(name: string): string {
     const firstChar = name.charAt(0);
     const lastChar = name.charAt(name.length - 1);
@@ -177,6 +198,7 @@ export default class PMIImporter extends PageImporter {
     this.createBlogLinkBlock(main, document);
 
     this.rewriteLinks(main, entryParams.allEntries, entryParams.target);
+    this.rewriteImgs(main);
 
     const u = new URL(url);
     const p = path.parse(u.pathname);
