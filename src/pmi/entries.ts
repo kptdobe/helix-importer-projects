@@ -68,6 +68,7 @@ function getEntries() {
   { URL: 'https://www.pmi.com/markets/italy/it/sostenibilita/sostenibilita-sociale/diversita-e-inclusione' },
   { URL: 'https://www.pmi.com/markets/italy/it/sostenibilita/sostenibilita-sociale/lotta-all\'illecito' },
   { URL: 'https://www.pmi.com/markets/italy/it/sostenibilita/sostenibilita-sociale/pratiche-di-prevenzione-accesso-ai-minori' },
+  { URL: 'https://www.pmi.com/markets/italy/en/about-us' },
   { URL: 'https://www.pmi.com/markets/italy/en/about-us/our-vision' },
   { URL: 'https://www.pmi.com/markets/italy/en/science-and-innovation/scientific-approach-of-philip-morris' },
   { URL: 'https://www.pmi.com/markets/italy/en/sustainability/environmental-sustainability' },
