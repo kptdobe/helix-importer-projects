@@ -56,12 +56,12 @@ function sectionData(data, min, max) {
 }
 
 async function getEntries() {
-  const req = await fetch(`${TARGET_HOST}/drafts/poolson/cmo-dx-content-to-migrate---official.json`);
+  const req = await fetch(`${TARGET_HOST}/drafts/poolson/cmo-dx-content-to-migrate-official.json`);
   const res = [];
   if (req.ok) {
     const json = await req.json();
-    for (let i=0; i < Math.min(DATA_LIMIT, json.data.length); i++) {
-      const e = json.data[i];
+    for (let i=0; i < Math.min(DATA_LIMIT, json.migrate.data.length); i++) {
+      const e = json.migrate.data[i];
       try {
         const u = new URL(e.URL);
         e.Category = e.Category || 'unknown';
@@ -118,8 +118,8 @@ async function main() {
     blobHandler: blob,
     cache: '.cache/blogadobecom',
     skipAssetsUpload: true,
-    // skipDocxConversion: true,
-    skipMDFileCreation: true,
+    skipDocxConversion: true,
+    // skipMDFileCreation: true,
     logger: customLogger,
   });
 
