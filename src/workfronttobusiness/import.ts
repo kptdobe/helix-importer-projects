@@ -115,6 +115,7 @@ async function main() {
 
   const allEntries = await getEntries();
   const entries = sectionData(allEntries, argMin, argMax);
+  console.log('entries:', entries);
 
   const importer = new WorkfrontToBusinessImporter({
     storageHandler: handler,
@@ -129,7 +130,7 @@ async function main() {
   let output = `source;file;lang;author;date;category;topics;tags;banners;\n`;
   await Utils.asyncForEach(entries, async (e) => {
     try {
-      const resources = await importer.import('https://www.workfront.com' + e.path, { target: TARGET_HOST, allEntries });
+      const resources = await importer.import(e.URL, { target: TARGET_HOST, allEntries });
 
       resources.forEach((entry) => {
         console.log(`${entry.source} -> ${entry.docx}`);

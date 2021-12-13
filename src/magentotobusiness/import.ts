@@ -49,7 +49,9 @@ async function getEntries() {
           .split('/')
           .pop()
           .replace('.html', '');
-        res.push(e);
+        if (e.URL.startsWith('http')) {
+          res.push(e);
+        }
       } catch(error) {
         // ignore rows with invalid URL
       }
@@ -91,8 +93,8 @@ async function main() {
     blobHandler: blob,
     cache: '.cache/magento',
     skipAssetsUpload: false,
-    // skipDocxConversion: true,
-    skipMDFileCreation: true,
+    skipDocxConversion: true,
+    // skipMDFileCreation: true,
     logger: customLogger,
   });
 

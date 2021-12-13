@@ -203,7 +203,6 @@ export default class MagentoToBusinessImporter extends PageImporter {
     let author;
     const metaAuthor = article.querySelector('.blog-author-container');
     if (metaAuthor) {
-      // By: <a href="/blog/author/magento-marketing-team" hreflang="en">Magento Marketing Team</a>,
       const a = metaAuthor.querySelector('p a[href^="/blog/author/"]');
       metaAuthor.remove();
       if (a) {
@@ -228,60 +227,6 @@ export default class MagentoToBusinessImporter extends PageImporter {
         authorRow.append(authorData);
       }
     }
-
-    // let category;
-    // let tags;
-
-    // if (params) {
-    //   if (params.category) {
-    //     const categoryRow = document.createElement('tr');
-    //     table.append(categoryRow);
-    //     const categoryTitle = document.createElement('td');
-    //     categoryTitle.textContent = 'Category';
-    //     categoryRow.append(categoryTitle);
-    //     const categoryData = document.createElement('td');
-    //     categoryData.textContent = params.category;
-    //     categoryRow.append(categoryData);
-    //     category = params.category;
-    //   }
-
-    //   if (params.tags) {
-    //     const tagsRow = document.createElement('tr');
-    //     table.append(tagsRow);
-    //     const tagsTitle = document.createElement('td');
-    //     tagsTitle.textContent = 'Tags';
-    //     tagsRow.append(tagsTitle);
-    //     const tagsData = document.createElement('td');
-    //     tags = params.tags.replace(/\n/g, ' ');
-    //     tagsData.textContent = tags;
-    //     tagsRow.append(tagsData);
-    //   }
-    // }
-
-    // const topicsArr = [];
-    // const [topicsStr, productsStr] = Array
-    //   .from(main.querySelectorAll('main > div:last-child > p'))
-    //   .map(p => p.textContent);
-    // if (topicsStr) {
-    //   const allTopics = productsStr ? topicsStr + productsStr : topicsStr;
-    //   allTopics
-    //     .replace('Topics:', '')
-    //     .replace('Products:', '')
-    //     .split(',')
-    //     .forEach((topic) => {
-    //       if (topic.trim().length) {
-    //         topicsArr.push(topic.trim());
-    //       }
-    //     });
-    //   const topicsRow = document.createElement('tr');
-    //   table.append(topicsRow);
-    //   const topicsTitle = document.createElement('td');
-    //   topicsTitle.textContent = 'Topics';
-    //   topicsRow.append(topicsTitle);
-    //   const topicsData = document.createElement('td');
-    //   topicsData.textContent = topicsArr.join(', ');
-    //   topicsRow.append(topicsData);
-    // }
 
     article.append(table);
 
