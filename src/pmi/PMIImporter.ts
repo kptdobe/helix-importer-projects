@@ -177,7 +177,7 @@ export default class PMIImporter extends PageImporter {
     });
   }
 
-  createVideoBlock(main: Element, document: Document) {
+  createEmbedBlock(main: Element, document: Document) {
     main.querySelectorAll('[data-plyr-embed-id]').forEach((div) => {
       const embedId = div.getAttribute('data-plyr-embed-id');
 
@@ -189,7 +189,7 @@ export default class PMIImporter extends PageImporter {
       a.href = url;
       a.innerHTML = url;
 
-      const table = DOM.createTable([['Video'], [a]], document);
+      const table = DOM.createTable([['Embed'], [a]], document);
       div.replaceWith(table);
     });
   }
@@ -213,7 +213,7 @@ export default class PMIImporter extends PageImporter {
     this.buildRelated(main, document, '.related-category', ':scope > div > a', 'Related Categories', entryParams.target);
     this.createIntroBlock(main, document);
     this.createBlogLinkBlock(main, document);
-    this.createVideoBlock(main, document);
+    this.createEmbedBlock(main, document);
 
     this.rewriteLinks(main, entryParams.allEntries, entryParams.target);
     this.rewriteImgs(main);
