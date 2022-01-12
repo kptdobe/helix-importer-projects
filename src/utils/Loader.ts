@@ -9,18 +9,20 @@
  * OF ANY KIND, either express or implied. See the License for the specific language
  * governing permissions and limitations under the License.
  */
+import fetch from 'node-fetch';
+import { JSDOM } from 'jsdom';
 
 export default class Loader {
   static async loadSitemap(sitemapURL) {
     const resp = await fetch(sitemapURL);
     const xml = await resp.text();
-    const sitemap = new DOMParser().parseFromString(xml, 'text/xml');
+    const sitemap = new (new JSDOM()).window.DOMParser().parseFromString(xml, 'text/xml');
     const subSitemaps = [...sitemap.querySelectorAll('sitemap loc')];
-    let paths = [];
+    let urls = [];
     const promises = subSitemaps.map(loc => new Promise((resolve) => {
       const subSitemapURL = new URL(loc.textContent);
       Loader.loadSitemap(subSitemapURL.pathname).then((result) => {
-        paths = paths.concat(result);
+        urls = urls.concat(result);
         resolve(true);
       });
     }));
@@ -29,10 +31,9 @@ export default class Loader {
 
     const urlLocs = sitemap.querySelectorAll('url loc');
     urlLocs.forEach((loc) => {
-      const locURL = new URL(loc.textContent);
-      paths.push(locURL.pathname);
+      urls.push(loc.textContent);
     });
 
-    return paths;
+    return urls;
   }
 }
