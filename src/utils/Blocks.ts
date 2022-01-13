@@ -45,7 +45,11 @@ export default class Blocks {
           });
           valueCell.textContent = list;
         } else {
-          valueCell.textContent = value;
+          if (typeof value === 'string') {
+            valueCell.textContent = value;
+          } else {
+            valueCell.append(value);
+          }
         }
       }
     }

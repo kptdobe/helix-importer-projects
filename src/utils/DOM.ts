@@ -36,4 +36,16 @@ export default class DOM {
 
     return table;
   }
+
+  static replaceBackgroundByImg(tag: HTMLElement, document: Document) {
+    const url = tag.style['background-image'];
+    if (url) {
+      const src = url.replace(/url\(/gm, '').replace(/\'/gm, '').replace(/\)/gm, '');
+      const img = document.createElement('img');
+      img.src = src;
+      tag.replaceWith(img);
+      return img;
+    }
+    return tag;
+  }
 }
