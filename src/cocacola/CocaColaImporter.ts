@@ -35,41 +35,35 @@ export default class CocaColaImporter extends PageImporter {
   }
 
   getModelData(el: Element) {
-    const text = el.getAttribute('data-model')
-      .replace(/\\/g, '');
-    const split = text.split('","');
-    const cleanSplit = split.map((s, i) => {
-      if (i !== 0 && i !== split.length - 1) {
-        // tslint:disable-next-line: prefer-const
-        let [key, value] = s.split('":"');
-        value = value // fix breaking quotations
-          .replace(/"/g, '\'')
-          .replace(/“/g, '\'')
-          .replace(/”/g, '\'');
-        return `${key}":"${value}`;
+    if (el.getAttribute('data-model')) {
+      try {
+        const model = el.getAttribute('data-model');
+        const data = JSON.parse(model);
+        return data;
+      } catch {
+        return {};
       }
-      return s;
-    });
-    return JSON.parse(cleanSplit.join('","'));
+    }
+    return {};
   }
 
-  validateLinks(main: Element, document: Document) {
+  validateLinks(main: Element, document: Document, target: string) {
     const els = main.querySelectorAll('img, a');
     els.forEach((el) => {
       if (el.nodeName === 'IMG' && el.getAttribute('src')) {
         const src = this.sanitizeURL(el.getAttribute('src'));
         if (!src.startsWith('http')) {
-          el.setAttribute('src', `https://www.coca-coladebolivia.com.bo${src}`);
+          el.setAttribute('src', `${target}${src}`);
         }
       }
       if (el.nodeName === 'A' && el.getAttribute('href')) {
         const href = this.sanitizeURL(el.getAttribute('href'));
         if (!href.startsWith('http')) {
           if (href === el.textContent.trim()) {
-            el.setAttribute('href', `https://www.coca-coladebolivia.com.bo${href}`);
-            el.textContent = `https://www.coca-coladebolivia.com.bo${href}`;
+            el.setAttribute('href', `${target}${href}`);
+            el.textContent = `${target}${href}`;
           } else {
-            el.setAttribute('href', `https://www.coca-coladebolivia.com.bo${href}`);
+            el.setAttribute('href', `${target}${href}`);
           }
         }
       }
@@ -95,13 +89,13 @@ export default class CocaColaImporter extends PageImporter {
     return name;
   }
 
-  buildMetadata(main: Element, document: Document): any {
+  buildMetadata(main: Element, document: Document, country: string): any {
     const meta = {};
 
     const title = main.querySelector('h1, .responsivegrid .title.content-area .tccc-cmp-title .cmp-title__text');
     if (title) {
       const text = title.textContent.trim();
-      meta['Title'] = (text.endsWith(': Coca-Cola Bolivia')) ? text : `${text}: Coca-Cola Bolivia`;
+      meta['Title'] = (text.endsWith(`: Coca-Cola ${country}`)) ? text : `${text}: Coca-Cola ${country}`;
     }
 
     const authorEl = main.querySelector('.text.author > div.tccc-cmp-text[data-model]');
@@ -170,7 +164,8 @@ export default class CocaColaImporter extends PageImporter {
       const wrapper = document.createElement('div');
       const model = this.getModelData(card);
       if (model && model.image && model.image.src) {
-        wrapper.innerHTML = `<img src="${model.image.src}" />`;
+        wrapper.innerHTML = `<img src="${model.image.src}"
+          ${model.altTextDAM ? `alt="${model.altTextDAM}"` : ''}/>`;
         if (model.bodyText) {
           wrapper.innerHTML += `<p><em>${model.bodyText}</em></p>`;
         }
@@ -189,11 +184,11 @@ export default class CocaColaImporter extends PageImporter {
     });
   }
 
-  setupArticleHeader(main: Element, document: Document): void {
+  setupArticleHeader(main: Element, document: Document, country: string): void {
     const wrapper = document.createElement('div');
     // HEADING
     let h1 = main.querySelector('h1, .responsivegrid .title.content-area .tccc-cmp-title .cmp-title__text');
-    const h2 = main.querySelector('h2');
+    const h2 = main.querySelector('.responsivegrid .sub-title.content-area .tccc-cmp-title .cmp-title__text, h2');
     if (h1.nodeName !== 'H1') { // malformed title
       const newH1 = document.createElement('h1');
       newH1.textContent = h1.textContent;
@@ -203,8 +198,8 @@ export default class CocaColaImporter extends PageImporter {
     if (h1 && h2 && h1.textContent.trim() === h2.textContent.trim()) {
       h2.remove(); // remove duplicates
     }
-    if (h1 && h1.textContent.endsWith(': Coca-Cola Bolivia')) {
-      h1.textContent = h1.textContent.replace(': Coca-Cola Bolivia', '');
+    if (h1 && h1.textContent.endsWith(`: Coca-Cola ${country}`)) {
+      h1.textContent = h1.textContent.replace(`: Coca-Cola ${country}`, '');
     }
     wrapper.append(h1);
     const header = main.querySelector('.responsivegrid > div > .image > div');
@@ -257,7 +252,7 @@ export default class CocaColaImporter extends PageImporter {
         if (child.nodeName === 'DIV') {
           const iframe = child.querySelector('iframe');
           const img = child.querySelector('img');
-          const video = child.querySelector('.tccc-cmp-video');
+          const video = child.querySelector('.tccc-cmp-video[data-model]');
           if (iframe) { // build embed
             const block = this.buildEmbedBlock(child, document);
             child.replaceWith(block);
@@ -300,13 +295,13 @@ export default class CocaColaImporter extends PageImporter {
   async process(document: Document, url: string, entryParams?: any): Promise<PageImporterResource[]> {
     const main = document.querySelector('.root.responsivegrid > div > div > div');
 
-    const meta = this.buildMetadata(main, document);
+    const meta = this.buildMetadata(main, document, entryParams.country);
 
     this.transformCards(main, document);
     this.removeEmptyNodes(main, document);
-    this.setupArticleHeader(main, document);
+    this.setupArticleHeader(main, document, entryParams.country);
     this.setupArticleContent(main, document);
-    this.validateLinks(main, document);
+    this.validateLinks(main, document, entryParams.target);
 
     const u = new URL(url);
     const p = path.parse(u.pathname);
@@ -315,7 +310,7 @@ export default class CocaColaImporter extends PageImporter {
     const subPath = s.filter((p, i) => i > 2).join('/');
 
     const pir = new PageImporterResource(name, subPath, main, null, {
-      lang: 'bo',
+      locale: entryParams.locale,
     });
 
     return [pir];

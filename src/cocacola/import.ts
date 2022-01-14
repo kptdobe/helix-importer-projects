@@ -25,7 +25,8 @@ import getEntries from './entries';
 
 config();
 
-const TARGET_HOST = 'https://main--helix-pmi--kptdobe.hlx3.page';
+const LOCALE = 'bo';
+const [argMin, argMax] = process.argv.slice(2);
 
 async function main() {
   // tslint:disable-next-line: no-empty
@@ -48,9 +49,38 @@ async function main() {
     log: customLogger,
   });
 
-  const entries = await getEntries();
+  const importer = new CocaColaImporter({
+    storageHandler: handler,
+    blobHandler: blob,
+    cache: '.cache/cocacola',
+    // skipAssetsUpload: true,
+    // skipDocxConversion: true,
+    skipMDFileCreation: true,
+    logger: customLogger,
+  });
 
-  const [argMin, argMax] = process.argv.slice(2);
+  const rows = [[
+    'source',
+    'file',
+    'locale',
+  ]];
+
+  function getTarget(locale) {
+    switch (locale) {
+      case 'bo':
+        return {
+          country: 'Bolivia',
+          url: 'https://www.coca-coladebolivia.com.bo',
+        };
+      case 'cl':
+        return {
+          country: 'Chile',
+          url: 'https://www.cocacoladechile.cl',
+        };
+      default:
+        return {};
+    }
+  }
 
   function sectionData(data, min, max) {
     if (!min) { return data; }
@@ -59,46 +89,36 @@ async function main() {
     return data.slice(min, max);
   }
 
-  const importer = new CocaColaImporter({
-    storageHandler: handler,
-    blobHandler: blob,
-    cache: '.cache/cocacola',
-    skipAssetsUpload: true,
-    skipDocxConversion: true,
-    // skipMDFileCreation: true,
-    logger: customLogger,
-  });
-
-  const rows = [[
-    'source',
-    'file',
-    'lang',
-  ]];
-
+  const entries = await getEntries(LOCALE);
   const section = sectionData(entries, argMin, argMax);
+  const TARGET = getTarget(LOCALE);
 
   await Utils.asyncForEach(section, async (e) => {
     try {
-      const resources = await importer.import(e.URL, { target: TARGET_HOST, entries });
+      const resources = await importer.import(e.URL, {
+        locale: LOCALE,
+        country: TARGET.country,
+        target: TARGET.url,
+        entries,
+      });
 
       resources.forEach((entry) => {
-        console.log(`IMPORTED ${e.URL}`);
+        console.log(`\nIMPORTED ${e.URL}`);
         rows.push([
           entry.source,
           entry.docx,
-          entry.extra.lang,
+          LOCALE,
         ]);
       });
     } catch(error) {
-      console.error(`Could not import ${e.URL}`, '\n', error);
+      console.error(`\nCould not import \n${e.URL}\n`, error, '\n');
     }
   });
-
 
   const workbook = new Excel.Workbook();
   const sheet = workbook.addWorksheet('helix-default');
   sheet.addRows(rows);
-  const dir = `output/cocacola/`;
+  const dir = `output/cocacola/${LOCALE}`;
   await fs.ensureDir(dir);
   await workbook.xlsx.writeFile(`${dir}/import.xlsx`);
 
