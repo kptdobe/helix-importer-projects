@@ -21,7 +21,7 @@ import { Document } from 'jsdom';
 import Blocks from '../utils/Blocks';
 import DOM from '../utils/DOM';
 
-export default class CocaColaImporter extends PageImporter {
+export default class CC_Novedades extends PageImporter {
   async fetch(url): Promise<Response> {
     return fetch(url);
   }
@@ -165,9 +165,11 @@ export default class CocaColaImporter extends PageImporter {
       const model = this.getModelData(card);
       if (model && model.image && model.image.src) {
         wrapper.innerHTML = `<img src="${model.image.src}"
-          ${model.altTextDAM ? `alt="${model.altTextDAM}"` : ''}/>`;
+          ${model.altTextDAM ? `alt="${model.altTextDAM.replace(/"/g, '\'')}"` : ''}/>`;
         if (model.bodyText) {
           wrapper.innerHTML += `<p><em>${model.bodyText}</em></p>`;
+        } else if (model.addText) {
+          wrapper.innerHTML += `<p><em>${model.addText}</em></p>`;
         }
       }
       card.replaceWith(wrapper);
@@ -197,11 +199,15 @@ export default class CocaColaImporter extends PageImporter {
     }
     if (h1 && h2 && h1.textContent.trim() === h2.textContent.trim()) {
       h2.remove(); // remove duplicates
+    } else if (h1 && h2 && [...h2.classList].includes('cmp-title__text')) {
+      // genuine subtitle, move below header
+      h2.remove();
+      wrapper.append(h2);
     }
     if (h1 && h1.textContent.endsWith(`: Coca-Cola ${country}`)) {
       h1.textContent = h1.textContent.replace(`: Coca-Cola ${country}`, '');
     }
-    wrapper.append(h1);
+    wrapper.prepend(h1);
     const header = main.querySelector('.responsivegrid > div > .image > div');
     if (header && header.textContent) { // element containing header img
       // IMAGE
@@ -261,7 +267,7 @@ export default class CocaColaImporter extends PageImporter {
             const block = this.buildImageBlock(child, document);
             child.replaceWith(block);
           }
-          if (video) {
+          if (video) { // build embed
             const wrapper = document.createElement('div');
             const model = this.getModelData(video);
             if (model && model.videoSrc) {
