@@ -10,7 +10,19 @@
  * governing permissions and limitations under the License.
  */
 
-import Importer from './Importer';
+// import Importer from './Importer';
+// import Importer from './Customers';
+// import Importer from './HRGuide';
+// import Importer from './HRGlossary';
+// import Importer from './Industry';
+// import Importer from './JobDescription';
+// import Importer from './ProductUpdates';
+// import Importer from './Resources';
+// import Importer from './Ebook';
+import Importer from './Marketplace';
+// import Importer from './Default';
+
+const IMPORT_TYPE = 'marketplace';
 
 import { FSHandler, Utils } from '@adobe/helix-importer';
 import { BlobHandler } from '@adobe/helix-documents-support';
@@ -19,13 +31,13 @@ import { config } from 'dotenv';
 import fs from 'fs-extra';
 import Excel from 'exceljs';
 
-import getEntries from './entries';
+import { getEntries } from './entries';
 
 // tslint:disable: no-console
 
 config();
 
-const TARGET_HOST = 'https://main--helix-bamboohr--kptdobe.hlx3.page';
+const TARGET_HOST = 'https://www.bamboohr.com';
 
 async function main() {
   // tslint:disable-next-line: no-empty
@@ -39,7 +51,7 @@ async function main() {
     error: () => console.error(...arguments),
   };
 
-  const handler = new FSHandler('output/bamboo/import', customLogger);
+  const handler = new FSHandler(`output/bamboo/${IMPORT_TYPE.toLowerCase().replace(/ /, '-')}`, customLogger);
 
   const blob = new BlobHandler({
     skipSchedule: true,
@@ -48,13 +60,13 @@ async function main() {
     log: customLogger,
   });
 
-  const entries = await getEntries();
+  const entries = await getEntries(IMPORT_TYPE);
 
   const importer = new Importer({
     storageHandler: handler,
     blobHandler: blob,
     cache: '.cache/bamboo',
-    skipAssetsUpload: true,
+    // skipAssetsUpload: true,
     // skipDocxConversion: true,
     skipMDFileCreation: true,
     logger: customLogger,
@@ -87,7 +99,7 @@ async function main() {
   const workbook = new Excel.Workbook();
   const sheet = workbook.addWorksheet('helix-default');
   sheet.addRows(rows);
-  const dir = `output/bamboo/`;
+  const dir = `output/bamboo/${IMPORT_TYPE.toLowerCase().replace(/ /, '-')}`;
   await fs.ensureDir(dir);
   await workbook.xlsx.writeFile(`${dir}/import.xlsx`);
 
