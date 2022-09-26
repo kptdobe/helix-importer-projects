@@ -94,22 +94,6 @@ export default class Importer extends PageImporter {
     return meta;
   }
 
-  rewriteHeader(main: Element, document: Document) {
-    const header = main.querySelector('.HrGlossaryBanner__container');
-    if (header) {
-      const wrapper = document.createElement('div');
-      const head = header.querySelector('.typ-hero-header');
-      const subhead = header.querySelector('.typ-hero-subhead');
-      if (head && subhead) {
-        wrapper.innerHTML = `<p><strong>${head.textContent}</strong></p>
-          <p><em>${subhead.textContent}</em></p>
-          <hr />`;
-        header.replaceWith(wrapper);
-      }
-      main.querySelector('.HrGlossaryBanner__leaf')?.remove();
-    }
-  }
-
   createRelatedPostsBlock(main: Element, document: Document, target: string) {
     const related = document.querySelectorAll('.HrGlossaryAlsoLike__wrapper');
     if (related.length) {
@@ -163,6 +147,7 @@ export default class Importer extends PageImporter {
       'noscript',
       'footer',
       '.Footer',
+      '.HrGlossaryBanner',
       '.HrGlossarySearch',
       '.HrGlossaryBreadcrumb',
     ]);
@@ -170,7 +155,6 @@ export default class Importer extends PageImporter {
     const main = document.querySelector('body');
 
     this.rewriteLinks(main, document, entryParams.target);
-    this.rewriteHeader(main, document);
     this.rewriteCallouts(main, document);
     this.createRelatedPostsBlock(main, document, entryParams.target);
 

@@ -68,7 +68,7 @@ export default class Importer extends PageImporter {
   }
 
   /* SPECIFICS */
-  createMetadata(main: Element, document: Document): any {
+  createMetadata(main: Element, document: Document, url: string, metadata: any): any {
     const meta = {};
 
     const title = document.querySelector('title');
@@ -128,23 +128,44 @@ export default class Importer extends PageImporter {
       meta['Publisher'] = publisher.textContent;
     }
 
-    meta['Tags'] = '';
-    meta['Listing Type'] = '';
-    meta['Discover Apps'] = '';
-    meta['Business Size'] = '';
-    meta['Data Flow'] = '';
-    meta['Industry Served'] = '';
+    const listing = new URL(url).pathname.split('/')[2];
+    if (metadata[listing]) {
+      const listingMetadata = {
+        type: [], apps: [], size: [], flow: [], industry: [], restrictions: [], tags: [],
+      };
+      metadata[listing].forEach((item) => {
+        const [tag, value] = item.split('>');
+        if (tag === 'Listing Type') {
+          listingMetadata.type.push(value);
+        } else if (tag === 'Discover Apps') {
+          listingMetadata.apps.push(value);
+        } else if (tag === 'Business Size') {
+          listingMetadata.size.push(value);
+        } else if (tag === 'Data Flow') {
+          listingMetadata.flow.push(value);
+        } else if (tag === 'Industry Served') {
+          listingMetadata.industry.push(value);
+        } else if (tag === 'Location Restrictions') {
+          listingMetadata.restrictions.push(value);
+        } else if (tag === 'Staff Picks') {
+          listingMetadata.tags = [tag];
+        }
+      });
 
-    const location = document.querySelector('#field_2_27');
-    if (location) {
-      const loc = location.querySelector('label')?.textContent;
-      const restrictions = [];
-      if (loc.includes('Australia')) restrictions.push('Australia only');
-      if (loc.includes('New Zealand')) restrictions.push('New Zealand only');
-      if (loc.includes('United Kingdom')) restrictions.push('United Kingdom only');
-
-      if (restrictions.length) {
-        meta['Location Restrictions'] = restrictions.join(', ').trim();
+      if (listingMetadata.type.length) {
+        meta['Listing Type'] = listingMetadata.type.join(', ').replace(']', '');
+      } else if (listingMetadata.apps.length) {
+        meta['Discover Apps'] = listingMetadata.apps.join(', ').replace(']', '');
+      } else if (listingMetadata.size.length) {
+        meta['Business Size'] = listingMetadata.size.join(', ').replace(']', '');
+      } else if (listingMetadata.flow.length) {
+        meta['Data Flow'] = listingMetadata.flow.join(', ').replace(']', '');
+      } else if (listingMetadata.industry.length) {
+        meta['Industry Served'] = listingMetadata.industry.join(', ').replace(']', '');
+      } else if (listingMetadata.restrictions.length) {
+        meta['Location Restrictions'] = listingMetadata.restrictions.join(', ').replace(']', '');
+      } else if (listingMetadata.tags.length) {
+        meta['Tags'] = listingMetadata.tags.join(', ').replace(']', '');
       }
     }
 
@@ -162,6 +183,12 @@ export default class Importer extends PageImporter {
     ]);
 
     return meta;
+  }
+
+  rewriteInstallLink(main: Element, document: Document): any {
+    const install = main.querySelector('.mkpListingDetails__installBtn');
+    const hr = document.createElement('hr');
+    install?.parentElement?.append(hr);
   }
 
   rewriteTabs(main: Element, document: Document): any {
@@ -228,6 +255,19 @@ export default class Importer extends PageImporter {
     }
   }
 
+  rewriteLinkList(main: Element, document: Document): any {
+    const container = main.querySelector('.mkpListingPublisher__extraContainer');
+    if (container) {
+      const ul = document.createElement('ul');
+      [...container.children]?.forEach((item) => {
+        const li = document.createElement('li');
+        li.innerHTML = item.innerHTML;
+        ul.append(li);
+      });
+      container.replaceWith(ul);
+    }
+  }
+
   async process(document: Document, url: string, entryParams?: any): Promise<PageImporterResource[]> {
     DOMUtils.remove(document, [
       'header',
@@ -247,18 +287,19 @@ export default class Importer extends PageImporter {
       '.um_view_photo',
       '.mkpListingTabs',
       '.slick-cloned',
-      '.mkpListingDetails__installBtn',
     ]);
 
     const main = document.querySelector('body');
 
     this.rewriteLinks(main, document, entryParams.target);
     this.cleanupHeadings(main, document);
+    this.rewriteInstallLink(main, document);
     this.rewriteTabs(main, document);
     this.rewriteSyncTable(main, document);
     this.rewritePublisherInfo(main, document);
+    this.rewriteLinkList(main, document);
 
-    const meta = this.createMetadata(main, document);
+    const meta = this.createMetadata(main, document, url, entryParams.metadata);
 
     const u = new URL(url);
     const p = path.parse(u.pathname);

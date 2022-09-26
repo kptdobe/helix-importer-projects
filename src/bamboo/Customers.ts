@@ -166,7 +166,7 @@ export default class Importer extends PageImporter {
     const main = document.querySelector('body');
 
     this.rewriteLinks(main, document, entryParams.target);
-    this.createTabsBlock(main, document);
+    // this.createTabsBlock(main, document);
     this.createRelatedPostsBlock(main, document, entryParams.target);
 
     const meta = this.createMetadata(main, document);

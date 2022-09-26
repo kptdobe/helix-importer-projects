@@ -37,7 +37,8 @@ import { getEntries } from './entries';
 
 config();
 
-const TARGET_HOST = 'https://www.bamboohr.com';
+// const TARGET_HOST = 'https://www.bamboohr.com';
+const TARGET_HOST = 'https://marketplace.bamboohr.com';
 
 async function main() {
   // tslint:disable-next-line: no-empty
@@ -61,6 +62,14 @@ async function main() {
   });
 
   const entries = await getEntries(IMPORT_TYPE);
+  const mp = await getEntries('mp');
+  const metadata = {};
+
+  mp.forEach((m) => {
+    const [url, category, subcategory, tags] = m;
+    const listing = new URL(url).pathname.split('/')[2];
+    metadata[listing] = tags.split('|');
+  });
 
   const importer = new Importer({
     storageHandler: handler,
@@ -80,7 +89,7 @@ async function main() {
 
   await Utils.asyncForEach(entries, async (e) => {
     try {
-      const resources = await importer.import(e, { target: TARGET_HOST, entries });
+      const resources = await importer.import(e, { target: TARGET_HOST, entries, metadata });
 
       resources.forEach((entry) => {
         console.log(`${entry.source} -> ${entry.docx || entry.md}`);
